@@ -7,11 +7,10 @@ import queue
 class Processor:
     def __init__(self):
         # MediaPipe components
-        self.mp_selfie_segmentation = None
-        self.segmentation = None
+        self.mp_selfie_segmentation = mp.solutions.selfie_segmentation
+        self.selfie_segmentation = self.mp_selfie_segmentation.SelfieSegmentation(model_selection=1)
         
         # Processing settings
-        self.model_selection = 1  # 0 for landscape, 1 for portrait
         self.fps = 20.0
         self.scale = 1.0
         self.smooth_kernel = 21
@@ -28,29 +27,15 @@ class Processor:
 
     def initialize(self):
         """Initialize MediaPipe segmentation"""
-        if self.segmentation is None:
-            self.mp_selfie_segmentation = mp.solutions.selfie_segmentation
-            self.segmentation = self.mp_selfie_segmentation.SelfieSegmentation(
-                model_selection=self.model_selection
-            )
+        if self.selfie_segmentation is None:
+            self.selfie_segmentation = self.mp_selfie_segmentation.SelfieSegmentation(model_selection=1)
 
     def cleanup(self):
         """Clean up resources"""
-        if self.segmentation:
-            self.segmentation.close()
-            self.segmentation = None
+        if self.selfie_segmentation:
+            self.selfie_segmentation.close()
+            self.selfie_segmentation = None
             self.mp_selfie_segmentation = None
-
-    def set_model(self, model_type: str):
-        """Set segmentation model type"""
-        was_running = self.segmentation is not None
-        if was_running:
-            self.cleanup()
-        
-        self.model_selection = 0 if model_type.lower() == "landscape" else 1
-        
-        if was_running:
-            self.initialize()
 
     def set_background(self, path: str) -> bool:
         """Load and set background image"""
@@ -89,7 +74,7 @@ class Processor:
 
     def process_frame(self, frame: np.ndarray) -> Optional[np.ndarray]:
         """Process a single frame"""
-        if self.segmentation is None or self.background_image is None:
+        if self.selfie_segmentation is None or self.background_image is None:
             return frame
 
         try:
@@ -100,7 +85,7 @@ class Processor:
 
             # Convert to RGB for MediaPipe
             frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-            results = self.segmentation.process(frame_rgb)
+            results = self.selfie_segmentation.process(frame_rgb)
 
             if results.segmentation_mask is None:
                 return frame

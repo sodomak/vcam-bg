@@ -5,6 +5,12 @@ from .preview_frame import PreviewFrame
 from ..locales import TRANSLATIONS
 import os
 import json
+import mediapipe as mp
+import re
+import cv2
+import subprocess
+import queue
+import numpy as np
 
 class MainWindow(ttk.Frame):
     def __init__(self, root):
@@ -17,7 +23,6 @@ class MainWindow(ttk.Frame):
             'input_device': '',
             'output_device': '/dev/video2',
             'background_path': '',
-            'model_selection': 1,
             'fps': 20.0,
             'scale': 1.0,
             'show_preview': True,
@@ -36,7 +41,6 @@ class MainWindow(ttk.Frame):
         self.input_device = tk.StringVar(value=self.default_settings['input_device'])
         self.output_device = tk.StringVar(value=self.default_settings['output_device'])
         self.background_path = tk.StringVar(value=self.default_settings['background_path'])
-        self.model_selection = tk.IntVar(value=self.default_settings['model_selection'])
         self.show_preview = tk.BooleanVar(value=self.default_settings['show_preview'])
         self.resolution = tk.StringVar(value=self.default_settings['resolution'])
         self.language = tk.StringVar(value=self.default_settings['language'])
@@ -53,7 +57,6 @@ class MainWindow(ttk.Frame):
         self.settings_frame.input_device.trace_add('write', lambda *_: self.save_settings())
         self.settings_frame.output_device.trace_add('write', lambda *_: self.save_settings())
         self.settings_frame.background_path.trace_add('write', lambda *_: self.save_settings())
-        self.settings_frame.model_selection.trace_add('write', lambda *_: self.save_settings())
         self.settings_frame.fps.trace_add('write', lambda *_: self.save_settings())
         self.settings_frame.scale.trace_add('write', lambda *_: self.save_settings())
         self.settings_frame.smooth_kernel.trace_add('write', lambda *_: self.save_settings())
@@ -326,16 +329,15 @@ Built with:
         """Save current settings to config file"""
         try:
             settings = {
-                'input_device': self.settings_frame.input_device.get(),
-                'output_device': self.settings_frame.output_device.get(),
-                'background_path': self.settings_frame.background_path.get(),
-                'model_selection': self.settings_frame.model_selection.get(),
-                'fps': self.settings_frame.fps.get(),
-                'scale': self.settings_frame.scale.get(),
-                'show_preview': self.preview_frame.show_preview.get(),
-                'smooth_kernel': self.settings_frame.smooth_kernel.get(),
-                'smooth_sigma': self.settings_frame.smooth_sigma.get(),
-                'resolution': self.settings_frame.resolution.get(),
+                'input_device': self.input_device.get(),
+                'output_device': self.output_device.get(),
+                'background_path': self.background_path.get(),
+                'fps': self.fps.get(),
+                'scale': self.scale.get(),
+                'show_preview': self.show_preview.get(),
+                'smooth_kernel': self.smooth_kernel.get(),
+                'smooth_sigma': self.smooth_sigma.get(),
+                'resolution': self.resolution.get(),
                 'language': self.language.get(),
                 'theme': self.theme.get()
             }
@@ -359,7 +361,6 @@ Built with:
                     'input_device': self.settings_frame.input_device.get(),
                     'output_device': self.settings_frame.output_device.get(),
                     'background_path': self.settings_frame.background_path.get(),
-                    'model_selection': self.settings_frame.model_selection.get(),
                     'fps': self.settings_frame.fps.get(),
                     'scale': self.settings_frame.scale.get(),
                     'show_preview': self.preview_frame.show_preview.get(),
@@ -389,7 +390,6 @@ Built with:
                 self.settings_frame.input_device.set(settings.get('input_device', ''))
                 self.settings_frame.output_device.set(settings.get('output_device', '/dev/video2'))
                 self.settings_frame.background_path.set(settings.get('background_path', ''))
-                self.settings_frame.model_selection.set(settings.get('model_selection', 1))
                 self.settings_frame.fps.set(settings.get('fps', 20.0))
                 self.settings_frame.scale.set(settings.get('scale', 1.0))
                 self.preview_frame.show_preview.set(settings.get('show_preview', True))
@@ -416,3 +416,123 @@ Built with:
         # Update frames
         self.settings_frame.update_values()
         self.preview_frame.update_values()
+
+    def process_camera(self):
+        # Initialize MediaPipe with fixed landscape model
+        mp_selfie_segmentation = mp.solutions.selfie_segmentation
+        selfie_segmentation = mp_selfie_segmentation.SelfieSegmentation(model_selection=1)
+
+        try:
+            # Extract device number from path
+            input_device = re.search(r"\((/dev/video\d+)\)", self.input_device.get()).group(1)
+            output_device = re.search(r"\((/dev/video\d+)\)", self.output_device.get()).group(1)
+            device_num = int(input_device.replace('/dev/video', ''))
+
+            # Open camera
+            cap = cv2.VideoCapture(device_num, cv2.CAP_V4L2)
+            if not cap.isOpened():
+                messagebox.showerror("Error", f"Could not open camera {input_device}")
+                self.is_running = False
+                return
+
+            # Set initial resolution
+            width, height = map(int, self.resolution_combo.get().split('x'))
+            cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'))
+            cap.set(cv2.CAP_PROP_FRAME_WIDTH, width)
+            cap.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
+            
+            # Get actual camera resolution
+            actual_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+            actual_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+            if actual_width != width or actual_height != height:
+                print(f"Warning: Camera using {actual_width}x{actual_height} instead of requested {width}x{height}")
+                width, height = actual_width, actual_height
+
+            # Load and resize background
+            background_image = cv2.imread(self.background_path.get())
+            if background_image is None:
+                messagebox.showerror("Error", "Could not load background image")
+                self.is_running = False
+                return
+            background_image = cv2.resize(background_image, (width, height))
+
+            # Initialize FFmpeg process
+            command = [
+                'ffmpeg',
+                '-f', 'rawvideo',
+                '-pix_fmt', 'bgr24',
+                '-s', f'{width}x{height}',
+                '-r', str(self.fps.get()),
+                '-i', '-',
+                '-f', 'v4l2',
+                output_device
+            ]
+            ffmpeg_process = subprocess.Popen(command, stdin=subprocess.PIPE)
+            
+            last_scale = self.scale.get()
+            self.frame_queue = queue.Queue(maxsize=2)
+
+            while self.is_running:
+                ret, frame = cap.read()
+                if not ret:
+                    break
+
+                # Ensure frame matches target dimensions
+                frame = cv2.resize(frame, (width, height))
+                
+                # Check if scale changed
+                if last_scale != self.scale.get():
+                    scaled_width = int(width * self.scale.get())
+                    scaled_height = int(height * self.scale.get())
+                    background_image = cv2.resize(background_image, (scaled_width, scaled_height))
+                    last_scale = self.scale.get()
+                    frame = cv2.resize(frame, (scaled_width, scaled_height))
+                    width, height = scaled_width, scaled_height
+
+                # Process frame
+                frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                results = selfie_segmentation.process(frame_rgb)
+
+                try:
+                    # Create and smooth mask
+                    kernel_size = int(self.smooth_kernel.get())
+                    if kernel_size % 2 == 0:
+                        kernel_size += 1
+                    kernel_tuple = (kernel_size, kernel_size)
+                    
+                    mask = results.segmentation_mask
+                    mask = cv2.GaussianBlur(
+                        mask,
+                        kernel_tuple,
+                        sigmaX=float(self.smooth_sigma.get()),
+                        sigmaY=float(self.smooth_sigma.get())
+                    )
+                    mask = np.stack((mask,) * 3, axis=-1)
+
+                    # Combine foreground and background
+                    output_frame = (frame * mask + background_image * (1 - mask)).astype(np.uint8)
+
+                    # Update preview if enabled
+                    if self.show_preview.get():
+                        try:
+                            self.frame_queue.put_nowait(output_frame)
+                        except queue.Full:
+                            pass
+
+                    # Write to FFmpeg
+                    ffmpeg_process.stdin.write(output_frame.tobytes())
+
+                except Exception as e:
+                    print(f"Error processing frame: {e}")
+                    continue
+
+            # Cleanup
+            cap.release()
+            ffmpeg_process.stdin.close()
+            ffmpeg_process.wait()
+            selfie_segmentation.close()
+
+        except Exception as e:
+            messagebox.showerror("Error", f"Camera error: {str(e)}")
+            self.is_running = False
+            return

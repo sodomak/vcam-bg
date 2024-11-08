@@ -7,20 +7,20 @@ import cv2
 
 class SettingsFrame(ttk.LabelFrame):
     def __init__(self, master):
-        super().__init__(master, text=master.tr('settings'))
+        super().__init__(master)
         self.master = master
         
         # Use master's variables directly
-        self.fps = master.fps
-        self.scale = master.scale
-        self.smooth_kernel = master.smooth_kernel
-        self.smooth_sigma = master.smooth_sigma
+        self.fps = tk.DoubleVar(value=master.settings['fps'])
+        self.scale = tk.DoubleVar(value=master.settings['scale'])
+        self.smooth_kernel = tk.IntVar(value=master.settings['smooth_kernel'])
+        self.smooth_sigma = tk.DoubleVar(value=master.settings['smooth_sigma'])
+        self.show_preview = tk.BooleanVar(value=master.settings['show_preview'])
         
         # Initialize other settings
         self.input_device = tk.StringVar(value=master.settings['input_device'])
         self.output_device = tk.StringVar(value=master.settings['output_device'])
         self.background_path = tk.StringVar(value=master.settings['background_path'])
-        self.model_selection = tk.IntVar(value=master.settings['model_selection'])
         self.resolution = tk.StringVar(value=master.settings['resolution'])
         
         self.create_widgets()
@@ -50,16 +50,6 @@ class SettingsFrame(ttk.LabelFrame):
         self.bg_label.pack(side=tk.LEFT)
         self.bg_button = ttk.Button(bg_frame, text=self.master.tr('select_background'), command=self.select_background)
         self.bg_button.pack(side=tk.RIGHT)
-
-        # Model selection
-        model_frame = ttk.Frame(self)
-        model_frame.pack(fill=tk.X, pady=(0, 10))
-        self.model_label = ttk.Label(model_frame, text=self.master.tr('model'))
-        self.model_label.pack(side=tk.LEFT)
-        self.landscape_radio = ttk.Radiobutton(model_frame, text=self.master.tr('landscape'), value=1, variable=self.model_selection)
-        self.landscape_radio.pack(side=tk.LEFT)
-        self.portrait_radio = ttk.Radiobutton(model_frame, text=self.master.tr('portrait'), value=2, variable=self.model_selection)
-        self.portrait_radio.pack(side=tk.LEFT)
 
         # Resolution
         res_frame = ttk.Frame(self)
@@ -271,7 +261,6 @@ class SettingsFrame(ttk.LabelFrame):
         self.input_device.set('')
         self.output_device.set('/dev/video2')
         self.background_path.set('')
-        self.model_selection.set(1)
         self.fps.set(20.0)
         self.scale.set(1.0)
         self.resolution.set('1280x720')
@@ -294,9 +283,6 @@ class SettingsFrame(ttk.LabelFrame):
         self.output_label.configure(text=self.master.tr('output_device'))
         self.bg_label.configure(text=self.master.tr('background'))
         self.bg_button.configure(text=self.master.tr('select_background'))
-        self.model_label.configure(text=self.master.tr('model'))
-        self.landscape_radio.configure(text=self.master.tr('landscape'))
-        self.portrait_radio.configure(text=self.master.tr('portrait'))
         self.resolution_label.configure(text=self.master.tr('resolution'))
         self.fps_text_label.configure(text=self.master.tr('fps'))
         self.scale_text_label.configure(text=self.master.tr('scale'))
@@ -313,9 +299,6 @@ class SettingsFrame(ttk.LabelFrame):
         # Update output device
         if self.output_device.get() in self.output_combo['values']:
             self.output_combo.set(self.output_device.get())
-        
-        # Update model selection
-        self.model_selection.set(self.model_selection.get())
         
         # Update resolution
         if self.resolution.get() in self.resolution_combo['values']:

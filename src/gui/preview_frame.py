@@ -76,9 +76,7 @@ class PreviewFrame(ttk.LabelFrame):
     def camera_loop(self):
         # Initialize MediaPipe
         mp_selfie_segmentation = mp.solutions.selfie_segmentation
-        selfie_segmentation = mp_selfie_segmentation.SelfieSegmentation(
-            model_selection=self.master.settings_frame.model_selection.get()
-        )
+        selfie_segmentation = mp_selfie_segmentation.SelfieSegmentation(model_selection=1)
 
         try:
             # Get device paths
