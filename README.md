@@ -15,6 +15,7 @@ A GUI application that adds virtual background to your webcam feed using MediaPi
 ## Prerequisites
 
 ### System Requirements
+
 - Linux system with Python 3.8+
 - Webcam compatible with V4L2
 - Graphics acceleration recommended
@@ -23,18 +24,21 @@ A GUI application that adds virtual background to your webcam feed using MediaPi
 
 Choose your distribution and run the appropriate install script:
 
-    # Arch Linux
-    ./install/arch.sh
+```bash
+# Arch Linux
+./install/arch.sh
 
-    # Ubuntu/Debian
-    ./install/debian.sh
+# Ubuntu/Debian
+./install/debian.sh
 
-    # Fedora
-    ./install/fedora.sh
+# Fedora
+./install/fedora.sh
+```
 
 Or install dependencies manually:
 
 1. System packages:
+
    - v4l2loopback-dkms
    - v4l-utils
    - ffmpeg
@@ -44,33 +48,45 @@ Or install dependencies manually:
 
 2. Python packages:
 
-    pip install -r requirements.txt
+   ```bash
+   pip install -r requirements.txt
+   ```
 
 ### Virtual Camera Setup
 
 1. Load v4l2loopback module:
 
-    sudo modprobe v4l2loopback devices=1 video_nr=2 card_label="Virtual Camera" exclusive_caps=1
+   ```bash
+   sudo modprobe v4l2loopback devices=1 video_nr=2 card_label="Virtual Camera" exclusive_caps=1
+   ```
 
 2. Make it persistent (optional):
 
-    echo "v4l2loopback" | sudo tee /etc/modules-load.d/v4l2loopback.conf
-    echo "options v4l2loopback devices=1 video_nr=2 card_label='Virtual Camera' exclusive_caps=1" | sudo tee /etc/modprobe.d/v4l2loopback.conf
+   ```bash
+   echo "v4l2loopback" | sudo tee /etc/modules-load.d/v4l2loopback.conf
+   echo "options v4l2loopback devices=1 video_nr=2 card_label='Virtual Camera' exclusive_caps=1" | sudo tee /etc/modprobe.d/v4l2loopback.conf
+   ```
 
 ## Installation
 
 1. Clone the repository:
 
-    git clone https://github.com/yourusername/vcam-bg.git
-    cd vcam-bg
+   ```bash
+   git clone https://github.com/sodomak/vcam-bg.git
+   cd vcam-bg
+   ```
 
 2. Install dependencies:
 
-    ./setup.sh
+   ```bash
+   ./setup.sh
+   ```
 
 3. Run the application:
 
-    ./src/vcam-bg-gui.py
+   ```bash
+   ./src/vcam-bg-gui.py
+   ```
 
 ## Usage
 
@@ -78,10 +94,12 @@ Or install dependencies manually:
 2. Select virtual camera as output (/dev/video2 by default)
 3. Choose a background image
 4. Adjust settings as needed:
+
    - Model: Landscape/Portrait based on your usage
    - FPS: Higher values for smoother video
    - Scale: Adjust output resolution
    - Smoothing: Adjust edge detection sensitivity
+
 5. Click Start to begin
 6. Select "Virtual Camera" in your video conferencing software
 
@@ -97,27 +115,34 @@ You can export/import settings through the File menu.
 
 1. Virtual camera not showing up:
 
-    # Check if module is loaded
-    lsmod | grep v4l2loopback
+   ```bash
+   # Check if module is loaded
+   lsmod | grep v4l2loopback
 
-    # Check available video devices
-    v4l2-ctl --list-devices
+   # Check available video devices
+   v4l2-ctl --list-devices
+   ```
 
 2. Permission denied:
 
-    # Add user to video group
-    sudo usermod -a -G video $USER
+   ```bash
+   # Add user to video group
+   sudo usermod -a -G video $USER
+   ```
 
 3. Poor performance:
-- Lower the resolution
-- Reduce FPS
-- Adjust scale factor
 
-### Debug Information
+   - Lower the resolution
+   - Reduce FPS
+   - Adjust scale factor
+
+## Debug Information
 
 Run with debug output:
 
-    PYTHONPATH=src DEBUG=1 ./src/vcam-bg-gui.py
+```bash
+PYTHONPATH=src DEBUG=1 ./src/vcam-bg-gui.py
+```
 
 ## Contributing
 
