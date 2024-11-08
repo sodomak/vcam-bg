@@ -1,12 +1,70 @@
-import os
-import importlib
-
-def get_strings(lang='en'):
-    """Get strings for the specified language"""
-    try:
-        strings = importlib.import_module(f'src.locales.{lang}.strings')
-        return strings
-    except ImportError:
-        # Fallback to English if requested language is not available
-        strings = importlib.import_module('src.locales.en.strings')
-        return strings 
+TRANSLATIONS = {
+    'en': {
+        'settings': 'Settings',
+        'preview': 'Camera Preview',
+        'input_device': 'Input Device',
+        'output_device': 'Output Device',
+        'background': 'Background',
+        'select_background': 'Select Image',
+        'model': 'Model',
+        'landscape': 'Landscape',
+        'selfie': 'Selfie',
+        'resolution': 'Resolution',
+        'fps': 'FPS',
+        'scale': 'Scale',
+        'smoothing': 'Smoothing',
+        'kernel': 'Kernel',
+        'sigma': 'Sigma',
+        'start_camera': 'Start Camera',
+        'stop_camera': 'Stop Camera',
+        'show_preview': 'Show Preview',
+        'file': 'File',
+        'language': 'Language',
+        'help': 'Help',
+        'about': 'About',
+        'theme': 'Theme',
+        'light': 'Light',
+        'dark': 'Dark',
+        'import_settings': 'Import Settings',
+        'export_settings': 'Export Settings',
+        'quit': 'Quit',
+        'about_text': 'Virtual Camera Background\nVersion 1.0\n\nCreated by Your Name\nLicense: MIT',
+        'error': 'Error',
+        'camera_error': 'Camera error',
+        'background_error': 'Could not load background image'
+    },
+    'cs': {
+        'settings': 'Nastavení',
+        'preview': 'Náhled kamery',
+        'input_device': 'Vstupní zařízení',
+        'output_device': 'Výstupní zařízení',
+        'background': 'Pozadí',
+        'select_background': 'Vybrat obrázek',
+        'model': 'Model',
+        'landscape': 'Krajina',
+        'selfie': 'Selfie',
+        'resolution': 'Rozlišení',
+        'fps': 'FPS',
+        'scale': 'Měřítko',
+        'smoothing': 'Vyhlazení',
+        'kernel': 'Jádro',
+        'sigma': 'Sigma',
+        'start_camera': 'Spustit kameru',
+        'stop_camera': 'Zastavit kameru',
+        'show_preview': 'Zobrazit náhled',
+        'file': 'Soubor',
+        'language': 'Jazyk',
+        'help': 'Nápověda',
+        'about': 'O aplikaci',
+        'theme': 'Motiv',
+        'light': 'Světlý',
+        'dark': 'Tmavý',
+        'import_settings': 'Importovat nastavení',
+        'export_settings': 'Exportovat nastavení',
+        'quit': 'Ukončit',
+        'about_text': 'Virtuální pozadí kamery\nVerze 1.0\n\nVytvořil Váš Název\nLicence: MIT',
+        'error': 'Chyba',
+        'camera_error': 'Chyba kamery',
+        'background_error': 'Nelze načíst obrázek pozadí'
+    }
+}

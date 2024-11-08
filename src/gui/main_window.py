@@ -28,7 +28,21 @@ class MainWindow(ttk.Frame):
             'theme': 'light'
         }
         
-        # Load settings before creating GUI
+        # Initialize variables with default values first
+        self.fps = tk.DoubleVar(value=self.default_settings['fps'])
+        self.scale = tk.DoubleVar(value=self.default_settings['scale'])
+        self.smooth_kernel = tk.IntVar(value=self.default_settings['smooth_kernel'])
+        self.smooth_sigma = tk.DoubleVar(value=self.default_settings['smooth_sigma'])
+        self.input_device = tk.StringVar(value=self.default_settings['input_device'])
+        self.output_device = tk.StringVar(value=self.default_settings['output_device'])
+        self.background_path = tk.StringVar(value=self.default_settings['background_path'])
+        self.model_selection = tk.IntVar(value=self.default_settings['model_selection'])
+        self.show_preview = tk.BooleanVar(value=self.default_settings['show_preview'])
+        self.resolution = tk.StringVar(value=self.default_settings['resolution'])
+        self.language = tk.StringVar(value=self.default_settings['language'])
+        self.theme = tk.StringVar(value=self.default_settings['theme'])
+        
+        # Load settings after initializing variables
         self.load_settings()
         
         # Create GUI

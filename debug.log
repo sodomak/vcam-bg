@@ -1,0 +1,66 @@
+2024-11-08 19:03:48.831186: I tensorflow/core/util/port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+2024-11-08 19:03:48.856292: I tensorflow/core/platform/cpu_feature_guard.cc:210] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: SSE3 SSE4.1 SSE4.2 AVX AVX2 AVX_VNNI FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+[ WARN:0@2.539] global cap_gstreamer.cpp:1777 open OpenCV | GStreamer warning: Cannot query video position: status=0, value=-1, duration=-1
+[ WARN:0@2.558] global cap_gstreamer.cpp:2839 handleMessage OpenCV | GStreamer warning: Embedded video playback halted; module v4l2src1 reported: Device '/dev/video1' is not a capture device.
+[ WARN:0@2.558] global cap_gstreamer.cpp:1698 open OpenCV | GStreamer warning: unable to start pipeline
+[ WARN:0@2.558] global cap_gstreamer.cpp:1173 isPipelinePlaying OpenCV | GStreamer warning: GStreamer: pipeline have not been created
+[ WARN:0@2.558] global cap_v4l.cpp:999 open VIDEOIO(V4L2:/dev/video1): can't open camera by index
+[ERROR:0@2.573] global obsensor_uvc_stream_channel.cpp:158 getStreamChannelGroup Camera index out of range
+[ WARN:0@2.639] global cap_gstreamer.cpp:2839 handleMessage OpenCV | GStreamer warning: Embedded video playback halted; module v4l2src2 reported: Device '/dev/video2' does not support 1:1:5:1 colorimetry
+[ WARN:0@2.640] global cap_gstreamer.cpp:1698 open OpenCV | GStreamer warning: unable to start pipeline
+[ WARN:0@2.640] global cap_gstreamer.cpp:1173 isPipelinePlaying OpenCV | GStreamer warning: GStreamer: pipeline have not been created
+[ WARN:0@3.399] global cap_gstreamer.cpp:2839 handleMessage OpenCV | GStreamer warning: Embedded video playback halted; module v4l2src3 reported: Device '/dev/video3' is not a capture device.
+[ WARN:0@3.399] global cap_gstreamer.cpp:1698 open OpenCV | GStreamer warning: unable to start pipeline
+[ WARN:0@3.399] global cap_gstreamer.cpp:1173 isPipelinePlaying OpenCV | GStreamer warning: GStreamer: pipeline have not been created
+[ WARN:0@3.399] global cap_v4l.cpp:999 open VIDEOIO(V4L2:/dev/video3): can't open camera by index
+[ERROR:0@3.400] global obsensor_uvc_stream_channel.cpp:158 getStreamChannelGroup Camera index out of range
+[ WARN:0@4.066] global cap_gstreamer.cpp:1777 open OpenCV | GStreamer warning: Cannot query video position: status=0, value=-1, duration=-1
+[ WARN:0@4.452] global cap_gstreamer.cpp:2839 handleMessage OpenCV | GStreamer warning: Embedded video playback halted; module v4l2src5 reported: Device '/dev/video5' is not a capture device.
+[ WARN:0@4.453] global cap_gstreamer.cpp:1698 open OpenCV | GStreamer warning: unable to start pipeline
+[ WARN:0@4.453] global cap_gstreamer.cpp:1173 isPipelinePlaying OpenCV | GStreamer warning: GStreamer: pipeline have not been created
+[ WARN:0@4.453] global cap_v4l.cpp:999 open VIDEOIO(V4L2:/dev/video5): can't open camera by index
+[ERROR:0@4.454] global obsensor_uvc_stream_channel.cpp:158 getStreamChannelGroup Camera index out of range
+[ WARN:0@4.459] global cap_gstreamer.cpp:2839 handleMessage OpenCV | GStreamer warning: Embedded video playback halted; module v4l2src6 reported: Device '/dev/video6' is not a capture device.
+[ WARN:0@4.459] global cap_gstreamer.cpp:1698 open OpenCV | GStreamer warning: unable to start pipeline
+[ WARN:0@4.459] global cap_gstreamer.cpp:1173 isPipelinePlaying OpenCV | GStreamer warning: GStreamer: pipeline have not been created
+[ WARN:0@4.459] global cap_v4l.cpp:999 open VIDEOIO(V4L2:/dev/video6): can't open camera by index
+[ERROR:0@4.459] global obsensor_uvc_stream_channel.cpp:158 getStreamChannelGroup Camera index out of range
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1731089041.510928 2031817 gl_context_egl.cc:85] Successfully initialized EGL. Major : 1 Minor: 5
+I0000 00:00:1731089041.513256 2031837 gl_context.cc:357] GL version: 3.2 (OpenGL ES 3.2 Mesa 24.2.6-arch1.1), renderer: Mesa Intel(R) Graphics (ADL GT2)
+INFO: Created TensorFlow Lite XNNPACK delegate for CPU.
+W0000 00:00:1731089041.515161 2031821 inference_feedback_manager.cc:114] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
+[ WARN:1@13.253] global cap_gstreamer.cpp:2839 handleMessage OpenCV | GStreamer warning: Embedded video playback halted; module source reported: Could not read from resource.
+[ WARN:1@13.253] global cap_gstreamer.cpp:1698 open OpenCV | GStreamer warning: unable to start pipeline
+[ WARN:1@13.253] global cap_gstreamer.cpp:1173 isPipelinePlaying OpenCV | GStreamer warning: GStreamer: pipeline have not been created
+ffmpeg version n7.0.2 Copyright (c) 2000-2024 the FFmpeg developers
+  built with gcc 14.2.1 (GCC) 20240910
+  configuration: --prefix=/usr --disable-debug --disable-static --disable-stripping --enable-amf --enable-avisynth --enable-cuda-llvm --enable-lto --enable-fontconfig --enable-frei0r --enable-gmp --enable-gnutls --enable-gpl --enable-ladspa --enable-libaom --enable-libass --enable-libbluray --enable-libbs2b --enable-libdav1d --enable-libdrm --enable-libdvdnav --enable-libdvdread --enable-libfreetype --enable-libfribidi --enable-libgsm --enable-libharfbuzz --enable-libiec61883 --enable-libjack --enable-libjxl --enable-libmodplug --enable-libmp3lame --enable-libopencore_amrnb --enable-libopencore_amrwb --enable-libopenjpeg --enable-libopenmpt --enable-libopus --enable-libplacebo --enable-libpulse --enable-librav1e --enable-librsvg --enable-librubberband --enable-libsnappy --enable-libsoxr --enable-libspeex --enable-libsrt --enable-libssh --enable-libsvtav1 --enable-libtheora --enable-libv4l2 --enable-libvidstab --enable-libvmaf --enable-libvorbis --enable-libvpl --enable-libvpx --enable-libwebp --enable-libx264 --enable-libx265 --enable-libxcb --enable-libxml2 --enable-libxvid --enable-libzimg --enable-libzmq --enable-nvdec --enable-nvenc --enable-opencl --enable-opengl --enable-shared --enable-vapoursynth --enable-version3 --enable-vulkan
+  libavutil      59.  8.100 / 59.  8.100
+  libavcodec     61.  3.100 / 61.  3.100
+  libavformat    61.  1.100 / 61.  1.100
+  libavdevice    61.  1.100 / 61.  1.100
+  libavfilter    10.  1.100 / 10.  1.100
+  libswscale      8.  1.100 /  8.  1.100
+  libswresample   5.  1.100 /  5.  1.100
+  libpostproc    58.  1.100 / 58.  1.100
+Input #0, rawvideo, from 'fd:':
+  Duration: N/A, start: 0.000000, bitrate: 161002 kb/s
+  Stream #0:0: Video: rawvideo (BGR[24] / 0x18524742), bgr24, 640x480, 161002 kb/s, 21.84 tbr, 21.84 tbn
+Stream mapping:
+  Stream #0:0 -> #0:0 (rawvideo (native) -> rawvideo (native))
+Output #0, video4linux2,v4l2, to '/dev/video6':
+  Metadata:
+    encoder         : Lavf61.1.100
+  Stream #0:0: Video: rawvideo (I420 / 0x30323449), yuv420p(progressive), 640x480, q=2-31, 80501 kb/s, 21.84 fps, 21.84 tbn
+      Metadata:
+        encoder         : Lavc61.3.100 rawvideo
+frame=    2 fps=0.0 q=-0.0 size=N/A time=00:00:00.09 bitrate=N/A speed=0.183x    frame=    5 fps=5.0 q=-0.0 size=N/A time=00:00:00.22 bitrate=N/A speed=0.229x    frame=    8 fps=5.3 q=-0.0 size=N/A time=00:00:00.36 bitrate=N/A speed=0.244x    frame=   12 fps=6.0 q=-0.0 size=N/A time=00:00:00.54 bitrate=N/A speed=0.275x    frame=   19 fps=7.6 q=-0.0 size=N/A time=00:00:00.87 bitrate=N/A speed=0.348x    frame=   25 fps=8.3 q=-0.0 size=N/A time=00:00:01.14 bitrate=N/A speed=0.382x    frame=   31 fps=8.9 q=-0.0 size=N/A time=00:00:01.41 bitrate=N/A speed=0.405x    frame=   37 fps=9.2 q=-0.0 size=N/A time=00:00:01.69 bitrate=N/A speed=0.423x    frame=   43 fps=9.6 q=-0.0 size=N/A time=00:00:01.96 bitrate=N/A speed=0.437x    frame=   50 fps= 10 q=-0.0 size=N/A time=00:00:02.28 bitrate=N/A speed=0.458x    frame=   56 fps= 10 q=-0.0 size=N/A time=00:00:02.56 bitrate=N/A speed=0.466x    frame=   62 fps= 10 q=-0.0 size=N/A time=00:00:02.83 bitrate=N/A speed=0.473x    frame=   69 fps= 11 q=-0.0 size=N/A time=00:00:03.15 bitrate=N/A speed=0.486x    [rawvideo @ 0x64efdfaacb80] Packet corrupt (stream = 0, dts = 71).
+[in#0/rawvideo @ 0x64efdfaac8c0] corrupt input packet in stream 0
+[rawvideo @ 0x64efdfac1680] Invalid buffer size, packet size 297153 < expected frame_size 921600
+[vist#0:0/rawvideo @ 0x64efdfabf180] [dec:rawvideo @ 0x64efdfac0f80] Error submitting packet to decoder: Invalid argument
+[out#0/video4linux2,v4l2 @ 0x64efdfabf300] video:31950KiB audio:0KiB subtitle:0KiB other streams:0KiB global headers:0KiB muxing overhead: unknown
+frame=   71 fps= 10 q=-0.0 Lsize=N/A time=00:00:03.25 bitrate=N/A speed=0.468x    
+Starting application...
+GUI created
