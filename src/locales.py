@@ -39,7 +39,8 @@ TRANSLATIONS = {
         'settings_saved': 'Settings saved successfully',
         'import_error': 'Failed to import settings: {0}',
         'export_error': 'Failed to export settings: {0}',
-        'save_error': 'Failed to save settings: {0}'
+        'save_error': 'Failed to save settings: {0}',
+        'show_preview': 'Show Preview',
     },
     'cs': {
         'title': 'Virtuální pozadí kamery',
@@ -81,6 +82,7 @@ TRANSLATIONS = {
         'settings_saved': 'Nastavení bylo úspěšně uloženo',
         'import_error': 'Nepodařilo se importovat nastavení: {0}',
         'export_error': 'Nepodařilo se exportovat nastavení: {0}',
-        'save_error': 'Nepodařilo se uložit nastavení: {0}'
+        'save_error': 'Nepodařilo se uložit nastavení: {0}',
+        'show_preview': 'Zobrazit náhled',
     }
 } 

@@ -14,9 +14,9 @@ class PreviewFrame(ttk.LabelFrame):
         super().__init__(master, text=master.tr('preview'))
         self.master = master
         
-        # Initialize variables
+        # Initialize variables with settings from master
         self.is_running = False
-        self.show_preview = tk.BooleanVar(value=True)
+        self.show_preview = tk.BooleanVar(value=master.settings['show_preview'])
         self.frame_queue = queue.Queue(maxsize=2)
         
         # Create widgets
@@ -191,11 +191,12 @@ class PreviewFrame(ttk.LabelFrame):
 
     def update_labels(self):
         """Update all labels to current language"""
-        self.configure(text=self.master.tr('camera_preview'))
+        self.configure(text=self.master.tr('preview'))
         self.start_button.configure(
             text=self.master.tr('stop_camera') if self.is_running 
             else self.master.tr('start_camera')
         )
+        self.preview_check.configure(text=self.master.tr('show_preview'))
 
     def update_values(self):
         """Update all widget values from settings"""
