@@ -180,3 +180,11 @@ class PreviewFrame(ttk.LabelFrame):
             text=self.master.tr('stop_camera') if self.is_running 
             else self.master.tr('start_camera')
         )
+
+    def update_values(self):
+        """Update all widget values from settings"""
+        # Update start/stop button text
+        self.start_button.configure(
+            text=self.master.tr('stop_camera') if self.is_running 
+            else self.master.tr('start_camera')
+        )

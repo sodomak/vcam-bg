@@ -247,3 +247,35 @@ class SettingsFrame(ttk.LabelFrame):
         self.smooth_frame.configure(text=self.master.tr('smoothing'))
         self.kernel_label.configure(text=self.master.tr('kernel'))
         self.sigma_label.configure(text=self.master.tr('sigma'))
+
+    def update_values(self):
+        """Update all widget values from settings"""
+        # Update input device
+        if self.input_device.get() in self.input_combo['values']:
+            self.input_combo.set(self.input_device.get())
+        
+        # Update output device
+        if self.output_device.get() in self.output_combo['values']:
+            self.output_combo.set(self.output_device.get())
+        
+        # Update model selection
+        self.model_selection.set(self.model_selection.get())
+        
+        # Update resolution
+        if self.resolution.get() in self.resolution_combo['values']:
+            self.resolution_combo.set(self.resolution.get())
+        
+        # Update FPS
+        self.fps_scale.set(self.fps.get())
+        self.fps_value_label.configure(text=f"{self.fps.get():.1f}")
+        
+        # Update scale
+        self.scale_scale.set(self.scale.get())
+        self.scale_value_label.configure(text=f"{self.scale.get():.1f}")
+        
+        # Update smoothing
+        self.kernel_scale.set(self.smooth_kernel.get())
+        self.kernel_value_label.configure(text=str(self.smooth_kernel.get()))
+        
+        self.sigma_scale.set(self.smooth_sigma.get())
+        self.sigma_value_label.configure(text=f"{self.smooth_sigma.get():.1f}")
