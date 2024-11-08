@@ -70,10 +70,11 @@ class SettingsFrame(ttk.LabelFrame):
         self.resolution_combo.pack(side=tk.RIGHT, fill=tk.X, expand=True)
 
         # FPS slider
-        fps_frame = ttk.Frame(self)
-        fps_frame.pack(fill=tk.X, pady=(0, 10))
-        ttk.Label(fps_frame, text=self.master.tr('fps')).pack(side=tk.LEFT)
-        self.fps_label = ttk.Label(fps_frame, text=f"{self.fps.get():.1f}")
+        self.fps_frame = ttk.Frame(self)
+        self.fps_frame.pack(fill=tk.X, pady=(0, 10))
+        self.fps_text_label = ttk.Label(self.fps_frame, text=self.master.tr('fps'))
+        self.fps_text_label.pack(side=tk.LEFT)
+        self.fps_label = ttk.Label(self.fps_frame, text=f"{self.fps.get():.1f}")
         self.fps_label.pack(side=tk.RIGHT)
         self.fps_entry = ttk.Scale(
             self,
@@ -86,10 +87,11 @@ class SettingsFrame(ttk.LabelFrame):
         self.fps_entry.pack(fill=tk.X)
 
         # Scale slider
-        scale_frame = ttk.Frame(self)
-        scale_frame.pack(fill=tk.X, pady=(0, 10))
-        ttk.Label(scale_frame, text=self.master.tr('scale')).pack(side=tk.LEFT)
-        self.scale_label = ttk.Label(scale_frame, text=f"{self.scale.get():.2f}")
+        self.scale_frame = ttk.Frame(self)
+        self.scale_frame.pack(fill=tk.X, pady=(0, 10))
+        self.scale_text_label = ttk.Label(self.scale_frame, text=self.master.tr('scale'))
+        self.scale_text_label.pack(side=tk.LEFT)
+        self.scale_label = ttk.Label(self.scale_frame, text=f"{self.scale.get():.2f}")
         self.scale_label.pack(side=tk.RIGHT)
         self.scale_entry = ttk.Scale(
             self,
@@ -102,17 +104,18 @@ class SettingsFrame(ttk.LabelFrame):
         self.scale_entry.pack(fill=tk.X)
 
         # Smoothing frame
-        smooth_frame = ttk.LabelFrame(self, text=self.master.tr('smoothing'))
-        smooth_frame.pack(fill=tk.X, pady=(0, 10))
+        self.smooth_frame = ttk.LabelFrame(self, text=self.master.tr('smoothing'))
+        self.smooth_frame.pack(fill=tk.X, pady=(0, 10))
 
         # Kernel slider
-        kernel_frame = ttk.Frame(smooth_frame)
-        kernel_frame.pack(fill=tk.X, pady=(5, 5))
-        ttk.Label(kernel_frame, text=self.master.tr('kernel')).pack(side=tk.LEFT)
-        self.kernel_label = ttk.Label(kernel_frame, text=str(self.smooth_kernel.get()))
+        self.kernel_frame = ttk.Frame(self.smooth_frame)
+        self.kernel_frame.pack(fill=tk.X, pady=(5, 5))
+        self.kernel_text_label = ttk.Label(self.kernel_frame, text=self.master.tr('kernel'))
+        self.kernel_text_label.pack(side=tk.LEFT)
+        self.kernel_label = ttk.Label(self.kernel_frame, text=str(self.smooth_kernel.get()))
         self.kernel_label.pack(side=tk.RIGHT)
         self.kernel_entry = ttk.Scale(
-            smooth_frame,
+            self.smooth_frame,
             from_=3,
             to=51,
             orient=tk.HORIZONTAL,
@@ -122,13 +125,14 @@ class SettingsFrame(ttk.LabelFrame):
         self.kernel_entry.pack(fill=tk.X)
 
         # Sigma slider
-        sigma_frame = ttk.Frame(smooth_frame)
-        sigma_frame.pack(fill=tk.X, pady=(5, 5))
-        ttk.Label(sigma_frame, text=self.master.tr('sigma')).pack(side=tk.LEFT)
-        self.sigma_label = ttk.Label(sigma_frame, text=f"{self.smooth_sigma.get():.1f}")
+        self.sigma_frame = ttk.Frame(self.smooth_frame)
+        self.sigma_frame.pack(fill=tk.X, pady=(5, 5))
+        self.sigma_text_label = ttk.Label(self.sigma_frame, text=self.master.tr('sigma'))
+        self.sigma_text_label.pack(side=tk.LEFT)
+        self.sigma_label = ttk.Label(self.sigma_frame, text=f"{self.smooth_sigma.get():.1f}")
         self.sigma_label.pack(side=tk.RIGHT)
         self.sigma_entry = ttk.Scale(
-            smooth_frame,
+            self.smooth_frame,
             from_=0.1,
             to=20.0,
             orient=tk.HORIZONTAL,
@@ -284,23 +288,13 @@ class SettingsFrame(ttk.LabelFrame):
         self.load_camera_devices()
 
     def update_labels(self):
-        """Update all labels to current language"""
+        """Update all labels when language changes"""
         self.configure(text=self.master.tr('settings'))
-        
-        # Update all labels
-        self.input_label.configure(text=self.master.tr('input_device'))
-        self.output_label.configure(text=self.master.tr('output_device'))
-        self.bg_label.configure(text=self.master.tr('background'))
-        self.bg_button.configure(text=self.master.tr('select_background'))
-        self.model_label.configure(text=self.master.tr('model'))
-        self.landscape_radio.configure(text=self.master.tr('landscape'))
-        self.portrait_radio.configure(text=self.master.tr('portrait'))
-        self.resolution_label.configure(text=self.master.tr('resolution'))
-        self.fps_label.configure(text=self.master.tr('fps'))
-        self.scale_label.configure(text=self.master.tr('scale'))
+        self.fps_text_label.configure(text=self.master.tr('fps'))
+        self.scale_text_label.configure(text=self.master.tr('scale'))
         self.smooth_frame.configure(text=self.master.tr('smoothing'))
-        self.kernel_label.configure(text=self.master.tr('kernel'))
-        self.sigma_label.configure(text=self.master.tr('sigma'))
+        self.kernel_text_label.configure(text=self.master.tr('kernel'))
+        self.sigma_text_label.configure(text=self.master.tr('sigma'))
 
     def update_values(self):
         """Update all widget values from settings"""
