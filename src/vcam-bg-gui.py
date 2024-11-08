@@ -63,103 +63,103 @@ class VCamBackgroundGUI:
         Args:
             force_dark (bool|None): Force dark theme if True, light if False, or use system setting if None
         """
-        print(f"Setting theme: force_dark={force_dark}")  # Debug print
-        
-        style = ttk.Style()
-        print("Available themes:", style.theme_names())  # Debug print
-        
         try:
             if force_dark is None:
+                # Try to detect system theme (GNOME)
                 result = subprocess.run(
                     ['gsettings', 'get', 'org.gnome.desktop.interface', 'color-scheme'],
                     capture_output=True, text=True
                 )
                 is_dark = 'dark' in result.stdout.lower()
-                print(f"System theme detection: {result.stdout.strip()}, is_dark={is_dark}")
             else:
                 is_dark = force_dark
-        except Exception as e:
-            print(f"Error detecting system theme: {e}")
-            is_dark = force_dark if force_dark is not None else False
 
-        if is_dark:
-            print("Applying dark theme")
-            # Use 'clam' theme as base for dark theme
-            style.theme_use('clam')
+            style = ttk.Style()
             
-            # Configure dark theme colors for widgets
-            self.root.configure(bg='#2e2e2e')
-            style.configure('.', background='#2e2e2e', foreground='#ffffff')
-            style.configure('TLabel', background='#2e2e2e', foreground='#ffffff')
-            style.configure('TFrame', background='#2e2e2e')
-            style.configure('TLabelframe', background='#2e2e2e', foreground='#ffffff')
-            style.configure('TLabelframe.Label', background='#2e2e2e', foreground='#ffffff')
-            style.configure('TButton', background='#404040', foreground='#ffffff')
-            style.configure('TCheckbutton', background='#2e2e2e', foreground='#ffffff')
-            style.configure('TRadiobutton', background='#2e2e2e', foreground='#ffffff')
-            style.configure('TScale', background='#2e2e2e', troughcolor='#404040')
-            style.configure('TCombobox', 
-                fieldbackground='#404040', 
-                background='#404040',
-                foreground='#ffffff',
-                selectbackground='#606060',
-                selectforeground='#ffffff'
-            )
-            
-            # Configure menu colors
-            menubar = self.root.winfo_children()[0]
-            if isinstance(menubar, tk.Menu):
-                menubar.configure(
-                    bg='#2e2e2e',
-                    fg='#ffffff',
-                    activebackground='#404040',
-                    activeforeground='#ffffff',
-                    disabledforeground='#666666',
-                    selectcolor='#ffffff'
+            if is_dark:
+                # Dark theme colors
+                style.theme_use('clam')
+                self.root.configure(bg='#2e2e2e')
+                style.configure('.', background='#2e2e2e', foreground='#ffffff')
+                style.configure('TLabel', background='#2e2e2e', foreground='#ffffff')
+                style.configure('TFrame', background='#2e2e2e')
+                style.configure('TLabelframe', background='#2e2e2e', foreground='#ffffff')
+                style.configure('TLabelframe.Label', background='#2e2e2e', foreground='#ffffff')
+                style.configure('TButton', background='#404040', foreground='#ffffff')
+                style.configure('TCheckbutton', background='#2e2e2e', foreground='#ffffff')
+                style.configure('TRadiobutton', background='#2e2e2e', foreground='#ffffff')
+                style.configure('TScale', background='#2e2e2e', troughcolor='#404040')
+                style.configure('TCombobox', 
+                    fieldbackground='#404040', 
+                    background='#404040',
+                    foreground='#ffffff',
+                    selectbackground='#606060',
+                    selectforeground='#ffffff'
                 )
                 
-                # Configure all cascade menus
-                for menu in [self.file_menu, self.view_menu]:
-                    if menu:
-                        menu.configure(
-                            bg='#2e2e2e',
-                            fg='#ffffff',
-                            activebackground='#404040',
-                            activeforeground='#ffffff',
-                            disabledforeground='#666666',
-                            selectcolor='#ffffff'
-                        )
-        else:
-            print("Applying light theme")
-            style.theme_use('default')
-            self.root.configure(bg='')
-            
-            # Reset menu colors
-            menubar = self.root.winfo_children()[0]
-            if isinstance(menubar, tk.Menu):
-                menubar.configure(
-                    bg='system',
-                    fg='system',
-                    activebackground='system',
-                    activeforeground='system',
-                    disabledforeground='system',
-                    selectcolor='system'
+                # Menu colors
+                menubar = self.root.winfo_children()[0]
+                if isinstance(menubar, tk.Menu):
+                    menubar.configure(
+                        bg='#2e2e2e',
+                        fg='#ffffff',
+                        activebackground='#404040',
+                        activeforeground='#ffffff'
+                    )
+                    for menu in [self.file_menu, self.view_menu]:
+                        if menu:
+                            menu.configure(
+                                bg='#2e2e2e',
+                                fg='#ffffff',
+                                activebackground='#404040',
+                                activeforeground='#ffffff'
+                            )
+            else:
+                # Light theme colors
+                style.theme_use('default')
+                self.root.configure(bg='#f0f0f0')  # Light gray background
+                style.configure('.', background='#f0f0f0', foreground='#000000')
+                style.configure('TLabel', background='#f0f0f0', foreground='#000000')
+                style.configure('TFrame', background='#f0f0f0')
+                style.configure('TLabelframe', background='#f0f0f0', foreground='#000000')
+                style.configure('TLabelframe.Label', background='#f0f0f0', foreground='#000000')
+                style.configure('TButton', background='#e0e0e0', foreground='#000000')
+                style.configure('TCheckbutton', background='#f0f0f0', foreground='#000000')
+                style.configure('TRadiobutton', background='#f0f0f0', foreground='#000000')
+                style.configure('TScale', background='#f0f0f0', troughcolor='#e0e0e0')
+                style.configure('TCombobox', 
+                    fieldbackground='#ffffff', 
+                    background='#ffffff',
+                    foreground='#000000',
+                    selectbackground='#0078d7',
+                    selectforeground='#ffffff'
                 )
                 
-                # Reset all cascade menus
-                for menu in [self.file_menu, self.view_menu]:
-                    if menu:
-                        menu.configure(
-                            bg='system',
-                            fg='system',
-                            activebackground='system',
-                            activeforeground='system',
-                            disabledforeground='system',
-                            selectcolor='system'
-                        )
-        
-        # Force redraw
-        self.root.update_idletasks()
+                # Menu colors
+                menubar = self.root.winfo_children()[0]
+                if isinstance(menubar, tk.Menu):
+                    menubar.configure(
+                        bg='#f0f0f0',
+                        fg='#000000',
+                        activebackground='#0078d7',
+                        activeforeground='#ffffff'
+                    )
+                    for menu in [self.file_menu, self.view_menu]:
+                        if menu:
+                            menu.configure(
+                                bg='#f0f0f0',
+                                fg='#000000',
+                                activebackground='#0078d7',
+                                activeforeground='#ffffff'
+                            )
+
+            # Force redraw
+            self.root.update_idletasks()
+            
+        except Exception as e:
+            print(f"Error setting theme: {e}")
+            # Continue with default theme if something goes wrong
+            pass
 
     def load_settings(self):
         """Load settings from config file or use defaults"""
