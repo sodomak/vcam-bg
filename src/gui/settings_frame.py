@@ -292,31 +292,29 @@ class SettingsFrame(ttk.LabelFrame):
         """Update all labels to current language"""
         self.configure(text=self.master.tr('settings'))
         
-        # Update input device label
+        # Labels for devices
         self.input_label.configure(text=self.master.tr('input_device'))
-        
-        # Update output device label
         self.output_label.configure(text=self.master.tr('output_device'))
         
-        # Update background label
+        # Background section
         self.bg_label.configure(text=self.master.tr('background'))
         self.bg_button.configure(text=self.master.tr('select_background'))
         
-        # Update model label
+        # Model section
         self.model_label.configure(text=self.master.tr('model'))
         self.landscape_radio.configure(text=self.master.tr('landscape'))
         self.portrait_radio.configure(text=self.master.tr('portrait'))
         
-        # Update resolution label
+        # Resolution section
         self.resolution_label.configure(text=self.master.tr('resolution'))
         
-        # Update FPS label
-        self.fps_label.configure(text=self.master.tr('fps'))
+        # FPS section
+        self.fps_frame_label.configure(text=self.master.tr('fps'))
         
-        # Update scale label
-        self.scale_label.configure(text=self.master.tr('scale'))
+        # Scale section
+        self.scale_frame_label.configure(text=self.master.tr('scale'))
         
-        # Update smoothing labels
+        # Smoothing section
         self.smooth_frame.configure(text=self.master.tr('smoothing'))
-        self.kernel_label.configure(text=self.master.tr('kernel'))
-        self.sigma_label.configure(text=self.master.tr('sigma'))
+        self.kernel_frame_label.configure(text=self.master.tr('kernel'))
+        self.sigma_frame_label.configure(text=self.master.tr('sigma'))
