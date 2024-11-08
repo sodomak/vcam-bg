@@ -31,13 +31,23 @@ class MainWindow(ttk.Frame):
         # Load settings before creating GUI
         self.load_settings()
         
-        # Initialize language and theme from loaded settings
-        self.language = tk.StringVar(value=self.settings.get('language', 'en'))
-        self.theme = tk.StringVar(value=self.settings.get('theme', 'light'))
-        
         # Create GUI
         self.create_menu()
         self.create_frames()
+        
+        # Bind settings changes to save
+        self.settings_frame.input_device.trace_add('write', lambda *_: self.save_settings())
+        self.settings_frame.output_device.trace_add('write', lambda *_: self.save_settings())
+        self.settings_frame.background_path.trace_add('write', lambda *_: self.save_settings())
+        self.settings_frame.model_selection.trace_add('write', lambda *_: self.save_settings())
+        self.settings_frame.fps.trace_add('write', lambda *_: self.save_settings())
+        self.settings_frame.scale.trace_add('write', lambda *_: self.save_settings())
+        self.settings_frame.smooth_kernel.trace_add('write', lambda *_: self.save_settings())
+        self.settings_frame.smooth_sigma.trace_add('write', lambda *_: self.save_settings())
+        self.settings_frame.resolution.trace_add('write', lambda *_: self.save_settings())
+        self.preview_frame.show_preview.trace_add('write', lambda *_: self.save_settings())
+        self.language.trace_add('write', lambda *_: self.save_settings())
+        self.theme.trace_add('write', lambda *_: self.save_settings())
         
         # Apply loaded settings
         self.apply_loaded_settings()
@@ -281,35 +291,47 @@ Built with:
             os.makedirs(os.path.dirname(self.config_file), exist_ok=True)
             if os.path.exists(self.config_file):
                 with open(self.config_file, 'r') as f:
-                    self.settings = json.load(f)
+                    loaded_settings = json.load(f)
+                    # Update settings with loaded values, keeping defaults for missing keys
+                    self.settings = self.default_settings.copy()
+                    self.settings.update(loaded_settings)
             else:
                 self.settings = self.default_settings.copy()
+                
+            # Initialize variables with loaded settings
+            self.language = tk.StringVar(value=self.settings['language'])
+            self.theme = tk.StringVar(value=self.settings['theme'])
+            
         except Exception as e:
             print(f"Error loading settings: {e}")
             self.settings = self.default_settings.copy()
+            self.language = tk.StringVar(value='en')
+            self.theme = tk.StringVar(value='light')
 
     def save_settings(self):
         """Save current settings to config file"""
-        settings = {
-            'input_device': self.settings_frame.input_device.get(),
-            'output_device': self.settings_frame.output_device.get(),
-            'background_path': self.settings_frame.background_path.get(),
-            'model_selection': self.settings_frame.model_selection.get(),
-            'fps': self.settings_frame.fps.get(),
-            'scale': self.settings_frame.scale.get(),
-            'show_preview': self.preview_frame.show_preview.get(),
-            'smooth_kernel': self.settings_frame.smooth_kernel.get(),
-            'smooth_sigma': self.settings_frame.smooth_sigma.get(),
-            'resolution': self.settings_frame.resolution.get(),
-            'language': self.language.get(),
-            'theme': self.theme.get()
-        }
-        
         try:
+            settings = {
+                'input_device': self.settings_frame.input_device.get(),
+                'output_device': self.settings_frame.output_device.get(),
+                'background_path': self.settings_frame.background_path.get(),
+                'model_selection': self.settings_frame.model_selection.get(),
+                'fps': self.settings_frame.fps.get(),
+                'scale': self.settings_frame.scale.get(),
+                'show_preview': self.preview_frame.show_preview.get(),
+                'smooth_kernel': self.settings_frame.smooth_kernel.get(),
+                'smooth_sigma': self.settings_frame.smooth_sigma.get(),
+                'resolution': self.settings_frame.resolution.get(),
+                'language': self.language.get(),
+                'theme': self.theme.get()
+            }
+            
+            os.makedirs(os.path.dirname(self.config_file), exist_ok=True)
             with open(self.config_file, 'w') as f:
                 json.dump(settings, f, indent=4)
+                
         except Exception as e:
-            messagebox.showerror("Error", f"Failed to save settings: {e}")
+            print(f"Error saving settings: {e}")
 
     def export_settings(self):
         """Export settings to a user-specified file"""

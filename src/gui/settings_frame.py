@@ -5,22 +5,20 @@ import re
 import os
 
 class SettingsFrame(ttk.LabelFrame):
-    def __init__(self, parent):
-        super().__init__(parent, text="Settings", padding=10)
+    def __init__(self, master):
+        super().__init__(master, text=master.tr('settings'))
+        self.master = master
         
-        # Create variables
-        self.input_device = tk.StringVar()
-        self.output_device = tk.StringVar(value='/dev/video2')
-        self.background_path = tk.StringVar()
-        self.model_selection = tk.IntVar(value=1)
-        self.fps = tk.DoubleVar(value=20.0)
-        self.scale = tk.DoubleVar(value=1.0)
-        self.resolution = tk.StringVar(value='1280x720')
-        self.smooth_kernel = tk.IntVar(value=21)
-        self.smooth_sigma = tk.DoubleVar(value=10.0)
-        
-        # Store controls that need to be disabled when camera is running
-        self.runtime_controls = []
+        # Initialize variables with settings from master
+        self.input_device = tk.StringVar(value=master.settings['input_device'])
+        self.output_device = tk.StringVar(value=master.settings['output_device'])
+        self.background_path = tk.StringVar(value=master.settings['background_path'])
+        self.model_selection = tk.IntVar(value=master.settings['model_selection'])
+        self.fps = tk.DoubleVar(value=master.settings['fps'])
+        self.scale = tk.DoubleVar(value=master.settings['scale'])
+        self.smooth_kernel = tk.IntVar(value=master.settings['smooth_kernel'])
+        self.smooth_sigma = tk.DoubleVar(value=master.settings['smooth_sigma'])
+        self.resolution = tk.StringVar(value=master.settings['resolution'])
         
         # Create widgets
         self.create_widgets()
