@@ -21,9 +21,9 @@ class VCamBackgroundGUI:
         self.root.title("Virtual Camera Background")
         self.config_file = os.path.expanduser("~/.config/vcam-bg/config.json")
         
-        # Runtime variables
-        self.is_running = False
-        self.frame_queue = queue.Queue(maxsize=2)
+        # Create menu references
+        self.file_menu = None
+        self.view_menu = None
         
         # Create default settings
         self.default_settings = {
@@ -44,10 +44,122 @@ class VCamBackgroundGUI:
         
         # Create GUI (after settings are loaded)
         self.create_gui()
+        
+        # Set up theme (after GUI is created)
+        self.setup_theme()
+        
+        # Runtime variables
+        self.is_running = False
+        self.frame_queue = queue.Queue(maxsize=2)
+        
+        # Load camera devices
         self.load_camera_devices()
         
         # Update GUI with loaded settings
         self.apply_loaded_settings()
+
+    def setup_theme(self, force_dark=None):
+        """Configure application theme based on system settings or force a theme
+        Args:
+            force_dark (bool|None): Force dark theme if True, light if False, or use system setting if None
+        """
+        print(f"Setting theme: force_dark={force_dark}")  # Debug print
+        
+        style = ttk.Style()
+        print("Available themes:", style.theme_names())  # Debug print
+        
+        try:
+            if force_dark is None:
+                result = subprocess.run(
+                    ['gsettings', 'get', 'org.gnome.desktop.interface', 'color-scheme'],
+                    capture_output=True, text=True
+                )
+                is_dark = 'dark' in result.stdout.lower()
+                print(f"System theme detection: {result.stdout.strip()}, is_dark={is_dark}")
+            else:
+                is_dark = force_dark
+        except Exception as e:
+            print(f"Error detecting system theme: {e}")
+            is_dark = force_dark if force_dark is not None else False
+
+        if is_dark:
+            print("Applying dark theme")
+            # Use 'clam' theme as base for dark theme
+            style.theme_use('clam')
+            
+            # Configure dark theme colors for widgets
+            self.root.configure(bg='#2e2e2e')
+            style.configure('.', background='#2e2e2e', foreground='#ffffff')
+            style.configure('TLabel', background='#2e2e2e', foreground='#ffffff')
+            style.configure('TFrame', background='#2e2e2e')
+            style.configure('TLabelframe', background='#2e2e2e', foreground='#ffffff')
+            style.configure('TLabelframe.Label', background='#2e2e2e', foreground='#ffffff')
+            style.configure('TButton', background='#404040', foreground='#ffffff')
+            style.configure('TCheckbutton', background='#2e2e2e', foreground='#ffffff')
+            style.configure('TRadiobutton', background='#2e2e2e', foreground='#ffffff')
+            style.configure('TScale', background='#2e2e2e', troughcolor='#404040')
+            style.configure('TCombobox', 
+                fieldbackground='#404040', 
+                background='#404040',
+                foreground='#ffffff',
+                selectbackground='#606060',
+                selectforeground='#ffffff'
+            )
+            
+            # Configure menu colors
+            menubar = self.root.winfo_children()[0]
+            if isinstance(menubar, tk.Menu):
+                menubar.configure(
+                    bg='#2e2e2e',
+                    fg='#ffffff',
+                    activebackground='#404040',
+                    activeforeground='#ffffff',
+                    disabledforeground='#666666',
+                    selectcolor='#ffffff'
+                )
+                
+                # Configure all cascade menus
+                for menu in [self.file_menu, self.view_menu]:
+                    if menu:
+                        menu.configure(
+                            bg='#2e2e2e',
+                            fg='#ffffff',
+                            activebackground='#404040',
+                            activeforeground='#ffffff',
+                            disabledforeground='#666666',
+                            selectcolor='#ffffff'
+                        )
+        else:
+            print("Applying light theme")
+            style.theme_use('default')
+            self.root.configure(bg='')
+            
+            # Reset menu colors
+            menubar = self.root.winfo_children()[0]
+            if isinstance(menubar, tk.Menu):
+                menubar.configure(
+                    bg='system',
+                    fg='system',
+                    activebackground='system',
+                    activeforeground='system',
+                    disabledforeground='system',
+                    selectcolor='system'
+                )
+                
+                # Reset all cascade menus
+                for menu in [self.file_menu, self.view_menu]:
+                    if menu:
+                        menu.configure(
+                            bg='system',
+                            fg='system',
+                            activebackground='system',
+                            activeforeground='system',
+                            disabledforeground='system',
+                            selectcolor='system'
+                        )
+        
+        # Force redraw
+        self.root.update_idletasks()
 
     def load_settings(self):
         """Load settings from config file or use defaults"""
@@ -194,15 +306,22 @@ class VCamBackgroundGUI:
         self.root.config(menu=menubar)
         
         # File menu
-        file_menu = tk.Menu(menubar, tearoff=0)
-        menubar.add_cascade(label="File", menu=file_menu)
-        file_menu.add_command(label="Import Settings", command=self.import_settings)
-        file_menu.add_command(label="Export Settings", command=self.export_settings)
-        file_menu.add_separator()
-        file_menu.add_command(label="Save Settings", command=self.save_settings)
-        file_menu.add_separator()
-        file_menu.add_command(label="Exit", command=self.root.quit)
-
+        self.file_menu = tk.Menu(menubar, tearoff=0)
+        menubar.add_cascade(label="File", menu=self.file_menu)
+        self.file_menu.add_command(label="Import Settings", command=self.import_settings)
+        self.file_menu.add_command(label="Export Settings", command=self.export_settings)
+        self.file_menu.add_separator()
+        self.file_menu.add_command(label="Save Settings", command=self.save_settings)
+        self.file_menu.add_separator()
+        self.file_menu.add_command(label="Exit", command=self.root.quit)
+        
+        # View menu
+        self.view_menu = tk.Menu(menubar, tearoff=0)
+        menubar.add_cascade(label="View", menu=self.view_menu)
+        self.view_menu.add_command(label="Light Theme", command=lambda: self.setup_theme(force_dark=False))
+        self.view_menu.add_command(label="Dark Theme", command=lambda: self.setup_theme(force_dark=True))
+        self.view_menu.add_command(label="System Theme", command=lambda: self.setup_theme(force_dark=None))
+        
         # Camera Settings Frame
         camera_frame = ttk.LabelFrame(self.root, text="Camera Settings", padding=10)
         camera_frame.grid(row=0, column=0, padx=10, pady=5, sticky="ew")
