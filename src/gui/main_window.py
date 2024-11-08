@@ -1,6 +1,5 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
-from ttkthemes import ThemedStyle
 from .settings_frame import SettingsFrame
 from .preview_frame import PreviewFrame
 from ..locales import TRANSLATIONS
@@ -10,12 +9,9 @@ class MainWindow(ttk.Frame):
         super().__init__(root)
         self.root = root
         
-        # Initialize style
-        self.style = ThemedStyle(root)
-        
         # Initialize language and theme
         self.language = tk.StringVar(value="en")
-        self.theme = tk.StringVar(value="arc")  # Default dark theme
+        self.theme = tk.StringVar(value="light")  # Default to light theme
         
         # Set initial title
         self.update_title()
@@ -34,7 +30,7 @@ class MainWindow(ttk.Frame):
         self.settings_frame.load_camera_devices()
         
         # Apply initial theme
-        self.style.theme_use(self.theme.get())
+        self.setup_theme(False)  # Start with light theme
         
         print("GUI created")
 
