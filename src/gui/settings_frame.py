@@ -314,16 +314,16 @@ class SettingsFrame(ttk.LabelFrame):
             self.resolution_combo.set(self.resolution.get())
         
         # Update FPS
-        self.fps_scale.set(self.fps.get())
-        self.fps_value_label.configure(text=f"{self.fps.get():.1f}")
+        self.fps_entry.set(self.fps.get())
+        self.fps_label.configure(text=f"{self.fps.get():.1f}")
         
         # Update scale
-        self.scale_scale.set(self.scale.get())
-        self.scale_value_label.configure(text=f"{self.scale.get():.1f}")
+        self.scale_entry.set(self.scale.get())
+        self.scale_label.configure(text=f"{self.scale.get():.2f}")
         
         # Update smoothing
-        self.kernel_scale.set(self.smooth_kernel.get())
-        self.kernel_value_label.configure(text=str(self.smooth_kernel.get()))
+        self.kernel_entry.set(self.smooth_kernel.get())
+        self.kernel_label.configure(text=str(self.smooth_kernel.get()))
         
-        self.sigma_scale.set(self.smooth_sigma.get())
-        self.sigma_value_label.configure(text=f"{self.smooth_sigma.get():.1f}")
+        self.sigma_entry.set(self.smooth_sigma.get())
+        self.sigma_label.configure(text=f"{self.smooth_sigma.get():.1f}")
