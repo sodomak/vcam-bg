@@ -29,7 +29,17 @@ TRANSLATIONS = {
         'exit': 'Exit',
         'about': 'About',
         'error': 'Error',
-        'select_background_first': 'Please select a background image first'
+        'select_background_first': 'Please select a background image first',
+        'import_settings': 'Import Settings',
+        'export_settings': 'Export Settings',
+        'save_settings': 'Save Settings',
+        'success': 'Success',
+        'settings_imported': 'Settings imported successfully',
+        'settings_exported': 'Settings exported successfully',
+        'settings_saved': 'Settings saved successfully',
+        'import_error': 'Failed to import settings: {0}',
+        'export_error': 'Failed to export settings: {0}',
+        'save_error': 'Failed to save settings: {0}'
     },
     'cs': {
         'title': 'Virtuální pozadí kamery',
@@ -61,6 +71,16 @@ TRANSLATIONS = {
         'exit': 'Ukončit',
         'about': 'O aplikaci',
         'error': 'Chyba',
-        'select_background_first': 'Nejprve vyberte obrázek pozadí'
+        'select_background_first': 'Nejprve vyberte obrázek pozadí',
+        'import_settings': 'Importovat nastavení',
+        'export_settings': 'Exportovat nastavení',
+        'save_settings': 'Uložit nastavení',
+        'success': 'Úspěch',
+        'settings_imported': 'Nastavení bylo úspěšně importováno',
+        'settings_exported': 'Nastavení bylo úspěšně exportováno',
+        'settings_saved': 'Nastavení bylo úspěšně uloženo',
+        'import_error': 'Nepodařilo se importovat nastavení: {0}',
+        'export_error': 'Nepodařilo se exportovat nastavení: {0}',
+        'save_error': 'Nepodařilo se uložit nastavení: {0}'
     }
 } 
