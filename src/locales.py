@@ -17,7 +17,7 @@ TRANSLATIONS = {
         'kernel': 'Kernel:',
         'sigma': 'Sigma:',
         'start_camera': 'Start Camera',
-        'stop_camera': 'Stop',
+        'stop_camera': 'Stop Camera',
         'file': 'File',
         'view': 'View',
         'help': 'Help',
@@ -27,7 +27,9 @@ TRANSLATIONS = {
         'dark': 'Dark',
         'reset_settings': 'Reset Settings',
         'exit': 'Exit',
-        'about': 'About'
+        'about': 'About',
+        'error': 'Error',
+        'select_background_first': 'Please select a background image first'
     },
     'cs': {
         'title': 'Virtuální pozadí kamery',
@@ -47,7 +49,7 @@ TRANSLATIONS = {
         'kernel': 'Jádro:',
         'sigma': 'Sigma:',
         'start_camera': 'Spustit kameru',
-        'stop_camera': 'Stop',
+        'stop_camera': 'Zastavit kameru',
         'file': 'Soubor',
         'view': 'Zobrazení',
         'help': 'Nápověda',
@@ -57,6 +59,8 @@ TRANSLATIONS = {
         'dark': 'Tmavý',
         'reset_settings': 'Obnovit nastavení',
         'exit': 'Ukončit',
-        'about': 'O aplikaci'
+        'about': 'O aplikaci',
+        'error': 'Chyba',
+        'select_background_first': 'Nejprve vyberte obrázek pozadí'
     }
 } 
