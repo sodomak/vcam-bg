@@ -17,6 +17,7 @@ class PreviewFrame(ttk.LabelFrame):
         # Initialize variables
         self.is_running = False
         self.show_preview = tk.BooleanVar(value=True)
+        self.frame_queue = queue.Queue(maxsize=2)
         
         # Create widgets
         self.create_widgets()
@@ -47,39 +48,42 @@ class PreviewFrame(ttk.LabelFrame):
         self.preview_check.pack(side=tk.LEFT)
 
     def toggle_camera(self):
+        """Toggle camera on/off"""
         if not self.is_running:
-            if not self.settings.background_path.get():
-                messagebox.showerror("Error", "Please select a background image first")
+            # Check if background is selected
+            if not self.master.settings_frame.background_path.get():
+                messagebox.showerror(
+                    self.master.tr('error'),
+                    self.master.tr('select_background_first')
+                )
                 return
-                
+            
+            # Start camera
             self.is_running = True
-            self.start_button.config(text="Stop")
+            self.start_button.configure(text=self.master.tr('stop_camera'))
+            self.camera_thread = threading.Thread(target=self.camera_loop)
+            self.camera_thread.daemon = True
+            self.camera_thread.start()
             
-            # Disable runtime controls
-            self.settings.disable_runtime_controls()
-            
-            self.processing_thread = threading.Thread(target=self.process_camera)
-            self.processing_thread.daemon = True
-            self.processing_thread.start()
-            self.update_preview()
+            # Start preview updates if enabled
+            if self.show_preview.get():
+                self.update_preview()
         else:
+            # Stop camera
             self.is_running = False
-            self.start_button.config(text="Start Camera")
-            
-            # Re-enable runtime controls
-            self.settings.enable_runtime_controls()
+            self.start_button.configure(text=self.master.tr('start_camera'))
 
-    def process_camera(self):
+    def camera_loop(self):
         # Initialize MediaPipe
         mp_selfie_segmentation = mp.solutions.selfie_segmentation
         selfie_segmentation = mp_selfie_segmentation.SelfieSegmentation(
-            model_selection=self.settings.model_selection.get()
+            model_selection=self.master.settings_frame.model_selection.get()
         )
 
         try:
             # Extract device paths
-            input_match = re.search(r"\((/dev/video\d+)\)", self.settings.input_device.get())
-            output_match = re.search(r"\((/dev/video\d+)\)", self.settings.output_device.get())
+            input_match = re.search(r"\((/dev/video\d+)\)", self.master.settings_frame.input_device.get())
+            output_match = re.search(r"\((/dev/video\d+)\)", self.master.settings_frame.output_device.get())
             
             if not input_match or not output_match:
                 raise ValueError("Invalid device selection")
@@ -94,7 +98,7 @@ class PreviewFrame(ttk.LabelFrame):
                 raise RuntimeError(f"Could not open camera {input_device}")
 
             # Set camera properties
-            width, height = map(int, self.settings.resolution.get().split('x'))
+            width, height = map(int, self.master.settings_frame.resolution.get().split('x'))
             cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'))
             cap.set(cv2.CAP_PROP_FRAME_WIDTH, width)
             cap.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
@@ -105,7 +109,7 @@ class PreviewFrame(ttk.LabelFrame):
                 '-f', 'rawvideo',
                 '-pixel_format', 'bgr24',
                 '-video_size', f'{width}x{height}',
-                '-framerate', str(self.settings.fps.get()),
+                '-framerate', str(self.master.settings_frame.fps.get()),
                 '-i', '-',
                 '-f', 'v4l2',
                 output_device
@@ -114,7 +118,7 @@ class PreviewFrame(ttk.LabelFrame):
             ffmpeg_process = subprocess.Popen(ffmpeg_cmd, stdin=subprocess.PIPE)
 
             # Load background
-            background_image = cv2.imread(self.settings.background_path.get())
+            background_image = cv2.imread(self.master.settings_frame.background_path.get())
             background_image = cv2.resize(background_image, (width, height))
 
             while self.is_running:
@@ -123,7 +127,7 @@ class PreviewFrame(ttk.LabelFrame):
                     break
 
                 # Apply scaling if needed
-                scale = self.settings.scale.get()
+                scale = self.master.settings_frame.scale.get()
                 if scale != 1.0:
                     new_width = int(frame.shape[1] * scale)
                     new_height = int(frame.shape[0] * scale)
@@ -136,11 +140,11 @@ class PreviewFrame(ttk.LabelFrame):
                 
                 # Create mask
                 mask = results.segmentation_mask
-                kernel_size = self.settings.smooth_kernel.get()
+                kernel_size = self.master.settings_frame.smooth_kernel.get()
                 if kernel_size % 2 == 0:
                     kernel_size += 1
                     
-                sigma = max(0.1, self.settings.smooth_sigma.get())
+                sigma = max(0.1, self.master.settings_frame.smooth_sigma.get())
                 
                 mask = cv2.GaussianBlur(
                     mask.astype(np.float32),
