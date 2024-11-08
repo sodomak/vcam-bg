@@ -290,6 +290,14 @@ class SettingsFrame(ttk.LabelFrame):
     def update_labels(self):
         """Update all labels when language changes"""
         self.configure(text=self.master.tr('settings'))
+        self.input_label.configure(text=self.master.tr('input_device'))
+        self.output_label.configure(text=self.master.tr('output_device'))
+        self.bg_label.configure(text=self.master.tr('background'))
+        self.bg_button.configure(text=self.master.tr('select_background'))
+        self.model_label.configure(text=self.master.tr('model'))
+        self.landscape_radio.configure(text=self.master.tr('landscape'))
+        self.portrait_radio.configure(text=self.master.tr('portrait'))
+        self.resolution_label.configure(text=self.master.tr('resolution'))
         self.fps_text_label.configure(text=self.master.tr('fps'))
         self.scale_text_label.configure(text=self.master.tr('scale'))
         self.smooth_frame.configure(text=self.master.tr('smoothing'))
