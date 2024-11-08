@@ -10,29 +10,41 @@ import re
 import subprocess
 
 class PreviewFrame(ttk.LabelFrame):
-    def __init__(self, parent):
-        super().__init__(parent, text="Camera Preview")
-        self.parent = parent  # Store parent reference
+    def __init__(self, master):
+        super().__init__(master, text=master.tr('preview'))
+        self.master = master
         
-        # Get references to settings
-        self.settings = parent.settings_frame
+        # Initialize variables
+        self.is_running = False
+        self.show_preview = tk.BooleanVar(value=True)
         
-        # Create preview area
+        # Create widgets
+        self.create_widgets()
+        
+    def create_widgets(self):
+        # Preview area
         self.preview_label = ttk.Label(self)
-        self.preview_label.pack(expand=True, fill=tk.BOTH)
+        self.preview_label.pack(expand=True, fill=tk.BOTH, padx=5, pady=5)
         
-        # Create start button
+        # Control buttons frame
+        control_frame = ttk.Frame(self)
+        control_frame.pack(fill=tk.X, padx=5, pady=5)
+        
+        # Start/Stop button
         self.start_button = ttk.Button(
-            self,
-            text="Start Camera",
+            control_frame,
+            text=self.master.tr('start_camera'),
             command=self.toggle_camera
         )
-        self.start_button.pack(side=tk.BOTTOM, pady=5)
+        self.start_button.pack(side=tk.RIGHT)
         
-        # Initialize processing variables
-        self.is_running = False
-        self.frame_queue = queue.Queue(maxsize=2)
-        self.processing_thread = None
+        # Show preview checkbox
+        self.preview_check = ttk.Checkbutton(
+            control_frame,
+            text=self.master.tr('show_preview'),
+            variable=self.show_preview
+        )
+        self.preview_check.pack(side=tk.LEFT)
 
     def toggle_camera(self):
         if not self.is_running:
@@ -171,7 +183,7 @@ class PreviewFrame(ttk.LabelFrame):
             self.preview_label.image = photo
             
         if self.is_running:
-            self.parent.after(10, self.update_preview)  # Use parent instead of root
+            self.master.after(10, self.update_preview)  # Use parent instead of root
 
     def update_labels(self):
         """Update all labels to current language"""
