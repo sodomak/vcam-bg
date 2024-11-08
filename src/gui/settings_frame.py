@@ -3,6 +3,7 @@ from tkinter import ttk, filedialog
 import subprocess
 import re
 import os
+import cv2
 
 class SettingsFrame(ttk.LabelFrame):
     def __init__(self, master):
@@ -123,35 +124,65 @@ class SettingsFrame(ttk.LabelFrame):
             self.background_path.set(filename)
 
     def load_camera_devices(self):
-        """Get list of available camera devices"""
+        """Load available input and output devices"""
         try:
-            output = subprocess.check_output("v4l2-ctl --list-devices", shell=True).decode("utf-8")
-            devices = re.findall(r"(.*):\n\t(/dev/video\d+)", output)
-            
+            # Input devices (webcams)
             input_devices = []
+            for i in range(10):  # Check first 10 video devices
+                device = f"/dev/video{i}"
+                if os.path.exists(device):
+                    # Check if it's a capture device
+                    cap = cv2.VideoCapture(i)
+                    if cap.isOpened():
+                        name = self.get_device_name(device)
+                        input_devices.append(f"{name} ({device})")
+                    cap.release()
+            
+            # Output devices (v4l2loopback)
             output_devices = []
-            
-            for name, path in devices:
-                name = name.strip()
-                if "v4l2loopback" in name:
-                    output_devices.append(f"{name} ({path})")
-                else:
-                    input_devices.append(f"{name} ({path})")
-            
+            for i in range(10):  # Check first 10 video devices
+                device = f"/dev/video{i}"
+                if os.path.exists(device):
+                    # Check if it's a v4l2loopback device
+                    try:
+                        result = subprocess.run(
+                            ['v4l2-ctl', '--device', device, '--all'],
+                            capture_output=True,
+                            text=True
+                        )
+                        if 'v4l2loopback' in result.stdout:
+                            name = self.get_device_name(device)
+                            output_devices.append(f"{name} ({device})")
+                    except subprocess.CalledProcessError:
+                        continue
+
+            # Update comboboxes
             self.input_combo['values'] = input_devices
             self.output_combo['values'] = output_devices
             
-            # Set first available device if none selected
+            # Set defaults if no selection
             if not self.input_device.get() and input_devices:
                 self.input_device.set(input_devices[0])
             if not self.output_device.get() and output_devices:
                 self.output_device.set(output_devices[0])
                 
-            # Update resolutions for selected input device
-            self.update_resolutions()
-                
-        except subprocess.CalledProcessError:
-            print("Error: Could not retrieve camera list")
+        except Exception as e:
+            print(f"Error loading camera devices: {e}")
+
+    def get_device_name(self, device_path):
+        """Get friendly name of a video device"""
+        try:
+            result = subprocess.run(
+                ['v4l2-ctl', '--device', device_path, '--all'],
+                capture_output=True,
+                text=True
+            )
+            for line in result.stdout.split('\n'):
+                if 'Card type' in line:
+                    return line.split(':')[1].strip()
+        except:
+            pass
+        return os.path.basename(device_path)
 
     def update_resolutions(self, *args):
         """Update available resolutions for selected camera"""
