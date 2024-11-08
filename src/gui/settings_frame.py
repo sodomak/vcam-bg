@@ -10,18 +10,19 @@ class SettingsFrame(ttk.LabelFrame):
         super().__init__(master, text=master.tr('settings'))
         self.master = master
         
-        # Initialize variables with settings from master
+        # Use master's variables directly
+        self.fps = master.fps
+        self.scale = master.scale
+        self.smooth_kernel = master.smooth_kernel
+        self.smooth_sigma = master.smooth_sigma
+        
+        # Initialize other settings
         self.input_device = tk.StringVar(value=master.settings['input_device'])
         self.output_device = tk.StringVar(value=master.settings['output_device'])
         self.background_path = tk.StringVar(value=master.settings['background_path'])
         self.model_selection = tk.IntVar(value=master.settings['model_selection'])
-        self.fps = tk.DoubleVar(value=master.settings['fps'])
-        self.scale = tk.DoubleVar(value=master.settings['scale'])
-        self.smooth_kernel = tk.IntVar(value=master.settings['smooth_kernel'])
-        self.smooth_sigma = tk.DoubleVar(value=master.settings['smooth_sigma'])
         self.resolution = tk.StringVar(value=master.settings['resolution'])
         
-        # Create widgets
         self.create_widgets()
 
     def create_widgets(self):
@@ -68,49 +69,65 @@ class SettingsFrame(ttk.LabelFrame):
         self.resolution_combo = ttk.Combobox(res_frame, textvariable=self.resolution, state='readonly')
         self.resolution_combo.pack(side=tk.RIGHT, fill=tk.X, expand=True)
 
-        # FPS
-        fps_frame = ttk.Frame(self)
-        fps_frame.pack(fill=tk.X, pady=(0, 10))
-        self.fps_label = ttk.Label(fps_frame, text=self.master.tr('fps'))
-        self.fps_label.pack(side=tk.LEFT)
-        self.fps_value_label = ttk.Label(fps_frame, text="20.0")
-        self.fps_value_label.pack(side=tk.RIGHT)
-        self.fps_scale = ttk.Scale(self, from_=1, to=60, variable=self.fps, orient=tk.HORIZONTAL)
-        self.fps_scale.pack(fill=tk.X)
+        # FPS slider
+        ttk.Label(self, text=self.master.tr('fps')).grid(row=0, column=0, sticky="w")
+        self.fps_entry = ttk.Scale(
+            self,
+            from_=1,
+            to=60,
+            orient="horizontal",
+            variable=self.fps,
+            command=lambda v: self.fps_label.config(text=f"{float(v):.1f}")
+        )
+        self.fps_entry.grid(row=0, column=1, columnspan=2, sticky="ew", padx=5)
+        self.fps_label = ttk.Label(self, text=f"{self.fps.get():.1f}")
+        self.fps_label.grid(row=0, column=3, padx=5)
 
-        # Scale
-        scale_frame = ttk.Frame(self)
-        scale_frame.pack(fill=tk.X, pady=(0, 10))
-        self.scale_label = ttk.Label(scale_frame, text=self.master.tr('scale'))
-        self.scale_label.pack(side=tk.LEFT)
-        self.scale_value_label = ttk.Label(scale_frame, text="1.0")
-        self.scale_value_label.pack(side=tk.RIGHT)
-        self.scale_scale = ttk.Scale(self, from_=0.1, to=2.0, variable=self.scale, orient=tk.HORIZONTAL)
-        self.scale_scale.pack(fill=tk.X)
+        # Scale slider
+        ttk.Label(self, text=self.master.tr('scale')).grid(row=1, column=0, sticky="w")
+        self.scale_entry = ttk.Scale(
+            self,
+            from_=0.1,
+            to=2.0,
+            orient="horizontal",
+            variable=self.scale,
+            command=lambda v: self.scale_label.config(text=f"{float(v):.2f}")
+        )
+        self.scale_entry.grid(row=1, column=1, columnspan=2, sticky="ew", padx=5)
+        self.scale_label = ttk.Label(self, text=f"{self.scale.get():.2f}")
+        self.scale_label.grid(row=1, column=3, padx=5)
 
-        # Smoothing
-        self.smooth_frame = ttk.LabelFrame(self, text=self.master.tr('smoothing'))
-        self.smooth_frame.pack(fill=tk.X, pady=(0, 10))
+        # Smoothing frame
+        smooth_frame = ttk.LabelFrame(self, text=self.master.tr('smoothing'), padding=5)
+        smooth_frame.grid(row=2, column=0, columnspan=4, sticky="ew", pady=5)
 
-        # Kernel
-        kernel_frame = ttk.Frame(self.smooth_frame)
-        kernel_frame.pack(fill=tk.X, pady=(5, 5))
-        self.kernel_label = ttk.Label(kernel_frame, text=self.master.tr('kernel'))
-        self.kernel_label.pack(side=tk.LEFT)
-        self.kernel_value_label = ttk.Label(kernel_frame, text="21")
-        self.kernel_value_label.pack(side=tk.RIGHT)
-        self.kernel_scale = ttk.Scale(self.smooth_frame, from_=3, to=51, variable=self.smooth_kernel, orient=tk.HORIZONTAL)
-        self.kernel_scale.pack(fill=tk.X)
+        # Kernel slider
+        ttk.Label(smooth_frame, text=self.master.tr('kernel')).grid(row=0, column=0, sticky="w")
+        self.kernel_entry = ttk.Scale(
+            smooth_frame,
+            from_=3,
+            to=51,
+            orient="horizontal",
+            variable=self.smooth_kernel,
+            command=lambda v: self.kernel_label.config(text=str(int(float(v))))
+        )
+        self.kernel_entry.grid(row=0, column=1, columnspan=2, sticky="ew", padx=5)
+        self.kernel_label = ttk.Label(smooth_frame, text=str(self.smooth_kernel.get()))
+        self.kernel_label.grid(row=0, column=3, padx=5)
 
-        # Sigma
-        sigma_frame = ttk.Frame(self.smooth_frame)
-        sigma_frame.pack(fill=tk.X, pady=(5, 5))
-        self.sigma_label = ttk.Label(sigma_frame, text=self.master.tr('sigma'))
-        self.sigma_label.pack(side=tk.LEFT)
-        self.sigma_value_label = ttk.Label(sigma_frame, text="10.0")
-        self.sigma_value_label.pack(side=tk.RIGHT)
-        self.sigma_scale = ttk.Scale(self.smooth_frame, from_=0.1, to=20.0, variable=self.smooth_sigma, orient=tk.HORIZONTAL)
-        self.sigma_scale.pack(fill=tk.X)
+        # Sigma slider
+        ttk.Label(smooth_frame, text=self.master.tr('sigma')).grid(row=1, column=0, sticky="w")
+        self.sigma_entry = ttk.Scale(
+            smooth_frame,
+            from_=0.1,
+            to=20.0,
+            orient="horizontal",
+            variable=self.smooth_sigma,
+            command=lambda v: self.sigma_label.config(text=f"{float(v):.1f}")
+        )
+        self.sigma_entry.grid(row=1, column=1, columnspan=2, sticky="ew", padx=5)
+        self.sigma_label = ttk.Label(smooth_frame, text=f"{self.smooth_sigma.get():.1f}")
+        self.sigma_label.grid(row=1, column=3, padx=5)
 
     def select_background(self):
         """Open file dialog to select background image"""
