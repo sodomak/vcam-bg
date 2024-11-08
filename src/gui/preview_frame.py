@@ -81,41 +81,39 @@ class PreviewFrame(ttk.LabelFrame):
         )
 
         try:
-            # Extract device paths
-            input_match = re.search(r"\((/dev/video\d+)\)", self.master.settings_frame.input_device.get())
-            output_match = re.search(r"\((/dev/video\d+)\)", self.master.settings_frame.output_device.get())
+            # Get device paths
+            input_path = re.search(r"\((/dev/video\d+)\)", 
+                self.master.settings_frame.input_device.get()).group(1)
+            output_path = re.search(r"\((/dev/video\d+)\)", 
+                self.master.settings_frame.output_device.get()).group(1)
             
-            if not input_match or not output_match:
-                raise ValueError("Invalid device selection")
-                
-            input_device = input_match.group(1)
-            output_device = output_match.group(1)
-            device_num = int(input_device.replace('/dev/video', ''))
-            
-            # Open camera with V4L2
-            cap = cv2.VideoCapture(device_num, cv2.CAP_V4L2)
+            # Open input camera
+            cap = cv2.VideoCapture(input_path)
             if not cap.isOpened():
-                raise RuntimeError(f"Could not open camera {input_device}")
-
-            # Set camera properties
+                raise Exception(f"Could not open input device: {input_path}")
+            
+            # Set resolution
             width, height = map(int, self.master.settings_frame.resolution.get().split('x'))
-            cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'))
             cap.set(cv2.CAP_PROP_FRAME_WIDTH, width)
             cap.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
-
-            # Set up FFmpeg process
-            ffmpeg_cmd = [
-                'ffmpeg', '-y',
+            
+            # Open output device with ffmpeg
+            command = [
+                'ffmpeg',
                 '-f', 'rawvideo',
-                '-pixel_format', 'bgr24',
-                '-video_size', f'{width}x{height}',
-                '-framerate', str(self.master.settings_frame.fps.get()),
+                '-pix_fmt', 'bgr24',
+                '-s', f'{width}x{height}',
+                '-r', str(self.master.settings_frame.fps.get()),
                 '-i', '-',
                 '-f', 'v4l2',
-                output_device
+                '-pix_fmt', 'yuv420p',
+                output_path
             ]
-
-            ffmpeg_process = subprocess.Popen(ffmpeg_cmd, stdin=subprocess.PIPE)
+            
+            self.ffmpeg_process = subprocess.Popen(
+                command,
+                stdin=subprocess.PIPE
+            )
 
             # Load background
             background_image = cv2.imread(self.master.settings_frame.background_path.get())
@@ -160,7 +158,7 @@ class PreviewFrame(ttk.LabelFrame):
                 output_frame = (frame * mask + background_image * (1 - mask)).astype(np.uint8)
                 
                 # Write to FFmpeg
-                ffmpeg_process.stdin.write(output_frame.tobytes())
+                self.ffmpeg_process.stdin.write(output_frame.tobytes())
                 
                 # Update preview
                 try:
@@ -170,8 +168,8 @@ class PreviewFrame(ttk.LabelFrame):
 
             # Cleanup
             cap.release()
-            ffmpeg_process.stdin.close()
-            ffmpeg_process.wait()
+            self.ffmpeg_process.stdin.close()
+            self.ffmpeg_process.wait()
             selfie_segmentation.close()
 
         except Exception as e:
