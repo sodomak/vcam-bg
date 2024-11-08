@@ -23,6 +23,8 @@ TRANSLATIONS = {
         'help': 'Help',
         'language': 'Language',
         'theme': 'Theme',
+        'light': 'Light',
+        'dark': 'Dark',
         'reset_settings': 'Reset Settings',
         'exit': 'Exit',
         'about': 'About'
@@ -51,6 +53,8 @@ TRANSLATIONS = {
         'help': 'Nápověda',
         'language': 'Jazyk',
         'theme': 'Motiv',
+        'light': 'Světlý',
+        'dark': 'Tmavý',
         'reset_settings': 'Obnovit nastavení',
         'exit': 'Ukončit',
         'about': 'O aplikaci'
