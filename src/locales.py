@@ -2,7 +2,7 @@ TRANSLATIONS = {
     'en': {
         'title': 'Virtual Camera Background',
         'settings': 'Settings',
-        'preview': 'Camera Preview',
+        'camera_preview': 'Camera Preview',
         'input_device': 'Input Device:',
         'output_device': 'Output Device:',
         'background': 'Background:',
@@ -34,7 +34,7 @@ TRANSLATIONS = {
     'cs': {
         'title': 'Virtuální pozadí kamery',
         'settings': 'Nastavení',
-        'preview': 'Náhled kamery',
+        'camera_preview': 'Náhled kamery',
         'input_device': 'Vstupní zařízení:',
         'output_device': 'Výstupní zařízení:',
         'background': 'Pozadí:',

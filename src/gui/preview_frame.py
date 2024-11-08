@@ -175,7 +175,7 @@ class PreviewFrame(ttk.LabelFrame):
 
     def update_labels(self):
         """Update all labels to current language"""
-        self.configure(text=self.master.tr('preview'))
+        self.configure(text=self.master.tr('camera_preview'))
         self.start_button.configure(
             text=self.master.tr('stop_camera') if self.is_running 
             else self.master.tr('start_camera')
