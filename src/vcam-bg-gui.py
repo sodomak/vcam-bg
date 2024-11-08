@@ -106,7 +106,7 @@ class VCamBackgroundGUI:
                         activebackground='#404040',
                         activeforeground='#ffffff'
                     )
-                    for menu in [self.file_menu, self.view_menu]:
+                    for menu in [self.file_menu, self.view_menu, self.help_menu]:
                         if menu:
                             menu.configure(
                                 bg='#2e2e2e',
@@ -144,7 +144,7 @@ class VCamBackgroundGUI:
                         activebackground='#0078d7',
                         activeforeground='#ffffff'
                     )
-                    for menu in [self.file_menu, self.view_menu]:
+                    for menu in [self.file_menu, self.view_menu, self.help_menu]:
                         if menu:
                             menu.configure(
                                 bg='#f0f0f0',
@@ -321,7 +321,16 @@ class VCamBackgroundGUI:
         self.view_menu.add_command(label="Light Theme", command=lambda: self.setup_theme(force_dark=False))
         self.view_menu.add_command(label="Dark Theme", command=lambda: self.setup_theme(force_dark=True))
         self.view_menu.add_command(label="System Theme", command=lambda: self.setup_theme(force_dark=None))
-        
+
+        # Help menu
+        self.help_menu = tk.Menu(menubar, tearoff=0)
+        menubar.add_cascade(label="Help", menu=self.help_menu)
+        self.help_menu.add_command(label="Quick Start Guide", command=self.show_quick_start)
+        self.help_menu.add_command(label="Keyboard Shortcuts", command=self.show_shortcuts)
+        self.help_menu.add_command(label="Troubleshooting", command=self.show_troubleshooting)
+        self.help_menu.add_separator()
+        self.help_menu.add_command(label="About", command=self.show_about)
+
         # Camera Settings Frame
         camera_frame = ttk.LabelFrame(self.root, text="Camera Settings", padding=10)
         camera_frame.grid(row=0, column=0, padx=10, pady=5, sticky="ew")
@@ -425,6 +434,21 @@ class VCamBackgroundGUI:
         
         self.start_button = ttk.Button(control_frame, text="Start", command=self.toggle_camera)
         self.start_button.grid(row=0, column=0, padx=5)
+
+        # Add keyboard shortcuts
+        self.root.bind('<Control-s>', lambda e: self.save_settings())
+        self.root.bind('<Control-i>', lambda e: self.import_settings())
+        self.root.bind('<Control-e>', lambda e: self.export_settings())
+        self.root.bind('<Control-q>', lambda e: self.root.quit())
+        self.root.bind('<space>', lambda e: self.toggle_camera())
+        self.root.bind('<r>', lambda e: self.reset_settings())
+        self.root.bind('<Escape>', lambda e: self.stop_camera())
+
+        # Add accelerator text to menu items
+        self.file_menu.entryconfig('Save Settings', accelerator='Ctrl+S')
+        self.file_menu.entryconfig('Import Settings', accelerator='Ctrl+I')
+        self.file_menu.entryconfig('Export Settings', accelerator='Ctrl+E')
+        self.file_menu.entryconfig('Exit', accelerator='Ctrl+Q')
 
     def load_camera_devices(self):
         try:
@@ -693,6 +717,120 @@ class VCamBackgroundGUI:
                 self.resolution_combo.set(resolutions[0])
         except (AttributeError, IndexError):
             print("Error parsing device path")
+
+    def show_quick_start(self):
+        text = """Quick Start Guide
+
+1. Select Input Device:
+   Choose your webcam from the Input Device dropdown.
+
+2. Select Output Device:
+   Choose a v4l2loopback device (usually /dev/video2).
+
+3. Choose Background:
+   Click "Select Background" and choose an image file.
+
+4. Adjust Settings:
+   - Model: Choose Landscape or Portrait based on your needs
+   - FPS: Adjust for smooth video (lower for better performance)
+   - Resolution: Select based on your camera's capabilities
+   - Scale: Adjust output size (lower for better performance)
+   - Smoothing: Adjust edge detection sensitivity
+
+5. Click Start:
+   The virtual camera will begin processing your video feed.
+
+6. Use in Other Apps:
+   Select "Virtual Camera" in your video conferencing app."""
+
+        messagebox.showinfo("Quick Start Guide", text)
+
+    def show_shortcuts(self):
+        text = """Keyboard Shortcuts
+
+File Operations:
+Ctrl+S: Save Settings
+Ctrl+I: Import Settings
+Ctrl+E: Export Settings
+Ctrl+Q: Quit Application
+
+Camera Controls:
+Space: Start/Stop Camera
+R: Reset Settings to Default
+ESC: Stop Camera"""
+
+        messagebox.showinfo("Keyboard Shortcuts", text)
+
+    def show_troubleshooting(self):
+        text = """Troubleshooting Guide
+
+Common Issues:
+
+1. No Camera Detected
+   - Check if camera is connected
+   - Verify permissions (try: sudo usermod -a -G video $USER)
+   - Restart application
+
+2. No Virtual Camera
+   - Install v4l2loopback-dkms package
+   - Load kernel module: sudo modprobe v4l2loopback
+   - Check /dev/video* devices exist
+
+3. Poor Performance
+   - Lower resolution
+   - Reduce FPS
+   - Decrease scale factor
+   - Use landscape mode for better performance
+
+4. Background Issues
+   - Ensure good lighting
+   - Use high contrast background
+   - Adjust smoothing settings
+   - Try different background images
+
+For more help, visit:
+https://github.com/sodomak/vcam-bg/issues"""
+
+        messagebox.showinfo("Troubleshooting", text)
+
+    def show_about(self):
+        text = """Virtual Camera Background v1.0
+
+A virtual camera application that replaces your background
+in real-time using MediaPipe Selfie Segmentation.
+
+Features:
+- Real-time background replacement
+- Multiple segmentation models
+- Adjustable settings
+- Theme support
+- Configuration saving
+
+License: MIT
+Author: sodomak
+Repository: https://github.com/sodomak/vcam-bg
+
+Built with:
+- Python 3
+- OpenCV
+- MediaPipe
+- Tkinter"""
+
+        messagebox.showinfo("About Virtual Camera Background", text)
+
+    def reset_settings(self):
+        """Reset all settings to default values"""
+        if messagebox.askyesno("Reset Settings", "Are you sure you want to reset all settings to default?"):
+            for key, value in self.default_settings.items():
+                if hasattr(self, key):
+                    getattr(self, key).set(value)
+            self.apply_loaded_settings()
+            messagebox.showinfo("Settings Reset", "All settings have been reset to default values")
+
+    def stop_camera(self):
+        """Stop the camera if it's running"""
+        if self.is_running:
+            self.toggle_camera()
 
 def main():
     root = tk.Tk()
