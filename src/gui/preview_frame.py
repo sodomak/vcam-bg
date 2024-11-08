@@ -11,22 +11,24 @@ import subprocess
 
 class PreviewFrame(ttk.LabelFrame):
     def __init__(self, master):
-        super().__init__(master, text=master.tr('preview'))
+        super().__init__(master)
         self.master = master
         
-        # Initialize variables with settings from master
+        # Initialize runtime variables
         self.is_running = False
-        self.show_preview = tk.BooleanVar(value=master.settings['show_preview'])
         self.frame_queue = queue.Queue(maxsize=2)
         
-        # Create widgets
-        self.create_widgets()
+        # Use master's variables
+        self.show_preview = master.show_preview
         
-    def create_widgets(self):
-        # Preview area
+        # Create preview label
         self.preview_label = ttk.Label(self)
-        self.preview_label.pack(expand=True, fill=tk.BOTH, padx=5, pady=5)
+        self.preview_label.pack(expand=True, fill=tk.BOTH)
         
+        # Create control buttons
+        self.create_controls()
+
+    def create_controls(self):
         # Control buttons frame
         control_frame = ttk.Frame(self)
         control_frame.pack(fill=tk.X, padx=5, pady=5)
