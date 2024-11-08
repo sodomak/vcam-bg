@@ -26,150 +26,91 @@ class SettingsFrame(ttk.LabelFrame):
         self.create_widgets()
 
     def create_widgets(self):
-        # Input Device
-        ttk.Label(self, text="Input Device:").pack(anchor=tk.W)
-        self.input_combo = ttk.Combobox(
-            self, 
-            textvariable=self.input_device,
-            state="readonly"
-        )
-        self.input_combo.pack(fill=tk.X, pady=(0, 10))
-        self.runtime_controls.append(self.input_combo)
-        
-        # Output Device
-        ttk.Label(self, text="Output Device:").pack(anchor=tk.W)
-        self.output_combo = ttk.Combobox(
-            self,
-            textvariable=self.output_device,
-            state="readonly"
-        )
-        self.output_combo.pack(fill=tk.X, pady=(0, 10))
-        self.runtime_controls.append(self.output_combo)
-        
+        """Create all widgets in the settings frame"""
+        # Input device
+        input_frame = ttk.Frame(self)
+        input_frame.pack(fill=tk.X, pady=(0, 10))
+        self.input_label = ttk.Label(input_frame, text=self.master.tr('input_device'))
+        self.input_label.pack(side=tk.LEFT)
+        self.input_combo = ttk.Combobox(input_frame, textvariable=self.input_device, state='readonly')
+        self.input_combo.pack(side=tk.RIGHT, fill=tk.X, expand=True)
+
+        # Output device
+        output_frame = ttk.Frame(self)
+        output_frame.pack(fill=tk.X, pady=(0, 10))
+        self.output_label = ttk.Label(output_frame, text=self.master.tr('output_device'))
+        self.output_label.pack(side=tk.LEFT)
+        self.output_combo = ttk.Combobox(output_frame, textvariable=self.output_device, state='readonly')
+        self.output_combo.pack(side=tk.RIGHT, fill=tk.X, expand=True)
+
         # Background
-        ttk.Label(self, text="Background:").pack(anchor=tk.W)
         bg_frame = ttk.Frame(self)
         bg_frame.pack(fill=tk.X, pady=(0, 10))
-        
-        self.bg_button = ttk.Button(
-            bg_frame,
-            text="Select Background",
-            command=self.select_background
-        )
-        self.bg_button.pack(side=tk.LEFT)
-        self.runtime_controls.append(self.bg_button)
-        
-        self.bg_label = ttk.Label(bg_frame, textvariable=self.background_path)
-        self.bg_label.pack(side=tk.LEFT, padx=5)
-        
-        # Model
-        ttk.Label(self, text="Model:").pack(anchor=tk.W)
+        self.bg_label = ttk.Label(bg_frame, text=self.master.tr('background'))
+        self.bg_label.pack(side=tk.LEFT)
+        self.bg_button = ttk.Button(bg_frame, text=self.master.tr('select_background'), command=self.select_background)
+        self.bg_button.pack(side=tk.RIGHT)
+
+        # Model selection
         model_frame = ttk.Frame(self)
         model_frame.pack(fill=tk.X, pady=(0, 10))
-        
-        landscape_radio = ttk.Radiobutton(
-            model_frame,
-            text="Landscape",
-            variable=self.model_selection,
-            value=0
-        )
-        landscape_radio.pack(side=tk.LEFT)
-        self.runtime_controls.append(landscape_radio)
-        
-        portrait_radio = ttk.Radiobutton(
-            model_frame,
-            text="Portrait",
-            variable=self.model_selection,
-            value=1
-        )
-        portrait_radio.pack(side=tk.LEFT)
-        self.runtime_controls.append(portrait_radio)
-        
+        self.model_label = ttk.Label(model_frame, text=self.master.tr('model'))
+        self.model_label.pack(side=tk.LEFT)
+        self.landscape_radio = ttk.Radiobutton(model_frame, text=self.master.tr('landscape'), value=1, variable=self.model_selection)
+        self.landscape_radio.pack(side=tk.LEFT)
+        self.portrait_radio = ttk.Radiobutton(model_frame, text=self.master.tr('portrait'), value=2, variable=self.model_selection)
+        self.portrait_radio.pack(side=tk.LEFT)
+
         # Resolution
-        ttk.Label(self, text="Resolution:").pack(anchor=tk.W)
-        self.resolution_combo = ttk.Combobox(
-            self,
-            textvariable=self.resolution,
-            values=['640x480', '1280x720', '1920x1080'],
-            state="readonly"
-        )
-        self.resolution_combo.pack(fill=tk.X, pady=(0, 10))
-        self.runtime_controls.append(self.resolution_combo)
+        res_frame = ttk.Frame(self)
+        res_frame.pack(fill=tk.X, pady=(0, 10))
+        self.resolution_label = ttk.Label(res_frame, text=self.master.tr('resolution'))
+        self.resolution_label.pack(side=tk.LEFT)
+        self.resolution_combo = ttk.Combobox(res_frame, textvariable=self.resolution, state='readonly')
+        self.resolution_combo.pack(side=tk.RIGHT, fill=tk.X, expand=True)
 
-        # Create sliders
-        self.create_sliders()
-
-    def create_sliders(self):
-        # FPS control
+        # FPS
         fps_frame = ttk.Frame(self)
         fps_frame.pack(fill=tk.X, pady=(0, 10))
-        ttk.Label(fps_frame, text="FPS:").pack(side=tk.LEFT)
-        self.fps_label = ttk.Label(fps_frame, text="20.0")
-        self.fps_label.pack(side=tk.RIGHT)
-        
-        self.fps_scale = ttk.Scale(
-            self,
-            from_=1,
-            to=60,
-            variable=self.fps,
-            orient=tk.HORIZONTAL,
-            command=lambda v: self.fps_label.configure(text=f"{float(v):.1f}")
-        )
-        self.fps_scale.pack(fill=tk.X, pady=(0, 10))
-        
-        # Scale control
+        self.fps_label = ttk.Label(fps_frame, text=self.master.tr('fps'))
+        self.fps_label.pack(side=tk.LEFT)
+        self.fps_value_label = ttk.Label(fps_frame, text="20.0")
+        self.fps_value_label.pack(side=tk.RIGHT)
+        self.fps_scale = ttk.Scale(self, from_=1, to=60, variable=self.fps, orient=tk.HORIZONTAL)
+        self.fps_scale.pack(fill=tk.X)
+
+        # Scale
         scale_frame = ttk.Frame(self)
         scale_frame.pack(fill=tk.X, pady=(0, 10))
-        ttk.Label(scale_frame, text="Scale:").pack(side=tk.LEFT)
-        self.scale_label = ttk.Label(scale_frame, text="1.0")
-        self.scale_label.pack(side=tk.RIGHT)
-        
-        self.scale_scale = ttk.Scale(
-            self,
-            from_=0.1,
-            to=2.0,
-            variable=self.scale,
-            orient=tk.HORIZONTAL,
-            command=lambda v: self.scale_label.configure(text=f"{float(v):.1f}")
-        )
-        self.scale_scale.pack(fill=tk.X, pady=(0, 10))
-        
-        # Smoothing settings
-        smooth_frame = ttk.LabelFrame(self, text="Smoothing", padding=5)
-        smooth_frame.pack(fill=tk.X, pady=(0, 10))
-        
-        # Kernel control
-        kernel_frame = ttk.Frame(smooth_frame)
-        kernel_frame.pack(fill=tk.X)
-        ttk.Label(kernel_frame, text="Kernel:").pack(side=tk.LEFT)
-        self.kernel_label = ttk.Label(kernel_frame, text="21")
-        self.kernel_label.pack(side=tk.RIGHT)
-        
-        self.kernel_scale = ttk.Scale(
-            smooth_frame,
-            from_=3,
-            to=51,
-            variable=self.smooth_kernel,
-            orient=tk.HORIZONTAL,
-            command=self.update_kernel_value
-        )
+        self.scale_label = ttk.Label(scale_frame, text=self.master.tr('scale'))
+        self.scale_label.pack(side=tk.LEFT)
+        self.scale_value_label = ttk.Label(scale_frame, text="1.0")
+        self.scale_value_label.pack(side=tk.RIGHT)
+        self.scale_scale = ttk.Scale(self, from_=0.1, to=2.0, variable=self.scale, orient=tk.HORIZONTAL)
+        self.scale_scale.pack(fill=tk.X)
+
+        # Smoothing
+        self.smooth_frame = ttk.LabelFrame(self, text=self.master.tr('smoothing'))
+        self.smooth_frame.pack(fill=tk.X, pady=(0, 10))
+
+        # Kernel
+        kernel_frame = ttk.Frame(self.smooth_frame)
+        kernel_frame.pack(fill=tk.X, pady=(5, 5))
+        self.kernel_label = ttk.Label(kernel_frame, text=self.master.tr('kernel'))
+        self.kernel_label.pack(side=tk.LEFT)
+        self.kernel_value_label = ttk.Label(kernel_frame, text="21")
+        self.kernel_value_label.pack(side=tk.RIGHT)
+        self.kernel_scale = ttk.Scale(self.smooth_frame, from_=3, to=51, variable=self.smooth_kernel, orient=tk.HORIZONTAL)
         self.kernel_scale.pack(fill=tk.X)
-        
-        # Sigma control
-        sigma_frame = ttk.Frame(smooth_frame)
-        sigma_frame.pack(fill=tk.X)
-        ttk.Label(sigma_frame, text="Sigma:").pack(side=tk.LEFT)
-        self.sigma_label = ttk.Label(sigma_frame, text="10.0")
-        self.sigma_label.pack(side=tk.RIGHT)
-        
-        self.sigma_scale = ttk.Scale(
-            smooth_frame,
-            from_=0.1,
-            to=20.0,
-            variable=self.smooth_sigma,
-            orient=tk.HORIZONTAL,
-            command=lambda v: self.sigma_label.configure(text=f"{float(v):.1f}")
-        )
+
+        # Sigma
+        sigma_frame = ttk.Frame(self.smooth_frame)
+        sigma_frame.pack(fill=tk.X, pady=(5, 5))
+        self.sigma_label = ttk.Label(sigma_frame, text=self.master.tr('sigma'))
+        self.sigma_label.pack(side=tk.LEFT)
+        self.sigma_value_label = ttk.Label(sigma_frame, text="10.0")
+        self.sigma_value_label.pack(side=tk.RIGHT)
+        self.sigma_scale = ttk.Scale(self.smooth_frame, from_=0.1, to=20.0, variable=self.smooth_sigma, orient=tk.HORIZONTAL)
         self.sigma_scale.pack(fill=tk.X)
 
     def select_background(self):
@@ -292,29 +233,17 @@ class SettingsFrame(ttk.LabelFrame):
         """Update all labels to current language"""
         self.configure(text=self.master.tr('settings'))
         
-        # Labels for devices
+        # Update all labels
         self.input_label.configure(text=self.master.tr('input_device'))
         self.output_label.configure(text=self.master.tr('output_device'))
-        
-        # Background section
         self.bg_label.configure(text=self.master.tr('background'))
         self.bg_button.configure(text=self.master.tr('select_background'))
-        
-        # Model section
         self.model_label.configure(text=self.master.tr('model'))
         self.landscape_radio.configure(text=self.master.tr('landscape'))
         self.portrait_radio.configure(text=self.master.tr('portrait'))
-        
-        # Resolution section
         self.resolution_label.configure(text=self.master.tr('resolution'))
-        
-        # FPS section
-        self.fps_frame_label.configure(text=self.master.tr('fps'))
-        
-        # Scale section
-        self.scale_frame_label.configure(text=self.master.tr('scale'))
-        
-        # Smoothing section
+        self.fps_label.configure(text=self.master.tr('fps'))
+        self.scale_label.configure(text=self.master.tr('scale'))
         self.smooth_frame.configure(text=self.master.tr('smoothing'))
-        self.kernel_frame_label.configure(text=self.master.tr('kernel'))
-        self.sigma_frame_label.configure(text=self.master.tr('sigma'))
+        self.kernel_label.configure(text=self.master.tr('kernel'))
+        self.sigma_label.configure(text=self.master.tr('sigma'))
