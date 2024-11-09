@@ -3,7 +3,7 @@
 A simple application that lets you use custom backgrounds in any video call, even if your video chat app doesn't support this feature. Works with Signal, Zoom, Teams, Meet, and any other video conferencing software.
 
 > [!TIP]
-> For one-file version switch to ![main-backup](https://github.com/sodomak/vcam-bg/tree/main-backup/src) branch
+> For single file version switch to ![single-file](https://github.com/sodomak/vcam-bg/tree/single-file/src) branch
 
 ![Application Screenshot](app.png)
 
