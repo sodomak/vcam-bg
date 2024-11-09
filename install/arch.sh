@@ -2,8 +2,10 @@
 
 # Install required packages
 sudo pacman -S --needed \
-    python-pip \
     python-opencv \
+    python-mediapipe \
+    python-numpy \
+    python-pillow \
     v4l2loopback-dkms \
     v4l-utils \
     ffmpeg \

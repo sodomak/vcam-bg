@@ -27,9 +27,6 @@ case $OS in
         ;;
 esac
 
-# Install Python dependencies
-pip install -r requirements.txt
-
 # Setup v4l2loopback
 sudo modprobe v4l2loopback devices=1 video_nr=2 card_label="Virtual Camera" exclusive_caps=1
 
