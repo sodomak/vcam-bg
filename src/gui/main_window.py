@@ -308,22 +308,15 @@ Built with:
             os.makedirs(os.path.dirname(self.config_file), exist_ok=True)
             if os.path.exists(self.config_file):
                 with open(self.config_file, 'r') as f:
-                    loaded_settings = json.load(f)
-                    # Update settings with loaded values, keeping defaults for missing keys
-                    self.settings = self.default_settings.copy()
-                    self.settings.update(loaded_settings)
-            else:
-                self.settings = self.default_settings.copy()
+                    settings = json.load(f)
+                    
+                    # Update variables with saved settings
+                    for key, value in settings.items():
+                        if hasattr(self, key):
+                            getattr(self, key).set(value)
                 
-            # Initialize variables with loaded settings
-            self.language = tk.StringVar(value=self.settings['language'])
-            self.theme = tk.StringVar(value=self.settings['theme'])
-            
         except Exception as e:
             print(f"Error loading settings: {e}")
-            self.settings = self.default_settings.copy()
-            self.language = tk.StringVar(value='en')
-            self.theme = tk.StringVar(value='light')
 
     def save_settings(self):
         """Save current settings to config file"""
