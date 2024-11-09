@@ -1,6 +1,6 @@
 # Virtual Camera Background
 
-A GUI application that adds virtual background to your webcam feed using MediaPipe for segmentation. Works with any video conferencing software through v4l2loopback virtual camera.
+A simple application that lets you use custom backgrounds in any video call, even if your video chat app doesn't support this feature. Works with Signal, Zoom, Teams, Meet, and any other video conferencing software.
 
 ![Application Screenshot](app.png)
 
