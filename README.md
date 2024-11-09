@@ -34,23 +34,16 @@ Choose your distribution and run the appropriate install script:
 # Fedora
 ./install/fedora.sh
 ```
-
-Or install dependencies manually:
-
-1. System packages:
-
-   - v4l2loopback-dkms
-   - v4l-utils
-   - ffmpeg
-   - python3
-   - python3-pip
-   - opencv dependencies
-
-2. Python packages:
-
-   ```bash
-   pip install -r requirements.txt
-   ```
+This will install all required system packages:
+- OpenCV (python3-opencv/python-opencv)
+- MediaPipe (python3-mediapipe/python-mediapipe)
+- NumPy (python3-numpy/python-numpy)
+- Pillow (python3-pillow/python-pillow)
+- v4l2loopback
+- v4l-utils
+- ffmpeg
+- Tkinter
+- OpenGL libraries
 
 ### Virtual Camera Setup
 
@@ -85,7 +78,7 @@ Or install dependencies manually:
 3. Run the application:
 
    ```bash
-   ./src/vcam-bg-gui.py
+   ./vcam-bg
    ```
 
 ## Usage
@@ -141,7 +134,7 @@ You can export/import settings through the File menu.
 Run with debug output:
 
 ```bash
-PYTHONPATH=src DEBUG=1 ./src/vcam-bg-gui.py
+PYTHONPATH=src DEBUG=1 ./vcam-bg
 ```
 
 ## Contributing
