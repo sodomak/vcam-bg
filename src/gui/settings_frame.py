@@ -11,17 +11,15 @@ class SettingsFrame(ttk.LabelFrame):
         self.master = master
         
         # Use master's variables directly
-        self.fps = tk.DoubleVar(value=master.settings['fps'])
-        self.scale = tk.DoubleVar(value=master.settings['scale'])
-        self.smooth_kernel = tk.IntVar(value=master.settings['smooth_kernel'])
-        self.smooth_sigma = tk.DoubleVar(value=master.settings['smooth_sigma'])
-        self.show_preview = tk.BooleanVar(value=master.settings['show_preview'])
-        
-        # Initialize other settings
-        self.input_device = tk.StringVar(value=master.settings['input_device'])
-        self.output_device = tk.StringVar(value=master.settings['output_device'])
-        self.background_path = tk.StringVar(value=master.settings['background_path'])
-        self.resolution = tk.StringVar(value=master.settings['resolution'])
+        self.fps = master.fps
+        self.scale = master.scale
+        self.smooth_kernel = master.smooth_kernel
+        self.smooth_sigma = master.smooth_sigma
+        self.show_preview = master.show_preview
+        self.input_device = master.input_device
+        self.output_device = master.output_device
+        self.background_path = master.background_path
+        self.resolution = master.resolution
         
         self.create_widgets()
 
