@@ -1,6 +1,6 @@
 # Virtual Camera Background
 
-A simple application that lets you use custom backgrounds in any video call, even if your video chat app doesn't support this feature. Works with Signal, Zoom, Teams, Meet, and any other video conferencing software.
+A simple Linux application that enables custom backgrounds in any video call, regardless of native support in the conferencing app. Compatible with Signal Desktop, Zoom, Teams, Meet, and all other video chat software. The app captures your camera feed, applies a background image, and streams the processed video to a virtual camera, which can then be selected as your video source in any conferencing app. 
 
 > [!TIP]
 > For single file version (no translations, slightly different GUI) switch to ![single-file](https://github.com/sodomak/vcam-bg/tree/single-file/src) branch or download ![release](https://github.com/sodomak/vcam-bg/releases/tag/single)
