@@ -2,6 +2,8 @@
 
 A GUI application that adds virtual background to your webcam feed using MediaPipe for segmentation. Works with any video conferencing software through v4l2loopback virtual camera.
 
+![Application Screenshot](app.png)
+
 ## Features
 
 - Real-time background replacement
