@@ -19,9 +19,11 @@ jobs:
     - name: Install dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y python3-pip python3-venv imagemagick appstream
-        # Ensure ImageMagick policy allows PDF operations
+        sudo apt-get install -y python3-pip python3-venv imagemagick-6.q16 appstream
+        # Fix ImageMagick policy
         sudo sed -i 's/rights="none" pattern="PDF"/rights="read|write" pattern="PDF"/' /etc/ImageMagick-6/policy.xml
+        # Create symlink for magick command
+        sudo ln -s /usr/bin/convert /usr/local/bin/magick
     
     - name: Set up Python
       uses: actions/setup-python@v5
