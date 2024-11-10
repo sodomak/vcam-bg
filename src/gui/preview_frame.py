@@ -11,7 +11,7 @@ import subprocess
 
 class PreviewFrame(ttk.LabelFrame):
     def __init__(self, master):
-        super().__init__(master)
+        super().__init__(master, text=master.tr('camera_preview'))
         self.master = master
         
         # Initialize runtime variables
@@ -189,7 +189,9 @@ class PreviewFrame(ttk.LabelFrame):
 
     def update_labels(self):
         """Update all labels to current language"""
-        self.configure(text=self.master.tr('preview'))
+        # Update the LabelFrame text
+        self.configure(text=self.master.tr('camera_preview'))
+        # Update other labels
         self.start_button.configure(
             text=self.master.tr('stop_camera') if self.is_running 
             else self.master.tr('start_camera')
