@@ -33,11 +33,18 @@ jobs:
       with:
         python-version: '3.12'
     
-    - name: Get version
+    - name: Get version from tag
       id: get_version
       run: |
-        VERSION=$(grep -oP 'VERSION = "\K[^"]+' src/version.py)
+        # Strip 'v' prefix from tag
+        VERSION=${GITHUB_REF#refs/tags/v}
         echo "version=$VERSION" >> $GITHUB_OUTPUT
+        # Verify version matches version.py
+        FILE_VERSION=$(grep -oP 'VERSION = "\K[^"]+' src/version.py)
+        if [ "$VERSION" != "$FILE_VERSION" ]; then
+          echo "Error: Tag version ($VERSION) does not match version.py ($FILE_VERSION)"
+          exit 1
+        fi
 
     - name: Create AppDir structure
       run: |
