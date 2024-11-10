@@ -27,13 +27,32 @@ Download the latest AppImage from the [releases page](https://github.com/sodomak
 
 ## Features
 
-- Real-time background replacement
-- Multiple segmentation models (landscape/portrait)
-- Adjustable smoothing and scaling
-- Save/Load/Import/Export settings
-- Preview window
-- Support for multiple camera resolutions
-- Works with any v4l2loopback virtual camera
+- Real-time background replacement using MediaPipe segmentation
+- Adjustable parameters:
+  - FPS control
+  - Resolution scaling
+  - Gaussian blur smoothing (kernel size and sigma)
+  - Preview window toggle
+- Multiple camera support:
+  - Input device selection
+  - Output device selection (v4l2loopback)
+  - MJPG format support
+  - Multiple resolution options
+- User Interface:
+  - Light/Dark theme
+  - Multi-language support (English, Čeština)
+  - Settings management:
+    - Auto-save configuration
+    - Import/Export settings
+    - Reset to defaults
+- Keyboard shortcuts:
+  - Ctrl+S: Save settings
+  - Ctrl+I: Import settings
+  - Ctrl+E: Export settings
+  - Ctrl+Q: Quit
+  - Space: Toggle camera
+  - R: Reset settings
+  - Esc: Stop camera
 
 ## Prerequisites
 
