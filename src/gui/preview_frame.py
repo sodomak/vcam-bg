@@ -20,6 +20,8 @@ class PreviewFrame(ttk.LabelFrame):
         
         # Use master's variables
         self.show_preview = master.show_preview
+        # Add trace to handle preview toggle
+        self.show_preview.trace_add('write', self.handle_preview_toggle)
         
         # Create preview label
         self.preview_label = ttk.Label(self)
@@ -245,12 +247,15 @@ class PreviewFrame(ttk.LabelFrame):
             self.is_running = False
 
     def update_preview(self):
-        if not self.frame_queue.empty():
+        if not self.frame_queue.empty() and self.show_preview.get():
             frame = self.frame_queue.get_nowait()
             image = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
             photo = ImageTk.PhotoImage(image=image)
             self.preview_label.configure(image=photo)
             self.preview_label.image = photo
+        elif not self.show_preview.get():
+            self.preview_label.configure(image='')
+            self.preview_label.image = None
             
         if self.is_running:
             # Calculate delay in milliseconds based on FPS
@@ -275,3 +280,13 @@ class PreviewFrame(ttk.LabelFrame):
             text=self.master.tr('stop_camera') if self.is_running 
             else self.master.tr('start_camera')
         )
+
+    def handle_preview_toggle(self, *args):
+        """Handle changes to show_preview variable"""
+        if not self.show_preview.get():
+            # Clear the preview image
+            self.preview_label.configure(image='')
+            self.preview_label.image = None
+        elif self.is_running:
+            # Restart preview updates if camera is running
+            self.update_preview()
