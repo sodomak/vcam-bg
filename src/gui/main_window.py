@@ -422,28 +422,33 @@ class MainWindow(ttk.Frame):
                 print(f"Warning: Camera using {actual_width}x{actual_height} instead of requested {width}x{height}")
                 width, height = actual_width, actual_height
 
-            # Load and resize background
-            background_image = cv2.imread(self.background_path.get())
-            if background_image is None:
+            # Load and store original background image
+            original_background = cv2.imread(self.background_path.get())
+            if original_background is None:
                 messagebox.showerror("Error", "Could not load background image")
                 self.is_running = False
                 return
-            background_image = cv2.resize(background_image, (width, height))
+            
+            # Get initial background size
+            background_image = cv2.resize(original_background, (width, height))
+            last_scale = self.scale.get()
 
             # Initialize FFmpeg process
-            command = [
-                'ffmpeg',
-                '-f', 'rawvideo',
-                '-pix_fmt', 'bgr24',
-                '-s', f'{width}x{height}',
-                '-r', str(self.fps.get()),
-                '-i', '-',
-                '-f', 'v4l2',
-                output_device
-            ]
-            ffmpeg_process = subprocess.Popen(command, stdin=subprocess.PIPE)
-            
-            last_scale = self.scale.get()
+            ffmpeg_process = None
+            def create_ffmpeg_process(w, h):
+                command = [
+                    'ffmpeg',
+                    '-f', 'rawvideo',
+                    '-pix_fmt', 'bgr24',
+                    '-s', f'{w}x{h}',
+                    '-r', str(self.fps.get()),
+                    '-i', '-',
+                    '-f', 'v4l2',
+                    output_device
+                ]
+                return subprocess.Popen(command, stdin=subprocess.PIPE)
+
+            ffmpeg_process = create_ffmpeg_process(width, height)
             self.frame_queue = queue.Queue(maxsize=2)
 
             while self.is_running:
@@ -458,10 +463,17 @@ class MainWindow(ttk.Frame):
                 if last_scale != self.scale.get():
                     scaled_width = int(width * self.scale.get())
                     scaled_height = int(height * self.scale.get())
-                    background_image = cv2.resize(background_image, (scaled_width, scaled_height))
+                    # Resize from original background to maintain quality
+                    background_image = cv2.resize(original_background, (scaled_width, scaled_height))
                     last_scale = self.scale.get()
                     frame = cv2.resize(frame, (scaled_width, scaled_height))
                     width, height = scaled_width, scaled_height
+
+                    # Restart FFmpeg process with new dimensions
+                    if ffmpeg_process:
+                        ffmpeg_process.stdin.close()
+                        ffmpeg_process.wait()
+                    ffmpeg_process = create_ffmpeg_process(width, height)
 
                 # Process frame
                 frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
