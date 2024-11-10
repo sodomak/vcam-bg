@@ -220,7 +220,74 @@ PYTHONPATH=src DEBUG=1 ./vcam-bg
 
 ## Contributing
 
-Pull requests are welcome. For major changes, please open an issue first.
+### Adding a New Translation
+
+1. Fork the repository and create a new branch:
+   ```bash
+   git checkout -b add-LANG-translation
+   ```
+   Replace `LANG` with your language code (e.g., `add-fr-translation` for French)
+
+2. Edit `src/locales.py`:
+   - Add your language to `LANGUAGE_NAMES`:
+     ```python
+     LANGUAGE_NAMES = {
+         'en': 'English',
+         'cs': 'Čeština',
+         # Add your language:
+         'fr': 'Français'
+     }
+     ```
+   - Add translations to `TRANSLATIONS`:
+     ```python
+     TRANSLATIONS = {
+         'en': {
+             # existing English translations
+         },
+         'fr': {  # Add your language
+             'title': 'Arrière-plan virtuel de caméra',
+             'settings': 'Paramètres',
+             # ... translate all strings from English ...
+         }
+     }
+     ```
+   
+   > [!TIP]
+   > - Use the English translations as a reference
+   > - Ensure you translate ALL strings
+   > - Keep special characters like `{0}`, `{version}` unchanged
+   > - Maintain the same formatting in the `about_text`
+
+3. Test your translation:
+   ```bash
+   # Run the application
+   ./vcam-bg
+   # Select your language from View > Language menu
+   # Verify all UI elements are correctly translated
+   ```
+
+4. Create a Pull Request:
+   - Commit your changes:
+     ```bash
+     git add src/locales.py
+     git commit -m "Add [Language] translation"
+     git push origin add-LANG-translation
+     ```
+   - Open a Pull Request on GitHub
+   - In the PR description, mention:
+     - The language you've added
+     - Any special considerations for the translation
+     - Your native speaker status for this language
+
+### Translation Guidelines
+
+- Use formal language style
+- Keep technical terms consistent
+- Maintain similar line lengths where possible
+- Test the UI with longer text to ensure it fits
+- Include all special characters and diacritics appropriate for your language
+
+For more details on contributing, see [CONTRIBUTING.md](CONTRIBUTING.md)
 
 ## License
 
