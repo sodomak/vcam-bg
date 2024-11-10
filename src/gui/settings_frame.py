@@ -22,10 +22,6 @@ class SettingsFrame(ttk.LabelFrame):
         self.background_path = master.background_path
         self.resolution = master.resolution
         
-        # Initialize device variables
-        self.input_device = tk.StringVar()
-        self.output_device = tk.StringVar()
-        
         # Get available devices
         input_devices = self.get_input_devices()
         output_devices = self.get_output_devices()
