@@ -23,8 +23,6 @@ jobs:
         # Fix ImageMagick policy and create magick symlink
         sudo sed -i 's/rights="none" pattern="PDF"/rights="read|write" pattern="PDF"/' /etc/ImageMagick-6/policy.xml
         sudo ln -s /usr/bin/convert /usr/local/bin/magick
-        # Validate AppStream metadata
-        appstreamcli validate "$GITHUB_WORKSPACE/build/metainfo/io.github.sodomak.vcam-bg.metainfo.xml"
     
     - name: Set up Python
       uses: actions/setup-python@v5
@@ -36,11 +34,18 @@ jobs:
       run: |
         VERSION=$(grep -oP 'VERSION = "\K[^"]+' src/version.py)
         echo "version=$VERSION" >> $GITHUB_OUTPUT
-    
+
+    - name: Create AppDir structure
+      run: |
+        mkdir -p build/AppDir/usr/share/metainfo/
+        mkdir -p build/AppDir/usr/share/applications/
+
     - name: Build AppImage
       run: |
         chmod +x build/create-appimage.sh
         ./build/create-appimage.sh
+        # Validate AppStream metadata after build
+        appstreamcli validate build/AppDir/usr/share/metainfo/io.github.sodomak.vcam-bg.metainfo.xml
     
     - name: Create Release
       id: create_release
