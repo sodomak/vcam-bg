@@ -45,7 +45,7 @@ TRANSLATIONS = {
         'vertical': 'Vertical Position',
         'flip_h': 'Flip Horizontal',
         'flip_v': 'Flip Vertical',
-        'reset_position': 'Reset Position',
+        'reset_position': 'Reset to Center',
         'about_title': 'About Virtual Camera Background',
         'about_text': '''Virtual Camera Background v{version}
 
@@ -56,6 +56,7 @@ Features:
 • Multiple camera support with MJPG format
 • Adjustable FPS and resolution scaling
 • Edge smoothing with Gaussian blur
+• Advanced position controls with image flipping
 • Light/Dark theme
 • Multi-language support (English, Čeština)
 
@@ -108,7 +109,7 @@ License: MIT''',
         'vertical': 'Vertikální pozice',
         'flip_h': 'Překlopit vodorovně',
         'flip_v': 'Překlopit svisle',
-        'reset_position': 'Resetovat pozici',
+        'reset_position': 'Vycentrovat',
         'about_title': 'O aplikaci Virtual Camera Background',
         'about_text': '''Virtual Camera Background v{version}
 
@@ -119,6 +120,7 @@ Funkce:
 • Podpora více kamer s formátem MJPG
 • Nastavitelné FPS a škálování rozlišení
 • Vyhlazení okrajů pomocí Gaussova rozostření
+• Pokročilé ovládání pozice s překlopením obrazu
 • Světlý/Tmavý motiv
 • Vícejazyčná podpora (Angličtina, Čeština)
 

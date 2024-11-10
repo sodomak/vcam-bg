@@ -33,6 +33,10 @@ Download the latest AppImage from the [releases page](https://github.com/sodomak
   - Resolution scaling
   - Gaussian blur smoothing (kernel size and sigma)
   - Preview window toggle
+  - Position controls:
+    - Horizontal/Vertical positioning
+    - Horizontal/Vertical flip
+    - Quick reset to center
 - Multiple camera support:
   - Input device selection
   - Output device selection (v4l2loopback)
