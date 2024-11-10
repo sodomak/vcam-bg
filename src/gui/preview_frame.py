@@ -115,22 +115,34 @@ class PreviewFrame(ttk.LabelFrame):
                 stdin=subprocess.PIPE
             )
 
-            # Load background
-            background_image = cv2.imread(self.master.settings_frame.background_path.get())
-            background_image = cv2.resize(background_image, (width, height))
+            # Load and store original background
+            original_background = cv2.imread(self.master.settings_frame.background_path.get())
+            if original_background is None:
+                messagebox.showerror("Error", "Could not load background image")
+                self.is_running = False
+                return
+            
+            # Initial resize to match frame dimensions
+            background_image = cv2.resize(original_background, (width, height))
+            last_scale = self.master.settings_frame.scale.get()
 
             while self.is_running:
                 ret, frame = cap.read()
                 if not ret:
                     break
 
-                # Apply scaling if needed
-                scale = self.master.settings_frame.scale.get()
-                if scale != 1.0:
-                    new_width = int(frame.shape[1] * scale)
-                    new_height = int(frame.shape[0] * scale)
-                    frame = cv2.resize(frame, (new_width, new_height))
-                    background_image = cv2.resize(background_image, (new_width, new_height))
+                # Get current scale
+                current_scale = self.master.settings_frame.scale.get()
+                
+                # Always resize both frame and background together
+                scaled_width = int(width * current_scale)
+                scaled_height = int(height * current_scale)
+                frame = cv2.resize(frame, (scaled_width, scaled_height))
+                
+                # Only resize background from original if scale changed
+                if current_scale != last_scale:
+                    background_image = cv2.resize(original_background, (scaled_width, scaled_height))
+                    last_scale = current_scale
 
                 # Process frame
                 frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
