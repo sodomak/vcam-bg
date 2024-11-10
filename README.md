@@ -45,10 +45,6 @@ Download the latest AppImage from the [releases page](https://github.com/sodomak
 > [!TIP]
 > If the module installation commands above don't work for your distribution, check your distribution's package manager for `v4l2loopback` or `v4l2loopback-dkms` package.
 
-### From Source
-> [!TIP]
-> For single file version (no translations, slightly different GUI) switch to [single-file](https://github.com/sodomak/vcam-bg/tree/single-file/src) branch or download [release](https://github.com/sodomak/vcam-bg/releases/tag/single)
-
 ## Features
 
 - Real-time background replacement using MediaPipe segmentation
@@ -106,6 +102,8 @@ Download the latest AppImage from the [releases page](https://github.com/sodomak
    ```
 
 ## Building from Source
+
+> For single file version (no translations, slightly different GUI) switch to [single-file](https://github.com/sodomak/vcam-bg/tree/single-file/src) branch or download [release](https://github.com/sodomak/vcam-bg/releases/tag/single)
 
 ### Dependencies Installation
 
