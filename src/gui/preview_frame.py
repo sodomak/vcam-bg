@@ -97,24 +97,26 @@ class PreviewFrame(ttk.LabelFrame):
             cap.set(cv2.CAP_PROP_FRAME_WIDTH, width)
             cap.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
             
-            # Open output device with ffmpeg
-            command = [
-                'ffmpeg',
-                '-f', 'rawvideo',
-                '-pix_fmt', 'bgr24',
-                '-s', f'{width}x{height}',
-                '-r', str(self.master.settings_frame.fps.get()),
-                '-i', '-',
-                '-f', 'v4l2',
-                '-pix_fmt', 'yuv420p',
-                output_path
-            ]
+            # Track last FPS value
+            last_fps = self.master.settings_frame.fps.get()
             
-            self.ffmpeg_process = subprocess.Popen(
-                command,
-                stdin=subprocess.PIPE
-            )
-
+            # Create FFmpeg process
+            def create_ffmpeg_process():
+                command = [
+                    'ffmpeg',
+                    '-f', 'rawvideo',
+                    '-pix_fmt', 'bgr24',
+                    '-s', f'{width}x{height}',
+                    '-r', str(self.master.settings_frame.fps.get()),
+                    '-i', '-',
+                    '-f', 'v4l2',
+                    '-pix_fmt', 'yuv420p',
+                    output_path
+                ]
+                return subprocess.Popen(command, stdin=subprocess.PIPE)
+            
+            self.ffmpeg_process = create_ffmpeg_process()
+            
             # Load and store original background
             original_background = cv2.imread(self.master.settings_frame.background_path.get())
             if original_background is None:
@@ -130,6 +132,15 @@ class PreviewFrame(ttk.LabelFrame):
                 ret, frame = cap.read()
                 if not ret:
                     break
+
+                # Check if FPS changed
+                current_fps = self.master.settings_frame.fps.get()
+                if current_fps != last_fps:
+                    # Restart FFmpeg process with new FPS
+                    self.ffmpeg_process.stdin.close()
+                    self.ffmpeg_process.wait()
+                    self.ffmpeg_process = create_ffmpeg_process()
+                    last_fps = current_fps
 
                 # Get current scale
                 current_scale = self.master.settings_frame.scale.get()
@@ -197,7 +208,9 @@ class PreviewFrame(ttk.LabelFrame):
             self.preview_label.image = photo
             
         if self.is_running:
-            self.master.after(10, self.update_preview)  # Use parent instead of root
+            # Calculate delay in milliseconds based on FPS
+            delay = int(1000 / self.master.settings_frame.fps.get())
+            self.master.after(delay, self.update_preview)
 
     def update_labels(self):
         """Update all labels to current language"""
