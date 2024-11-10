@@ -11,6 +11,14 @@ class SettingsFrame(ttk.LabelFrame):
         super().__init__(master)
         self.master = master
         
+        # Define common resolutions
+        self.common_resolutions = [
+            '1920x1080',
+            '1280x720',
+            '800x600',
+            '640x480'
+        ]
+        
         # Use master's variables directly
         self.fps = master.fps
         self.scale = master.scale
@@ -30,27 +38,19 @@ class SettingsFrame(ttk.LabelFrame):
         if not self.input_device.get() and input_devices:
             self.input_device.set(input_devices[0])
         if not self.output_device.get() and output_devices:
-            # Find first v4l2loopback device
             default_output = next(
                 (dev for dev in output_devices if "Virtual Camera" in dev or "v4l2loopback" in dev.lower()),
                 output_devices[0] if output_devices else ""
             )
             self.output_device.set(default_output)
 
-        # Add common resolutions
-        self.common_resolutions = [
-            "640x480",
-            "800x600",
-            "1280x720",
-            "1920x1080",
-            "2560x1440",
-            "3840x2160"
-        ]
-        
         # Create widgets after initializing variables
         self.create_widgets()
         
-        # Update resolutions when input device changes
+        # Update resolutions for initial device
+        self.update_resolutions()
+        
+        # Bind resolution updates to device changes
         self.input_combo.bind('<<ComboboxSelected>>', self.update_resolutions)
 
     def create_widgets(self):
