@@ -4,6 +4,7 @@ import subprocess
 import re
 import os
 import cv2
+from PIL import Image, ImageTk
 
 class SettingsFrame(ttk.LabelFrame):
     def __init__(self, master):
@@ -44,10 +45,25 @@ class SettingsFrame(ttk.LabelFrame):
         # Background
         bg_frame = ttk.Frame(self)
         bg_frame.pack(fill=tk.X, pady=(0, 10))
+        
+        # Label on the left
         self.bg_label = ttk.Label(bg_frame, text=self.master.tr('background'))
         self.bg_label.pack(side=tk.LEFT)
+        
+        # Button on the right
         self.bg_button = ttk.Button(bg_frame, text=self.master.tr('select_background'), command=self.select_background)
         self.bg_button.pack(side=tk.RIGHT)
+        
+        # Preview frame between label and button
+        self.bg_preview_frame = ttk.Frame(bg_frame)
+        self.bg_preview_frame.pack(side=tk.LEFT, padx=5, fill=tk.X, expand=True)
+        
+        # Preview image and filename
+        self.bg_preview = ttk.Label(self.bg_preview_frame)
+        self.bg_preview.pack(side=tk.LEFT, padx=(5, 0))
+        
+        self.bg_path_label = ttk.Label(self.bg_preview_frame, text="", wraplength=150)
+        self.bg_path_label.pack(side=tk.LEFT, padx=5)
 
         # Resolution
         res_frame = ttk.Frame(self)
@@ -139,6 +155,42 @@ class SettingsFrame(ttk.LabelFrame):
         )
         if filename:
             self.background_path.set(filename)
+            self.update_background_preview()
+
+    def update_background_preview(self):
+        """Update the background preview and path label"""
+        path = self.background_path.get()
+        if path:
+            try:
+                # Load and resize image for preview
+                image = cv2.imread(path)
+                if image is not None:
+                    # Calculate preview size (maintain aspect ratio)
+                    preview_width = 100
+                    aspect_ratio = image.shape[1] / image.shape[0]
+                    preview_height = int(preview_width / aspect_ratio)
+                    
+                    # Resize image
+                    preview = cv2.resize(image, (preview_width, preview_height))
+                    preview = cv2.cvtColor(preview, cv2.COLOR_BGR2RGB)
+                    
+                    # Convert to PhotoImage
+                    preview = Image.fromarray(preview)
+                    photo = ImageTk.PhotoImage(image=preview)
+                    
+                    # Update preview
+                    self.bg_preview.configure(image=photo)
+                    self.bg_preview.image = photo  # Keep reference
+                    
+                    # Update path label
+                    self.bg_path_label.configure(text=os.path.basename(path))
+            except Exception as e:
+                print(f"Error loading preview: {e}")
+                self.bg_preview.configure(image='')
+                self.bg_path_label.configure(text="Error loading preview")
+        else:
+            self.bg_preview.configure(image='')
+            self.bg_path_label.configure(text="")
 
     def load_camera_devices(self):
         """Load available input and output devices"""
@@ -316,3 +368,6 @@ class SettingsFrame(ttk.LabelFrame):
         
         self.sigma_entry.set(self.smooth_sigma.get())
         self.sigma_label.configure(text=f"{self.smooth_sigma.get():.1f}")
+        
+        # Update background preview
+        self.update_background_preview()
