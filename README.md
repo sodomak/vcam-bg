@@ -16,10 +16,34 @@ Download the latest AppImage from the [releases page](https://github.com/sodomak
    ```bash
    chmod +x vcam-bg-x86_64.AppImage
    ```
-3. Run it:
+3. Install and load the virtual camera module (required):
+   ```bash
+   # For Ubuntu/Debian:
+   sudo apt install v4l2loopback-dkms
+
+   # For Fedora:
+   sudo dnf install v4l2loopback
+
+   # For Arch Linux:
+   sudo pacman -S v4l2loopback-dkms
+
+   # After installation, load the module:
+   sudo modprobe v4l2loopback devices=1 video_nr=2 card_label="Virtual Camera" exclusive_caps=1
+
+   # Optional: Make module load persistent across reboots
+   echo "v4l2loopback" | sudo tee /etc/modules-load.d/v4l2loopback.conf
+   echo "options v4l2loopback devices=1 video_nr=2 card_label='Virtual Camera' exclusive_caps=1" | sudo tee /etc/modprobe.d/v4l2loopback.conf
+   ```
+4. Run it:
    ```bash
    ./vcam-bg-x86_64.AppImage
    ```
+
+> [!NOTE]
+> The AppImage is self-contained and includes all required dependencies (Python, OpenCV, MediaPipe, etc.). The only system requirement is the v4l2loopback kernel module for virtual camera functionality.
+
+> [!TIP]
+> If the module installation commands above don't work for your distribution, check your distribution's package manager for `v4l2loopback` or `v4l2loopback-dkms` package.
 
 ### From Source
 > [!TIP]
