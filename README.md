@@ -4,10 +4,26 @@ A simple Linux application that enables custom backgrounds in any video call, re
 
 *Note: This application was developed with the assistance of AI LLMs.*
 
-> [!TIP]
-> For single file version (no translations, slightly different GUI) switch to ![single-file](https://github.com/sodomak/vcam-bg/tree/single-file/src) branch or download ![release](https://github.com/sodomak/vcam-bg/releases/tag/single)
-
 ![Application Screenshot](app.png)
+
+## Installation
+
+### AppImage (Recommended)
+Download the latest AppImage from the [releases page](https://github.com/sodomak/vcam-bg/releases):
+
+1. Download `vcam-bg-x86_64.AppImage`
+2. Make it executable:
+   ```bash
+   chmod +x vcam-bg-x86_64.AppImage
+   ```
+3. Run it:
+   ```bash
+   ./vcam-bg-x86_64.AppImage
+   ```
+
+### From Source
+> [!TIP]
+> For single file version (no translations, slightly different GUI) switch to [single-file](https://github.com/sodomak/vcam-bg/tree/single-file/src) branch or download [release](https://github.com/sodomak/vcam-bg/releases/tag/single)
 
 ## Features
 
@@ -26,6 +42,23 @@ A simple Linux application that enables custom backgrounds in any video call, re
 - Linux system with Python 3.8+
 - Webcam compatible with V4L2
 - Graphics acceleration recommended
+
+### Virtual Camera Setup
+
+1. Load v4l2loopback module:
+
+   ```bash
+   sudo modprobe v4l2loopback devices=1 video_nr=2 card_label="Virtual Camera" exclusive_caps=1
+   ```
+
+2. Make it persistent (optional):
+
+   ```bash
+   echo "v4l2loopback" | sudo tee /etc/modules-load.d/v4l2loopback.conf
+   echo "options v4l2loopback devices=1 video_nr=2 card_label='Virtual Camera' exclusive_caps=1" | sudo tee /etc/modprobe.d/v4l2loopback.conf
+   ```
+
+## Building from Source
 
 ### Dependencies Installation
 
@@ -54,41 +87,20 @@ This will install all required system packages:
 - Tkinter
 - OpenGL libraries
 
-### Virtual Camera Setup
+### Building AppImage
 
-1. Load v4l2loopback module:
+To build your own AppImage:
 
-   ```bash
-   sudo modprobe v4l2loopback devices=1 video_nr=2 card_label="Virtual Camera" exclusive_caps=1
-   ```
+```bash
+# Clone the repository
+git clone https://github.com/sodomak/vcam-bg.git
+cd vcam-bg
 
-2. Make it persistent (optional):
+# Run the AppImage build script
+./build/create-appimage.sh
+```
 
-   ```bash
-   echo "v4l2loopback" | sudo tee /etc/modules-load.d/v4l2loopback.conf
-   echo "options v4l2loopback devices=1 video_nr=2 card_label='Virtual Camera' exclusive_caps=1" | sudo tee /etc/modprobe.d/v4l2loopback.conf
-   ```
-
-## Installation
-
-1. Clone the repository:
-
-   ```bash
-   git clone https://github.com/sodomak/vcam-bg.git
-   cd vcam-bg
-   ```
-
-2. Install dependencies:
-
-   ```bash
-   ./setup.sh
-   ```
-
-3. Run the application:
-
-   ```bash
-   ./vcam-bg
-   ```
+The AppImage will be created as `vcam-bg-x86_64.AppImage`.
 
 ## Usage
 
