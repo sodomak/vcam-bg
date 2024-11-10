@@ -12,78 +12,30 @@ import subprocess
 import queue
 import numpy as np
 from src.version import VERSION
+from ..utils.theme import ThemeManager
 
 class MainWindow(ttk.Frame):
     def __init__(self, root):
         super().__init__(root)
         self.root = root
-        self.config_file = os.path.expanduser("~/.config/vcam-bg/config.json")
         
-        # Create default settings
-        self.default_settings = {
-            'input_device': '',
-            'output_device': '/dev/video2',
-            'background_path': '',
-            'fps': 20.0,
-            'scale': 1.0,
-            'show_preview': True,
-            'smooth_kernel': 21,
-            'smooth_sigma': 10.0,
-            'resolution': '1280x720',
-            'language': 'en',
-            'theme': 'light',
-            'x_offset': 0.5,
-            'y_offset': 0.5,
-            'flip_h': False,
-            'flip_v': False
-        }
+        # Initialize theme manager first
+        self.theme_manager = ThemeManager(root)
         
-        # Initialize variables with default values first
-        self.fps = tk.DoubleVar(value=self.default_settings['fps'])
-        self.scale = tk.DoubleVar(value=self.default_settings['scale'])
-        self.smooth_kernel = tk.IntVar(value=self.default_settings['smooth_kernel'])
-        self.smooth_sigma = tk.DoubleVar(value=self.default_settings['smooth_sigma'])
-        self.input_device = tk.StringVar(value=self.default_settings['input_device'])
-        self.output_device = tk.StringVar(value=self.default_settings['output_device'])
-        self.background_path = tk.StringVar(value=self.default_settings['background_path'])
-        self.show_preview = tk.BooleanVar(value=self.default_settings['show_preview'])
-        self.resolution = tk.StringVar(value=self.default_settings['resolution'])
+        # Set config file path
+        self.config_file = os.path.expanduser('~/.config/vcam-bg/config.json')
         
-        # Add language and theme variables
-        self.language = tk.StringVar(value=self.default_settings['language'])
-        self.theme = tk.StringVar(value=self.default_settings['theme'])
+        # Initialize variables
+        self.create_variables()
         
-        # Add position variables
-        self.x_offset = tk.DoubleVar(value=self.default_settings['x_offset'])
-        self.y_offset = tk.DoubleVar(value=self.default_settings['y_offset'])
-        self.flip_h = tk.BooleanVar(value=self.default_settings['flip_h'])
-        self.flip_v = tk.BooleanVar(value=self.default_settings['flip_v'])
-        
-        # Load settings after initializing variables
-        self.load_settings()
-        
-        # Create GUI
-        self.create_menu()
+        # Create widgets and menus
         self.create_frames()
+        self.create_menu()
+        self.create_bindings()
         
-        # Bind settings changes to save
-        self.settings_frame.input_device.trace_add('write', lambda *_: self.save_settings())
-        self.settings_frame.output_device.trace_add('write', lambda *_: self.save_settings())
-        self.settings_frame.background_path.trace_add('write', lambda *_: self.save_settings())
-        self.settings_frame.fps.trace_add('write', lambda *_: self.save_settings())
-        self.settings_frame.scale.trace_add('write', lambda *_: self.save_settings())
-        self.settings_frame.smooth_kernel.trace_add('write', lambda *_: self.save_settings())
-        self.settings_frame.smooth_sigma.trace_add('write', lambda *_: self.save_settings())
-        self.settings_frame.x_offset.trace_add('write', lambda *_: self.save_settings())
-        self.settings_frame.y_offset.trace_add('write', lambda *_: self.save_settings())
-        self.settings_frame.flip_h.trace_add('write', lambda *_: self.save_settings())
-        self.settings_frame.flip_v.trace_add('write', lambda *_: self.save_settings())
-        
-        # Apply loaded settings
+        # Load and apply settings last
+        self.load_settings()
         self.apply_loaded_settings()
-        
-        # Set initial title
-        self.update_title()
         
         # Configure root window
         self.root.minsize(800, 600)
@@ -91,15 +43,6 @@ class MainWindow(ttk.Frame):
         
         # Load camera devices
         self.settings_frame.load_camera_devices()
-        
-        # Add keyboard shortcuts
-        self.root.bind('<Control-s>', lambda e: self.save_settings())
-        self.root.bind('<Control-i>', lambda e: self.import_settings())
-        self.root.bind('<Control-e>', lambda e: self.export_settings())
-        self.root.bind('<Control-q>', lambda e: self.root.quit())
-        self.root.bind('<space>', lambda e: self.preview_frame.toggle_camera())
-        self.root.bind('<r>', lambda e: self.reset_settings())
-        self.root.bind('<Escape>', lambda e: self.preview_frame.stop_camera())
         
         print("GUI created")
 
@@ -157,18 +100,13 @@ class MainWindow(ttk.Frame):
         self.view_menu.add_cascade(label=self.tr('theme'), menu=self.theme_menu)
         
         # Add theme options
-        self.theme_menu.add_radiobutton(
-            label=self.tr('light'),
-            value="light",
-            variable=self.theme,
-            command=lambda: self.setup_theme(False)
-        )
-        self.theme_menu.add_radiobutton(
-            label=self.tr('dark'),
-            value="dark",
-            variable=self.theme,
-            command=lambda: self.setup_theme(True)
-        )
+        for theme_option in ['system', 'gtk', 'light', 'dark']:
+            self.theme_menu.add_radiobutton(
+                label=self.tr(theme_option),
+                value=theme_option,
+                variable=self.theme,
+                command=lambda t=theme_option: self.theme_manager.set_theme(t)
+            )
         
         # Help menu
         help_menu = tk.Menu(menubar, tearoff=0)
@@ -211,90 +149,6 @@ class MainWindow(ttk.Frame):
         text = self.tr('about_text').format(version=VERSION)
         messagebox.showinfo(self.tr('about_title'), text)
 
-    def setup_theme(self, is_dark=False):
-        """Setup light/dark theme using ttk styles"""
-        style = ttk.Style()
-        
-        if is_dark:
-            # Dark theme colors
-            style.theme_use('default')
-            self.root.configure(bg='#2d2d2d')
-            style.configure('.', background='#2d2d2d', foreground='#ffffff')
-            style.configure('TLabel', background='#2d2d2d', foreground='#ffffff')
-            style.configure('TFrame', background='#2d2d2d')
-            style.configure('TLabelframe', background='#2d2d2d', foreground='#ffffff')
-            style.configure('TLabelframe.Label', background='#2d2d2d', foreground='#ffffff')
-            style.configure('TButton', background='#3d3d3d', foreground='#ffffff')
-            style.configure('TCheckbutton', background='#2d2d2d', foreground='#ffffff')
-            style.configure('TRadiobutton', background='#2d2d2d', foreground='#ffffff')
-            style.configure('TScale', background='#2d2d2d', troughcolor='#3d3d3d')
-            style.configure('TCombobox',
-                fieldbackground='#3d3d3d',
-                background='#3d3d3d',
-                foreground='#ffffff',
-                selectbackground='#0078d7',
-                selectforeground='#ffffff'
-            )
-            
-            # Menu colors
-            menubar = self.root.winfo_children()[0]
-            if isinstance(menubar, tk.Menu):
-                menubar.configure(
-                    bg='#2d2d2d',
-                    fg='#ffffff',
-                    activebackground='#0078d7',
-                    activeforeground='#ffffff'
-                )
-                for menu in [self.file_menu, self.view_menu, self.help_menu]:
-                    if menu:
-                        menu.configure(
-                            bg='#2d2d2d',
-                            fg='#ffffff',
-                            activebackground='#0078d7',
-                            activeforeground='#ffffff'
-                        )
-        else:
-            # Light theme colors (from original script)
-            style.theme_use('default')
-            self.root.configure(bg='#f0f0f0')
-            style.configure('.', background='#f0f0f0', foreground='#000000')
-            style.configure('TLabel', background='#f0f0f0', foreground='#000000')
-            style.configure('TFrame', background='#f0f0f0')
-            style.configure('TLabelframe', background='#f0f0f0', foreground='#000000')
-            style.configure('TLabelframe.Label', background='#f0f0f0', foreground='#000000')
-            style.configure('TButton', background='#e0e0e0', foreground='#000000')
-            style.configure('TCheckbutton', background='#f0f0f0', foreground='#000000')
-            style.configure('TRadiobutton', background='#f0f0f0', foreground='#000000')
-            style.configure('TScale', background='#f0f0f0', troughcolor='#e0e0e0')
-            style.configure('TCombobox',
-                fieldbackground='#ffffff',
-                background='#ffffff',
-                foreground='#000000',
-                selectbackground='#0078d7',
-                selectforeground='#ffffff'
-            )
-            
-            # Menu colors
-            menubar = self.root.winfo_children()[0]
-            if isinstance(menubar, tk.Menu):
-                menubar.configure(
-                    bg='#f0f0f0',
-                    fg='#000000',
-                    activebackground='#0078d7',
-                    activeforeground='#ffffff'
-                )
-                for menu in [self.file_menu, self.view_menu, self.help_menu]:
-                    if menu:
-                        menu.configure(
-                            bg='#f0f0f0',
-                            fg='#000000',
-                            activebackground='#0078d7',
-                            activeforeground='#ffffff'
-                        )
-        
-        # Force redraw
-        self.root.update_idletasks()
-
     def load_settings(self):
         """Load settings from config file"""
         try:
@@ -304,23 +158,23 @@ class MainWindow(ttk.Frame):
                     settings = json.load(f)
                     
                     # Update variables with saved settings
-                    self.fps.set(settings.get('fps', self.default_settings['fps']))
-                    self.scale.set(float(settings.get('scale', self.default_settings['scale'])))
-                    self.smooth_kernel.set(settings.get('smooth_kernel', self.default_settings['smooth_kernel']))
-                    self.smooth_sigma.set(settings.get('smooth_sigma', self.default_settings['smooth_sigma']))
-                    self.input_device.set(settings.get('input_device', self.default_settings['input_device']))
-                    self.output_device.set(settings.get('output_device', self.default_settings['output_device']))
-                    self.background_path.set(settings.get('background_path', self.default_settings['background_path']))
-                    self.show_preview.set(settings.get('show_preview', self.default_settings['show_preview']))
-                    self.resolution.set(settings.get('resolution', self.default_settings['resolution']))
-                    self.language.set(settings.get('language', self.default_settings['language']))
-                    self.theme.set(settings.get('theme', self.default_settings['theme']))
+                    self.fps.set(settings.get('fps', 20.0))
+                    self.scale.set(float(settings.get('scale', 1.0)))
+                    self.smooth_kernel.set(settings.get('smooth_kernel', 21))
+                    self.smooth_sigma.set(settings.get('smooth_sigma', 10.0))
+                    self.input_device.set(settings.get('input_device', ''))
+                    self.output_device.set(settings.get('output_device', '/dev/video2'))
+                    self.background_path.set(settings.get('background_path', ''))
+                    self.show_preview.set(settings.get('show_preview', True))
+                    self.resolution.set(settings.get('resolution', '1280x720'))
+                    self.language.set(settings.get('language', 'en'))
+                    self.theme.set(settings.get('theme', 'system'))
                     
                     # Position settings
-                    self.x_offset.set(float(settings.get('x_offset', self.default_settings['x_offset'])))
-                    self.y_offset.set(float(settings.get('y_offset', self.default_settings['y_offset'])))
-                    self.flip_h.set(settings.get('flip_h', self.default_settings['flip_h']))
-                    self.flip_v.set(settings.get('flip_v', self.default_settings['flip_v']))
+                    self.x_offset.set(float(settings.get('x_offset', 0.5)))
+                    self.y_offset.set(float(settings.get('y_offset', 0.5)))
+                    self.flip_h.set(settings.get('flip_h', False))
+                    self.flip_v.set(settings.get('flip_v', False))
                     
         except Exception as e:
             print(f"Error loading settings: {e}")
@@ -338,12 +192,13 @@ class MainWindow(ttk.Frame):
                 'smooth_kernel': self.settings_frame.smooth_kernel.get(),
                 'smooth_sigma': self.settings_frame.smooth_sigma.get(),
                 'resolution': self.settings_frame.resolution.get(),
-                'language': self.language.get(),
-                'theme': self.theme.get(),
                 'x_offset': self.settings_frame.x_offset.get(),
                 'y_offset': self.settings_frame.y_offset.get(),
                 'flip_h': self.settings_frame.flip_h.get(),
-                'flip_v': self.settings_frame.flip_v.get()
+                'flip_v': self.settings_frame.flip_v.get(),
+                # Actually add the settings, not just comment about them
+                'language': self.language.get(),
+                'theme': self.theme.get()
             }
             
             os.makedirs(os.path.dirname(self.config_file), exist_ok=True)
@@ -371,12 +226,13 @@ class MainWindow(ttk.Frame):
                     'smooth_kernel': self.settings_frame.smooth_kernel.get(),
                     'smooth_sigma': self.settings_frame.smooth_sigma.get(),
                     'resolution': self.settings_frame.resolution.get(),
-                    'language': self.language.get(),
-                    'theme': self.theme.get(),
                     'x_offset': self.settings_frame.x_offset.get(),
                     'y_offset': self.settings_frame.y_offset.get(),
                     'flip_h': self.settings_frame.flip_h.get(),
-                    'flip_v': self.settings_frame.flip_v.get()
+                    'flip_v': self.settings_frame.flip_v.get(),
+                    # Add theme and language settings
+                    'language': self.language.get(),
+                    'theme': self.theme.get()
                 }
                 with open(filename, 'w') as f:
                     json.dump(settings, f, indent=4)
@@ -423,7 +279,7 @@ class MainWindow(ttk.Frame):
         self.change_language()
         
         # Update theme
-        self.setup_theme('dark' in self.theme.get().lower())
+        self.theme_manager.set_theme(self.theme.get())
         
         # Update frames
         if hasattr(self, 'settings_frame'):
@@ -562,3 +418,40 @@ class MainWindow(ttk.Frame):
             messagebox.showerror("Error", f"Camera error: {str(e)}")
             self.is_running = False
             return
+
+    def create_variables(self):
+        """Initialize all variables"""
+        # Theme and language
+        self.theme = tk.StringVar(value='system')
+        self.language = tk.StringVar(value='en')
+        
+        # Add trace callbacks to save settings when theme or language changes
+        self.theme.trace_add('write', lambda *_: self.save_settings())
+        self.language.trace_add('write', lambda *_: self.save_settings())
+        
+        # Settings variables
+        self.fps = tk.DoubleVar(value=20.0)
+        self.scale = tk.DoubleVar(value=1.0)
+        self.smooth_kernel = tk.IntVar(value=21)
+        self.smooth_sigma = tk.DoubleVar(value=10.0)
+        self.input_device = tk.StringVar()
+        self.output_device = tk.StringVar(value='/dev/video2')
+        self.background_path = tk.StringVar()
+        self.show_preview = tk.BooleanVar(value=True)
+        self.resolution = tk.StringVar(value='1280x720')
+        
+        # Position controls
+        self.x_offset = tk.DoubleVar(value=0.5)
+        self.y_offset = tk.DoubleVar(value=0.5)
+        self.flip_h = tk.BooleanVar(value=False)
+        self.flip_v = tk.BooleanVar(value=False)
+
+    def create_bindings(self):
+        """Create keyboard shortcuts"""
+        self.root.bind('<Control-s>', lambda e: self.save_settings())
+        self.root.bind('<Control-i>', lambda e: self.import_settings())
+        self.root.bind('<Control-e>', lambda e: self.export_settings())
+        self.root.bind('<Control-q>', lambda e: self.root.quit())
+        self.root.bind('<space>', lambda e: self.preview_frame.toggle_camera())
+        self.root.bind('<r>', lambda e: self.reset_settings())
+        self.root.bind('<Escape>', lambda e: self.preview_frame.stop_camera())
