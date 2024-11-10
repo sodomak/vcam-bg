@@ -1,1 +1,57 @@
-# paste the content above
+name: Release AppImage
+
+on:
+  push:
+    tags:
+      - 'v*'  # Trigger on any tag starting with 'v'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+    
+    - name: Install system dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          python3-opencv \
+          python3-numpy \
+          python3-pip \
+          python3-tk \
+          imagemagick \
+          fuse \
+          libgl1-mesa-glx
+    
+    - name: Create AppDir structure
+      run: |
+        mkdir -p build/AppDir
+        chmod +x build/create-appimage.sh
+        chmod +x build/install-deps.sh
+    
+    - name: Build AppImage
+      run: ./build/create-appimage.sh
+    
+    - name: Get version
+      id: get_version
+      run: |
+        VERSION=$(echo ${{ github.ref }} | sed 's/refs\/tags\/v//')
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
+    
+    - name: Create Release
+      id: create_release
+      uses: softprops/action-gh-release@v1
+      with:
+        name: Release ${{ steps.get_version.outputs.version }}
+        draft: false
+        prerelease: false
+        files: |
+          vcam-bg-x86_64.AppImage
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
