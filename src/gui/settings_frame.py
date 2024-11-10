@@ -41,7 +41,21 @@ class SettingsFrame(ttk.LabelFrame):
             )
             self.output_device.set(default_output)
 
+        # Add common resolutions
+        self.common_resolutions = [
+            "640x480",
+            "800x600",
+            "1280x720",
+            "1920x1080",
+            "2560x1440",
+            "3840x2160"
+        ]
+        
+        # Create widgets after initializing variables
         self.create_widgets()
+        
+        # Update resolutions when input device changes
+        self.input_combo.bind('<<ComboboxSelected>>', self.update_resolutions)
 
     def create_widgets(self):
         """Create all widgets in the settings frame"""
@@ -272,40 +286,62 @@ class SettingsFrame(ttk.LabelFrame):
             pass
         return os.path.basename(device_path)
 
-    def update_resolutions(self, *args):
-        """Update available resolutions for selected camera"""
-        if not self.input_device.get():
-            return
-            
+    def get_camera_resolutions(self, device_path):
+        """Get supported resolutions for a camera using v4l2-ctl"""
         try:
-            device_path = re.search(r"\((/dev/video\d+)\)", self.input_device.get()).group(1)
-            resolutions = self.get_device_resolutions(device_path)
-            self.resolution_combo['values'] = resolutions
-            if resolutions and not self.resolution.get():
-                self.resolution.set(resolutions[0])
-        except (AttributeError, IndexError):
-            print("Error parsing device path")
+            # Get formats and resolutions using v4l2-ctl
+            cmd = ["v4l2-ctl", "--device", device_path, "--list-formats-ext"]
+            output = subprocess.check_output(cmd, stderr=subprocess.STDOUT).decode()
+            
+            resolutions = set()  # Use set to avoid duplicates
+            
+            # Parse the output to extract resolutions
+            for line in output.split('\n'):
+                # Look for size entries
+                size_match = re.search(r'Size:\s*(\d+)x(\d+)', line)
+                if size_match:
+                    width, height = size_match.groups()
+                    resolutions.add(f"{width}x{height}")
+                    
+            # Sort resolutions by total pixels (descending)
+            return sorted(
+                list(resolutions),
+                key=lambda x: int(x.split('x')[0]) * int(x.split('x')[1]),
+                reverse=True
+            )
+        except Exception as e:
+            print(f"Error getting camera resolutions: {e}")
+            return self.common_resolutions
 
-    def get_device_resolutions(self, device_path):
-        """Get available resolutions for camera device"""
+    def update_resolutions(self, event=None):
+        """Update available resolutions for selected camera"""
         try:
-            output = subprocess.check_output(
-                f"v4l2-ctl --device={device_path} --list-formats-ext",
-                shell=True
-            ).decode()
+            # Get device path from selected input
+            device_path = re.search(r"\((/dev/video\d+)\)", self.input_device.get()).group(1)
             
-            resolutions = set()
-            for match in re.finditer(r"Size: Discrete (\d+x\d+)", output):
-                resolutions.add(match.group(1))
+            # Get supported resolutions
+            available_resolutions = self.get_camera_resolutions(device_path)
             
-            if not resolutions:
-                resolutions = {'640x480', '1280x720', '1920x1080'}
+            if not available_resolutions:
+                available_resolutions = self.common_resolutions
+                
+            # Update combobox
+            self.resolution_combo['values'] = available_resolutions
             
-            return sorted(list(resolutions), 
-                         key=lambda x: tuple(map(int, x.split('x'))))
-        except subprocess.CalledProcessError:
-            print(f"Error: Could not get resolutions for {device_path}")
-            return ['640x480', '1280x720', '1920x1080']
+            # Try to keep current resolution if available
+            current = self.resolution.get()
+            if current in available_resolutions:
+                self.resolution.set(current)
+            else:
+                # Default to highest resolution
+                self.resolution.set(available_resolutions[0])
+                    
+        except Exception as e:
+            print(f"Error updating resolutions: {e}")
+            # Fallback to common resolutions
+            self.resolution_combo['values'] = self.common_resolutions
+            if not self.resolution.get() in self.common_resolutions:
+                self.resolution.set(self.common_resolutions[0])
 
     def update_kernel_value(self, value):
         """Ensure kernel size is always odd and update label"""
