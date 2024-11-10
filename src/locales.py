@@ -40,6 +40,11 @@ TRANSLATIONS = {
         'export_error': 'Failed to export settings: {0}',
         'save_error': 'Failed to save settings: {0}',
         'show_preview': 'Show Preview',
+        'position': 'Position Controls',
+        'horizontal': 'Horizontal Position',
+        'vertical': 'Vertical Position',
+        'flip_h': 'Flip Horizontal',
+        'flip_v': 'Flip Vertical',
         'about_title': 'About Virtual Camera Background',
         'about_text': '''Virtual Camera Background v{version}
 
@@ -97,6 +102,11 @@ License: MIT''',
         'export_error': 'Nepodařilo se exportovat nastavení: {0}',
         'save_error': 'Nepodařilo se uložit nastavení: {0}',
         'show_preview': 'Zobrazit náhled',
+        'position': 'Ovládání pozice',
+        'horizontal': 'Horizontální pozice',
+        'vertical': 'Vertikální pozice',
+        'flip_h': 'Překlopit vodorovně',
+        'flip_v': 'Překlopit svisle',
         'about_title': 'O aplikaci Virtual Camera Background',
         'about_text': '''Virtual Camera Background v{version}
 

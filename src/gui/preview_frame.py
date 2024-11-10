@@ -167,19 +167,23 @@ class PreviewFrame(ttk.LabelFrame):
                     # Create a binary mask for scaling
                     person_mask = mask > 0.5
                     
-                    # Scale down the person portion
+                    # Scale the person portion
                     scaled_width = int(width * current_scale)
                     scaled_height = int(height * current_scale)
                     
-                    # Calculate position to center the scaled person
-                    x_offset = (width - scaled_width) // 2
-                    y_offset = (height - scaled_height) // 2
+                    # Calculate position based on offset settings
+                    x_pos = int((width - scaled_width) * self.master.settings_frame.x_offset.get())
+                    y_pos = int((height - scaled_height) * self.master.settings_frame.y_offset.get())
                     
                     # Create output frame with background
                     output_frame = background_image.copy()
                     
-                    # Extract person from original frame
+                    # Extract and possibly flip person
                     person_only = frame.copy()
+                    if self.master.settings_frame.flip_h.get():
+                        person_only = cv2.flip(person_only, 1)
+                    if self.master.settings_frame.flip_v.get():
+                        person_only = cv2.flip(person_only, 0)
                     person_only[~person_mask] = 0
                     
                     if current_scale < 1.0:  # Scaling down
@@ -187,23 +191,33 @@ class PreviewFrame(ttk.LabelFrame):
                         scaled_person = cv2.resize(person_only, (scaled_width, scaled_height))
                         scaled_mask = cv2.resize(mask, (scaled_width, scaled_height))
                         
-                        # Create a full-size mask with the scaled person centered
+                        # Create a full-size mask with the scaled person at offset position
                         full_mask = np.zeros((height, width))
-                        full_mask[y_offset:y_offset+scaled_height, 
-                                 x_offset:x_offset+scaled_width] = scaled_mask
+                        # Ensure we don't exceed image boundaries
+                        y_start = max(0, y_pos)
+                        y_end = min(height, y_pos + scaled_height)
+                        x_start = max(0, x_pos)
+                        x_end = min(width, x_pos + scaled_width)
                         
-                        # Place scaled person in output frame
-                        output_frame[y_offset:y_offset+scaled_height, 
-                                   x_offset:x_offset+scaled_width] = scaled_person
+                        # Calculate source region for scaled person
+                        src_y_start = max(0, -y_pos)
+                        src_x_start = max(0, -x_pos)
                         
+                        # Place scaled person and mask
+                        full_mask[y_start:y_end, x_start:x_end] = \
+                            scaled_mask[src_y_start:src_y_start + (y_end - y_start),
+                                      src_x_start:src_x_start + (x_end - x_start)]
+                        output_frame[y_start:y_end, x_start:x_end] = \
+                            scaled_person[src_y_start:src_y_start + (y_end - y_start),
+                                        src_x_start:src_x_start + (x_end - x_start)]
                     else:  # Scaling up
                         # Scale person and mask
                         scaled_person = cv2.resize(person_only, (scaled_width, scaled_height))
                         scaled_mask = cv2.resize(mask, (scaled_width, scaled_height))
                         
                         # Crop the center portion
-                        start_x = -x_offset
-                        start_y = -y_offset
+                        start_x = -x_pos
+                        start_y = -y_pos
                         end_x = start_x + width
                         end_y = start_y + height
                         

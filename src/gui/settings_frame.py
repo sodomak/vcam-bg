@@ -8,9 +8,52 @@ from PIL import Image, ImageTk
 
 class SettingsFrame(ttk.LabelFrame):
     def __init__(self, master):
-        super().__init__(master)
-        self.master = master
+        super().__init__(master, text=master.tr('settings'))
         
+        # Add position control variables
+        self.x_offset = tk.DoubleVar(value=0.5)  # Center by default
+        self.y_offset = tk.DoubleVar(value=0.5)  # Center by default
+        self.flip_h = tk.BooleanVar(value=False)
+        self.flip_v = tk.BooleanVar(value=False)
+        
+        # Create position control frame
+        position_frame = ttk.LabelFrame(self, text=master.tr('position'))
+        position_frame.pack(fill=tk.X, padx=5, pady=5)
+        
+        # Horizontal position slider
+        ttk.Label(position_frame, text=master.tr('horizontal')).pack(anchor=tk.W)
+        ttk.Scale(
+            position_frame,
+            from_=0, to=1,
+            variable=self.x_offset,
+            orient=tk.HORIZONTAL
+        ).pack(fill=tk.X, padx=5)
+        
+        # Vertical position slider
+        ttk.Label(position_frame, text=master.tr('vertical')).pack(anchor=tk.W)
+        ttk.Scale(
+            position_frame,
+            from_=0, to=1,
+            variable=self.y_offset,
+            orient=tk.HORIZONTAL
+        ).pack(fill=tk.X, padx=5)
+        
+        # Flip controls in a horizontal frame
+        flip_frame = ttk.Frame(position_frame)
+        flip_frame.pack(fill=tk.X, padx=5, pady=5)
+        
+        ttk.Checkbutton(
+            flip_frame,
+            text=master.tr('flip_h'),
+            variable=self.flip_h
+        ).pack(side=tk.LEFT, padx=5)
+        
+        ttk.Checkbutton(
+            flip_frame,
+            text=master.tr('flip_v'),
+            variable=self.flip_v
+        ).pack(side=tk.LEFT, padx=5)
+
         # Define common resolutions
         self.common_resolutions = [
             '1920x1080',
