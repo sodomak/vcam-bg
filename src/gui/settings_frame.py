@@ -222,42 +222,29 @@ class SettingsFrame(ttk.LabelFrame):
         )
         if filename:
             self.background_path.set(filename)
-            self.update_background_preview()
+            self.update_background_preview(filename)
 
-    def update_background_preview(self):
-        """Update the background preview and path label"""
-        path = self.background_path.get()
-        if path:
-            try:
-                # Load and resize image for preview
-                image = cv2.imread(path)
-                if image is not None:
-                    # Calculate preview size (maintain aspect ratio)
-                    preview_width = 100
-                    aspect_ratio = image.shape[1] / image.shape[0]
-                    preview_height = int(preview_width / aspect_ratio)
-                    
-                    # Resize image
-                    preview = cv2.resize(image, (preview_width, preview_height))
-                    preview = cv2.cvtColor(preview, cv2.COLOR_BGR2RGB)
-                    
-                    # Convert to PhotoImage
-                    preview = Image.fromarray(preview)
-                    photo = ImageTk.PhotoImage(image=preview)
-                    
-                    # Update preview
-                    self.bg_preview.configure(image=photo)
-                    self.bg_preview.image = photo  # Keep reference
-                    
-                    # Update path label
-                    self.bg_path_label.configure(text=os.path.basename(path))
-            except Exception as e:
-                print(f"Error loading preview: {e}")
-                self.bg_preview.configure(image='')
-                self.bg_path_label.configure(text="Error loading preview")
-        else:
+    def update_background_preview(self, path):
+        """Update background preview with the selected image"""
+        try:
+            # Load and resize image for preview
+            image = Image.open(path)
+            image.thumbnail((100, 100))  # Resize for preview
+            photo = ImageTk.PhotoImage(image)
+            
+            # Update preview image
+            self.bg_preview.configure(image=photo)
+            self.bg_preview.image = photo  # Keep reference
+            
+            # Update path label
+            filename = os.path.basename(path)
+            self.bg_path_label.configure(text=filename)
+            
+        except Exception as e:
+            print(f"Error updating background preview: {e}")
+            # Clear preview if there's an error
             self.bg_preview.configure(image='')
-            self.bg_path_label.configure(text="")
+            self.bg_path_label.configure(text='')
 
     def load_camera_devices(self):
         """Load available input and output devices"""
@@ -435,6 +422,10 @@ class SettingsFrame(ttk.LabelFrame):
         self.input_device.set(self.master.input_device.get())
         self.output_device.set(self.master.output_device.get())
         self.background_path.set(self.master.background_path.get())
+        
+        # Update background preview if path exists
+        if self.background_path.get():
+            self.update_background_preview(self.background_path.get())
         
         # Update sliders
         self.fps.set(float(self.master.fps.get()))
