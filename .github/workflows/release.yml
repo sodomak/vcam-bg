@@ -16,40 +16,26 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y python3-pip python3-venv imagemagick appstream
+    
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
         python-version: '3.12'
-    
-    - name: Install system dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y \
-          python3-opencv \
-          python3-numpy \
-          python3-pip \
-          python3-tk \
-          imagemagick \
-          fuse \
-          libgl1-mesa-glx
-        
-        # Configure ImageMagick policy to allow PDF operations
-        sudo sed -i 's/rights="none" pattern="PDF"/rights="read|write" pattern="PDF"/' /etc/ImageMagick-6/policy.xml
-    
-    - name: Create AppDir structure
-      run: |
-        mkdir -p build/AppDir
-        chmod +x build/create-appimage.sh
-        chmod +x build/install-deps.sh
-    
-    - name: Build AppImage
-      run: ./build/create-appimage.sh
     
     - name: Get version
       id: get_version
       run: |
         VERSION=$(grep -oP 'VERSION = "\K[^"]+' src/version.py)
         echo "version=$VERSION" >> $GITHUB_OUTPUT
+    
+    - name: Build AppImage
+      run: |
+        chmod +x build/create-appimage.sh
+        ./build/create-appimage.sh
     
     - name: Create Release
       id: create_release
