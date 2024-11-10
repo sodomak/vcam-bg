@@ -82,11 +82,16 @@ class SettingsFrame(ttk.LabelFrame):
         self.bg_button.pack(side=tk.RIGHT)
 
         # Resolution
-        res_frame = ttk.Frame(self)
-        res_frame.pack(fill=tk.X, pady=(0, 10))
-        self.resolution_label = ttk.Label(res_frame, text=self.master.tr('resolution'))
+        resolution_frame = ttk.Frame(self)
+        resolution_frame.pack(fill=tk.X, pady=(0, 10))
+        self.resolution_label = ttk.Label(resolution_frame, text=self.master.tr('resolution'))
         self.resolution_label.pack(side=tk.LEFT)
-        self.resolution_combo = ttk.Combobox(res_frame, textvariable=self.resolution, state='readonly')
+        self.resolution_combo = ttk.Combobox(
+            resolution_frame,
+            textvariable=self.resolution,
+            values=['640x480', '800x600', '1280x720', '1920x1080'],
+            state='readonly'
+        )
         self.resolution_combo.pack(side=tk.RIGHT, fill=tk.X, expand=True)
 
         # FPS slider
@@ -422,6 +427,13 @@ class SettingsFrame(ttk.LabelFrame):
         self.input_device.set(self.master.input_device.get())
         self.output_device.set(self.master.output_device.get())
         self.background_path.set(self.master.background_path.get())
+        
+        # Update resolution
+        current_res = self.master.resolution.get()
+        if current_res in self.resolution_combo['values']:
+            self.resolution.set(current_res)
+        else:
+            self.resolution.set('1280x720')  # Default if saved resolution is not in list
         
         # Update background preview if path exists
         if self.background_path.get():
