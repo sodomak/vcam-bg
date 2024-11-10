@@ -11,6 +11,7 @@ import cv2
 import subprocess
 import queue
 import numpy as np
+from src.version import VERSION
 
 class MainWindow(ttk.Frame):
     def __init__(self, root):
@@ -195,28 +196,8 @@ class MainWindow(ttk.Frame):
 
     def show_about(self):
         """Show about dialog"""
-        text = """Virtual Camera Background
-
-A simple application for replacing webcam background using AI segmentation.
-
-Features:
-- Background replacement
-- Virtual camera output
-- Multiple resolutions support
-- Adjustable smoothing
-- Configuration saving
-
-License: MIT
-Author: sodomak
-Repository: https://github.com/sodomak/vcam-bg
-
-Built with:
-- Python 3
-- OpenCV
-- MediaPipe
-- Tkinter"""
-
-        messagebox.showinfo("About Virtual Camera Background", text)
+        text = self.tr('about_text').format(version=VERSION)
+        messagebox.showinfo(self.tr('about_title'), text)
 
     def setup_theme(self, is_dark=False):
         """Setup light/dark theme using ttk styles"""

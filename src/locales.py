@@ -40,6 +40,21 @@ TRANSLATIONS = {
         'export_error': 'Failed to export settings: {0}',
         'save_error': 'Failed to save settings: {0}',
         'show_preview': 'Show Preview',
+        'about_title': 'About Virtual Camera Background',
+        'about_text': '''Virtual Camera Background v{version}
+
+A Linux application for real-time background replacement in video calls.
+
+Features:
+• Real-time background replacement using MediaPipe
+• Multiple camera support with MJPG format
+• Adjustable FPS and resolution scaling
+• Edge smoothing with Gaussian blur
+• Light/Dark theme
+• Multi-language support (English, Čeština)
+
+Source code: https://github.com/sodomak/vcam-bg
+License: MIT''',
     },
     'cs': {
         'title': 'Virtuální pozadí kamery',
@@ -82,5 +97,20 @@ TRANSLATIONS = {
         'export_error': 'Nepodařilo se exportovat nastavení: {0}',
         'save_error': 'Nepodařilo se uložit nastavení: {0}',
         'show_preview': 'Zobrazit náhled',
+        'about_title': 'O aplikaci Virtual Camera Background',
+        'about_text': '''Virtual Camera Background v{version}
+
+Linuxová aplikace pro nahrazení pozadí ve video hovorech v reálném čase.
+
+Funkce:
+• Nahrazení pozadí v reálném čase pomocí MediaPipe
+• Podpora více kamer s formátem MJPG
+• Nastavitelné FPS a škálování rozlišení
+• Vyhlazení okrajů pomocí Gaussova rozostření
+• Světlý/Tmavý motiv
+• Vícejazyčná podpora (Angličtina, Čeština)
+
+Zdrojový kód: https://github.com/sodomak/vcam-bg
+Licence: MIT''',
     }
 } 
