@@ -45,6 +45,42 @@ Download the latest AppImage from the [releases page](https://github.com/sodomak
 > [!TIP]
 > If the module installation commands above don't work for your distribution, check your distribution's package manager for `v4l2loopback` or `v4l2loopback-dkms` package.
 
+## Usage
+
+1. Select your input camera from the dropdown
+2. Select virtual camera as output (/dev/video2 by default)
+3. Choose a background image
+4. Adjust settings as needed:
+
+   - Model: Landscape/Portrait based on your usage
+   - FPS: Higher values for smoother video
+   - Scale: Adjust output resolution
+   - Smoothing: Adjust edge detection sensitivity
+     - Transition Width: Controls edge blur width
+     - Blend Strength: Controls edge blending intensity
+   - Position controls:
+     - Horizontal/Vertical positioning
+     - Horizontal/Vertical flip
+     - Quick reset to center
+   - Preview window toggle
+
+5. Click Start to begin
+6. Select "Virtual Camera" in your video conferencing software
+
+### Keyboard Shortcuts
+- Ctrl+S: Save settings
+- Ctrl+I: Import settings
+- Ctrl+E: Export settings
+- Ctrl+Q: Quit
+- Space: Toggle camera
+- R: Reset settings
+- Esc: Stop camera
+
+### Configuration
+Settings are automatically saved to `~/.config/vcam-bg/config.json`
+
+You can export/import settings through the File menu.
+
 ## Features
 
 - Real-time background replacement using MediaPipe segmentation
@@ -146,27 +182,6 @@ cd vcam-bg
 ```
 
 The AppImage will be created as `vcam-bg-x86_64.AppImage`.
-
-## Usage
-
-1. Select your input camera from the dropdown
-2. Select virtual camera as output (/dev/video2 by default)
-3. Choose a background image
-4. Adjust settings as needed:
-
-   - Model: Landscape/Portrait based on your usage
-   - FPS: Higher values for smoother video
-   - Scale: Adjust output resolution
-   - Smoothing: Adjust edge detection sensitivity
-
-5. Click Start to begin
-6. Select "Virtual Camera" in your video conferencing software
-
-## Configuration
-
-Settings are automatically saved to `~/.config/vcam-bg/config.json`
-
-You can export/import settings through the File menu.
 
 ## Troubleshooting
 
