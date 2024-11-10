@@ -45,6 +45,7 @@ TRANSLATIONS = {
         'vertical': 'Vertical Position',
         'flip_h': 'Flip Horizontal',
         'flip_v': 'Flip Vertical',
+        'reset_position': 'Reset Position',
         'about_title': 'About Virtual Camera Background',
         'about_text': '''Virtual Camera Background v{version}
 
@@ -107,6 +108,7 @@ License: MIT''',
         'vertical': 'Vertikální pozice',
         'flip_h': 'Překlopit vodorovně',
         'flip_v': 'Překlopit svisle',
+        'reset_position': 'Resetovat pozici',
         'about_title': 'O aplikaci Virtual Camera Background',
         'about_text': '''Virtual Camera Background v{version}
 

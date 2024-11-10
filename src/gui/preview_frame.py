@@ -183,8 +183,8 @@ class PreviewFrame(ttk.LabelFrame):
                 scaled_height = int(height * current_scale)
                 
                 # Calculate position based on offset settings
-                x_pos = int((width - scaled_width) * self.master.settings_frame.x_offset.get())
-                y_pos = int((height - scaled_height) * self.master.settings_frame.y_offset.get())
+                x_pos = int((width * (self.master.settings_frame.x_offset.get() * 2 - 1)))
+                y_pos = int((height * (self.master.settings_frame.y_offset.get() * 2 - 1)))
                 
                 # Create output frame with background
                 output_frame = background_image.copy()
@@ -199,6 +199,7 @@ class PreviewFrame(ttk.LabelFrame):
                 
                 # Create a full-size mask with the person at offset position
                 full_mask = np.zeros((height, width))
+                
                 # Ensure we don't exceed image boundaries
                 y_start = max(0, y_pos)
                 y_end = min(height, y_pos + scaled_height)
