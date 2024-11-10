@@ -26,10 +26,10 @@ class SettingsFrame(ttk.LabelFrame):
         input_devices = self.get_input_devices()
         output_devices = self.get_output_devices()
         
-        # Set default devices
-        if input_devices:
+        # Set default devices only if no value is already set
+        if not self.input_device.get() and input_devices:
             self.input_device.set(input_devices[0])
-        if output_devices:
+        if not self.output_device.get() and output_devices:
             # Find first v4l2loopback device
             default_output = next(
                 (dev for dev in output_devices if "Virtual Camera" in dev or "v4l2loopback" in dev.lower()),
