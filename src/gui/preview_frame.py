@@ -162,76 +162,62 @@ class PreviewFrame(ttk.LabelFrame):
                     sigma
                 )
                 
-                # Scale only where mask indicates a person (foreground)
+                # Extract and possibly flip person
+                person_only = frame.copy()
+                if self.master.settings_frame.flip_h.get():
+                    person_only = cv2.flip(person_only, 1)
+                if self.master.settings_frame.flip_v.get():
+                    person_only = cv2.flip(person_only, 0)
+                
+                # Create a binary mask for person
+                person_mask = mask > 0.5
+                person_only[~person_mask] = 0
+                
+                # Get current scale and position
+                scaled_width = int(width * current_scale)
+                scaled_height = int(height * current_scale)
+                
+                # Calculate position based on offset settings
+                x_pos = int((width - scaled_width) * self.master.settings_frame.x_offset.get())
+                y_pos = int((height - scaled_height) * self.master.settings_frame.y_offset.get())
+                
+                # Create output frame with background
+                output_frame = background_image.copy()
+                
+                # Scale person and mask if needed
                 if current_scale != 1.0:
-                    # Create a binary mask for scaling
-                    person_mask = mask > 0.5
-                    
-                    # Scale the person portion
-                    scaled_width = int(width * current_scale)
-                    scaled_height = int(height * current_scale)
-                    
-                    # Calculate position based on offset settings
-                    x_pos = int((width - scaled_width) * self.master.settings_frame.x_offset.get())
-                    y_pos = int((height - scaled_height) * self.master.settings_frame.y_offset.get())
-                    
-                    # Create output frame with background
-                    output_frame = background_image.copy()
-                    
-                    # Extract and possibly flip person
-                    person_only = frame.copy()
-                    if self.master.settings_frame.flip_h.get():
-                        person_only = cv2.flip(person_only, 1)
-                    if self.master.settings_frame.flip_v.get():
-                        person_only = cv2.flip(person_only, 0)
-                    person_only[~person_mask] = 0
-                    
-                    if current_scale < 1.0:  # Scaling down
-                        # Scale person and mask
-                        scaled_person = cv2.resize(person_only, (scaled_width, scaled_height))
-                        scaled_mask = cv2.resize(mask, (scaled_width, scaled_height))
-                        
-                        # Create a full-size mask with the scaled person at offset position
-                        full_mask = np.zeros((height, width))
-                        # Ensure we don't exceed image boundaries
-                        y_start = max(0, y_pos)
-                        y_end = min(height, y_pos + scaled_height)
-                        x_start = max(0, x_pos)
-                        x_end = min(width, x_pos + scaled_width)
-                        
-                        # Calculate source region for scaled person
-                        src_y_start = max(0, -y_pos)
-                        src_x_start = max(0, -x_pos)
-                        
-                        # Place scaled person and mask
-                        full_mask[y_start:y_end, x_start:x_end] = \
-                            scaled_mask[src_y_start:src_y_start + (y_end - y_start),
-                                      src_x_start:src_x_start + (x_end - x_start)]
-                        output_frame[y_start:y_end, x_start:x_end] = \
-                            scaled_person[src_y_start:src_y_start + (y_end - y_start),
-                                        src_x_start:src_x_start + (x_end - x_start)]
-                    else:  # Scaling up
-                        # Scale person and mask
-                        scaled_person = cv2.resize(person_only, (scaled_width, scaled_height))
-                        scaled_mask = cv2.resize(mask, (scaled_width, scaled_height))
-                        
-                        # Crop the center portion
-                        start_x = -x_pos
-                        start_y = -y_pos
-                        end_x = start_x + width
-                        end_y = start_y + height
-                        
-                        output_frame = scaled_person[start_y:end_y, start_x:end_x]
-                        full_mask = scaled_mask[start_y:end_y, start_x:end_x]
-                    
-                    # Combine with background using the mask
-                    full_mask = np.stack((full_mask,) * 3, axis=-1)
-                    output_frame = (output_frame * full_mask + 
-                                  background_image * (1 - full_mask)).astype(np.uint8)
+                    scaled_person = cv2.resize(person_only, (scaled_width, scaled_height))
+                    scaled_mask = cv2.resize(mask, (scaled_width, scaled_height))
                 else:
-                    # No scaling, just combine normally
-                    mask = np.stack((mask,) * 3, axis=-1)
-                    output_frame = (frame * mask + background_image * (1 - mask)).astype(np.uint8)
+                    scaled_person = person_only
+                    scaled_mask = mask
+                
+                # Create a full-size mask with the person at offset position
+                full_mask = np.zeros((height, width))
+                # Ensure we don't exceed image boundaries
+                y_start = max(0, y_pos)
+                y_end = min(height, y_pos + scaled_height)
+                x_start = max(0, x_pos)
+                x_end = min(width, x_pos + scaled_width)
+                
+                # Calculate source region for person
+                src_y_start = max(0, -y_pos)
+                src_x_start = max(0, -x_pos)
+                
+                # Place person and mask
+                full_mask[y_start:y_end, x_start:x_end] = \
+                    scaled_mask[src_y_start:src_y_start + (y_end - y_start),
+                              src_x_start:src_x_start + (x_end - x_start)]
+                output_frame[y_start:y_end, x_start:x_end] = \
+                    scaled_person[src_y_start:src_y_start + (y_end - y_start),
+                                src_x_start:src_x_start + (x_end - x_start)]
+                
+                # Stack mask for final composition
+                full_mask = np.stack((full_mask,) * 3, axis=-1)
+                
+                # Combine with background
+                output_frame = (output_frame * full_mask + 
+                               background_image * (1 - full_mask)).astype(np.uint8)
                 
                 # Write to FFmpeg
                 self.ffmpeg_process.stdin.write(output_frame.tobytes())

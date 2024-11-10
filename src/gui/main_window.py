@@ -31,7 +31,11 @@ class MainWindow(ttk.Frame):
             'smooth_sigma': 10.0,
             'resolution': '1280x720',
             'language': 'en',
-            'theme': 'light'
+            'theme': 'light',
+            'x_offset': 0.5,
+            'y_offset': 0.5,
+            'flip_h': False,
+            'flip_v': False
         }
         
         # Initialize variables with default values first
@@ -44,8 +48,16 @@ class MainWindow(ttk.Frame):
         self.background_path = tk.StringVar(value=self.default_settings['background_path'])
         self.show_preview = tk.BooleanVar(value=self.default_settings['show_preview'])
         self.resolution = tk.StringVar(value=self.default_settings['resolution'])
+        
+        # Add language and theme variables
         self.language = tk.StringVar(value=self.default_settings['language'])
         self.theme = tk.StringVar(value=self.default_settings['theme'])
+        
+        # Add position variables
+        self.x_offset = tk.DoubleVar(value=self.default_settings['x_offset'])
+        self.y_offset = tk.DoubleVar(value=self.default_settings['y_offset'])
+        self.flip_h = tk.BooleanVar(value=self.default_settings['flip_h'])
+        self.flip_v = tk.BooleanVar(value=self.default_settings['flip_v'])
         
         # Load settings after initializing variables
         self.load_settings()
@@ -62,10 +74,10 @@ class MainWindow(ttk.Frame):
         self.settings_frame.scale.trace_add('write', lambda *_: self.save_settings())
         self.settings_frame.smooth_kernel.trace_add('write', lambda *_: self.save_settings())
         self.settings_frame.smooth_sigma.trace_add('write', lambda *_: self.save_settings())
-        self.settings_frame.resolution.trace_add('write', lambda *_: self.save_settings())
-        self.preview_frame.show_preview.trace_add('write', lambda *_: self.save_settings())
-        self.language.trace_add('write', lambda *_: self.save_settings())
-        self.theme.trace_add('write', lambda *_: self.save_settings())
+        self.settings_frame.x_offset.trace_add('write', lambda *_: self.save_settings())
+        self.settings_frame.y_offset.trace_add('write', lambda *_: self.save_settings())
+        self.settings_frame.flip_h.trace_add('write', lambda *_: self.save_settings())
+        self.settings_frame.flip_v.trace_add('write', lambda *_: self.save_settings())
         
         # Apply loaded settings
         self.apply_loaded_settings()
@@ -284,7 +296,7 @@ class MainWindow(ttk.Frame):
         self.root.update_idletasks()
 
     def load_settings(self):
-        """Load settings from config file or use defaults"""
+        """Load settings from config file"""
         try:
             os.makedirs(os.path.dirname(self.config_file), exist_ok=True)
             if os.path.exists(self.config_file):
@@ -292,10 +304,24 @@ class MainWindow(ttk.Frame):
                     settings = json.load(f)
                     
                     # Update variables with saved settings
-                    for key, value in settings.items():
-                        if hasattr(self, key):
-                            getattr(self, key).set(value)
-                
+                    self.fps.set(settings.get('fps', self.default_settings['fps']))
+                    self.scale.set(float(settings.get('scale', self.default_settings['scale'])))
+                    self.smooth_kernel.set(settings.get('smooth_kernel', self.default_settings['smooth_kernel']))
+                    self.smooth_sigma.set(settings.get('smooth_sigma', self.default_settings['smooth_sigma']))
+                    self.input_device.set(settings.get('input_device', self.default_settings['input_device']))
+                    self.output_device.set(settings.get('output_device', self.default_settings['output_device']))
+                    self.background_path.set(settings.get('background_path', self.default_settings['background_path']))
+                    self.show_preview.set(settings.get('show_preview', self.default_settings['show_preview']))
+                    self.resolution.set(settings.get('resolution', self.default_settings['resolution']))
+                    self.language.set(settings.get('language', self.default_settings['language']))
+                    self.theme.set(settings.get('theme', self.default_settings['theme']))
+                    
+                    # Position settings
+                    self.x_offset.set(float(settings.get('x_offset', self.default_settings['x_offset'])))
+                    self.y_offset.set(float(settings.get('y_offset', self.default_settings['y_offset'])))
+                    self.flip_h.set(settings.get('flip_h', self.default_settings['flip_h']))
+                    self.flip_v.set(settings.get('flip_v', self.default_settings['flip_v']))
+                    
         except Exception as e:
             print(f"Error loading settings: {e}")
 
@@ -303,17 +329,21 @@ class MainWindow(ttk.Frame):
         """Save current settings to config file"""
         try:
             settings = {
-                'input_device': self.input_device.get(),
-                'output_device': self.output_device.get(),
-                'background_path': self.background_path.get(),
-                'fps': self.fps.get(),
-                'scale': self.scale.get(),
+                'input_device': self.settings_frame.input_device.get(),
+                'output_device': self.settings_frame.output_device.get(),
+                'background_path': self.settings_frame.background_path.get(),
+                'fps': self.settings_frame.fps.get(),
+                'scale': self.settings_frame.scale.get(),
                 'show_preview': self.show_preview.get(),
-                'smooth_kernel': self.smooth_kernel.get(),
-                'smooth_sigma': self.smooth_sigma.get(),
-                'resolution': self.resolution.get(),
+                'smooth_kernel': self.settings_frame.smooth_kernel.get(),
+                'smooth_sigma': self.settings_frame.smooth_sigma.get(),
+                'resolution': self.settings_frame.resolution.get(),
                 'language': self.language.get(),
-                'theme': self.theme.get()
+                'theme': self.theme.get(),
+                'x_offset': self.settings_frame.x_offset.get(),
+                'y_offset': self.settings_frame.y_offset.get(),
+                'flip_h': self.settings_frame.flip_h.get(),
+                'flip_v': self.settings_frame.flip_v.get()
             }
             
             os.makedirs(os.path.dirname(self.config_file), exist_ok=True)
@@ -342,7 +372,11 @@ class MainWindow(ttk.Frame):
                     'smooth_sigma': self.settings_frame.smooth_sigma.get(),
                     'resolution': self.settings_frame.resolution.get(),
                     'language': self.language.get(),
-                    'theme': self.theme.get()
+                    'theme': self.theme.get(),
+                    'x_offset': self.settings_frame.x_offset.get(),
+                    'y_offset': self.settings_frame.y_offset.get(),
+                    'flip_h': self.settings_frame.flip_h.get(),
+                    'flip_v': self.settings_frame.flip_v.get()
                 }
                 with open(filename, 'w') as f:
                     json.dump(settings, f, indent=4)
@@ -372,6 +406,10 @@ class MainWindow(ttk.Frame):
                 self.settings_frame.resolution.set(settings.get('resolution', '1280x720'))
                 self.language.set(settings.get('language', 'en'))
                 self.theme.set(settings.get('theme', 'light'))
+                self.settings_frame.x_offset.set(settings.get('x_offset', 0.5))
+                self.settings_frame.y_offset.set(settings.get('y_offset', 0.5))
+                self.settings_frame.flip_h.set(settings.get('flip_h', False))
+                self.settings_frame.flip_v.set(settings.get('flip_v', False))
                 
                 # Apply imported settings
                 self.apply_loaded_settings()
@@ -388,8 +426,10 @@ class MainWindow(ttk.Frame):
         self.setup_theme('dark' in self.theme.get().lower())
         
         # Update frames
-        self.settings_frame.update_values()
-        self.preview_frame.update_values()
+        if hasattr(self, 'settings_frame'):
+            self.settings_frame.update_values()
+        if hasattr(self, 'preview_frame'):
+            self.preview_frame.update_values()
 
     def process_camera(self):
         # Initialize MediaPipe with fixed landscape model
