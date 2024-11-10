@@ -32,6 +32,9 @@ jobs:
           imagemagick \
           fuse \
           libgl1-mesa-glx
+        
+        # Configure ImageMagick policy to allow PDF operations
+        sudo sed -i 's/rights="none" pattern="PDF"/rights="read|write" pattern="PDF"/' /etc/ImageMagick-6/policy.xml
     
     - name: Create AppDir structure
       run: |
@@ -45,7 +48,7 @@ jobs:
     - name: Get version
       id: get_version
       run: |
-        VERSION=$(echo ${{ github.ref }} | sed 's/refs\/tags\/v//')
+        VERSION=$(grep -oP 'VERSION = "\K[^"]+' src/version.py)
         echo "version=$VERSION" >> $GITHUB_OUTPUT
     
     - name: Create Release
