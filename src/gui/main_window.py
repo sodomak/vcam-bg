@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import ttk, messagebox, filedialog
 from .settings_frame import SettingsFrame
 from .preview_frame import PreviewFrame
-from ..locales import TRANSLATIONS
+from ..locales import TRANSLATIONS, LANGUAGE_NAMES
 import os
 import json
 import mediapipe as mp
@@ -81,19 +81,14 @@ class MainWindow(ttk.Frame):
         self.language_menu = tk.Menu(self.view_menu, tearoff=0)
         self.view_menu.add_cascade(label=self.tr('language'), menu=self.language_menu)
         
-        # Add language options
-        self.language_menu.add_radiobutton(
-            label="English",
-            value="en",
-            variable=self.language,
-            command=self.change_language
-        )
-        self.language_menu.add_radiobutton(
-            label="Čeština",
-            value="cs",
-            variable=self.language,
-            command=self.change_language
-        )
+        # Dynamically add language options from available translations
+        for lang_code in sorted(TRANSLATIONS.keys()):
+            self.language_menu.add_radiobutton(
+                label=LANGUAGE_NAMES.get(lang_code, lang_code),
+                value=lang_code,
+                variable=self.language,
+                command=self.change_language
+            )
         
         # Theme submenu
         self.theme_menu = tk.Menu(self.view_menu, tearoff=0)
