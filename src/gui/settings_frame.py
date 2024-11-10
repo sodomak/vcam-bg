@@ -22,6 +22,25 @@ class SettingsFrame(ttk.LabelFrame):
         self.background_path = master.background_path
         self.resolution = master.resolution
         
+        # Initialize device variables
+        self.input_device = tk.StringVar()
+        self.output_device = tk.StringVar()
+        
+        # Get available devices
+        input_devices = self.get_input_devices()
+        output_devices = self.get_output_devices()
+        
+        # Set default devices
+        if input_devices:
+            self.input_device.set(input_devices[0])
+        if output_devices:
+            # Find first v4l2loopback device
+            default_output = next(
+                (dev for dev in output_devices if "Virtual Camera" in dev or "v4l2loopback" in dev.lower()),
+                output_devices[0] if output_devices else ""
+            )
+            self.output_device.set(default_output)
+
         self.create_widgets()
 
     def create_widgets(self):
@@ -371,3 +390,62 @@ class SettingsFrame(ttk.LabelFrame):
         
         # Update background preview
         self.update_background_preview()
+
+    def get_output_devices(self):
+        """Get list of available output devices, prioritizing v4l2loopback devices"""
+        devices = []
+        try:
+            for i in range(10):  # Check first 10 video devices
+                device_path = f"/dev/video{i}"
+                if not os.path.exists(device_path):
+                    continue
+                    
+                # Check if it's a v4l2loopback device
+                try:
+                    cmd = ["v4l2-ctl", "--device", device_path, "--all"]
+                    output = subprocess.check_output(cmd, stderr=subprocess.STDOUT).decode()
+                    if "v4l2loopback" in output.lower() or "Virtual Camera" in output:
+                        devices.append(f"Virtual Camera ({device_path})")
+                    else:
+                        # Skip non-v4l2loopback devices
+                        continue
+                except subprocess.CalledProcessError:
+                    continue
+                    
+        except Exception as e:
+            print(f"Error getting output devices: {e}")
+        
+        return devices
+
+    def get_input_devices(self):
+        """Get list of available input devices (webcams)"""
+        devices = []
+        try:
+            for i in range(10):  # Check first 10 video devices
+                device_path = f"/dev/video{i}"
+                if not os.path.exists(device_path):
+                    continue
+                    
+                # Check if it's a capture device
+                try:
+                    cap = cv2.VideoCapture(i)
+                    if cap.isOpened():
+                        # Try to get device name
+                        cmd = ["v4l2-ctl", "--device", device_path, "--all"]
+                        try:
+                            output = subprocess.check_output(cmd, stderr=subprocess.STDOUT).decode()
+                            name = re.search(r"Card\s*?:\s*(.*)", output)
+                            if name:
+                                devices.append(f"{name.group(1)} ({device_path})")
+                            else:
+                                devices.append(f"Camera {i} ({device_path})")
+                        except:
+                            devices.append(f"Camera {i} ({device_path})")
+                    cap.release()
+                except:
+                    continue
+                    
+        except Exception as e:
+            print(f"Error getting input devices: {e}")
+        
+        return devices
