@@ -132,6 +132,40 @@ class PreviewFrame(ttk.LabelFrame):
                 if not ret:
                     break
 
+                # Ensure frame matches target dimensions
+                frame = cv2.resize(frame, (width, height))
+                
+                # Process frame
+                frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                results = selfie_segmentation.process(frame_rgb)
+                
+                # Create and smooth mask
+                mask = results.segmentation_mask
+                
+                # Get kernel size and ensure it's odd
+                kernel_size = max(3, self.master.settings_frame.smooth_kernel.get())
+                if kernel_size % 2 == 0:
+                    kernel_size += 1
+                kernel_tuple = (kernel_size, kernel_size)
+                
+                mask = cv2.GaussianBlur(
+                    mask.astype(np.float32),
+                    kernel_tuple,
+                    sigmaX=float(self.master.settings_frame.smooth_sigma.get()),
+                    sigmaY=float(self.master.settings_frame.smooth_sigma.get())
+                )
+
+                # Extract person and apply flips before positioning
+                person_only = frame.copy()
+                if self.master.settings_frame.flip_h.get():
+                    person_only = cv2.flip(person_only, 1)
+                    mask = cv2.flip(mask, 1)  # Also flip the mask
+                if self.master.settings_frame.flip_v.get():
+                    person_only = cv2.flip(person_only, 0)
+                    mask = cv2.flip(mask, 0)  # Also flip the mask
+
+                # Continue with positioning and scaling...
+
                 # Check if FPS changed
                 current_fps = self.master.settings_frame.fps.get()
                 if current_fps != last_fps:
@@ -143,35 +177,6 @@ class PreviewFrame(ttk.LabelFrame):
 
                 # Get current scale
                 current_scale = self.master.settings_frame.scale.get()
-                
-                # Process original frame first
-                frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-                results = selfie_segmentation.process(frame_rgb)
-                
-                # Create mask
-                mask = results.segmentation_mask
-                kernel_size = self.master.settings_frame.smooth_kernel.get()
-                if kernel_size % 2 == 0:
-                    kernel_size += 1
-                    
-                sigma = max(0.1, self.master.settings_frame.smooth_sigma.get())
-                
-                mask = cv2.GaussianBlur(
-                    mask.astype(np.float32),
-                    (kernel_size, kernel_size),
-                    sigma
-                )
-                
-                # Extract and possibly flip person
-                person_only = frame.copy()
-                if self.master.settings_frame.flip_h.get():
-                    person_only = cv2.flip(person_only, 1)
-                if self.master.settings_frame.flip_v.get():
-                    person_only = cv2.flip(person_only, 0)
-                
-                # Create a binary mask for person
-                person_mask = mask > 0.5
-                person_only[~person_mask] = 0
                 
                 # Get current scale and position
                 scaled_width = int(width * current_scale)
