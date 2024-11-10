@@ -1,3 +1,9 @@
 __pycache__/
 *.pyc
 .config/
+
+# Build artifacts
+build/AppDir/
+build/venv/
+build/appimagetool-x86_64.AppImage
+*.AppImage
