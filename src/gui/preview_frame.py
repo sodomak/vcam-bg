@@ -117,7 +117,7 @@ class PreviewFrame(ttk.LabelFrame):
             
             self.ffmpeg_process = create_ffmpeg_process()
             
-            # Load and store original background
+            # Load and store original background at original resolution
             original_background = cv2.imread(self.master.settings_frame.background_path.get())
             if original_background is None:
                 messagebox.showerror("Error", "Could not load background image")
@@ -126,7 +126,6 @@ class PreviewFrame(ttk.LabelFrame):
             
             # Initial resize to match frame dimensions
             background_image = cv2.resize(original_background, (width, height))
-            last_scale = self.master.settings_frame.scale.get()
 
             while self.is_running:
                 ret, frame = cap.read()
@@ -145,17 +144,7 @@ class PreviewFrame(ttk.LabelFrame):
                 # Get current scale
                 current_scale = self.master.settings_frame.scale.get()
                 
-                # Always resize both frame and background together
-                scaled_width = int(width * current_scale)
-                scaled_height = int(height * current_scale)
-                frame = cv2.resize(frame, (scaled_width, scaled_height))
-                
-                # Only resize background from original if scale changed
-                if current_scale != last_scale:
-                    background_image = cv2.resize(original_background, (scaled_width, scaled_height))
-                    last_scale = current_scale
-
-                # Process frame
+                # Process original frame first
                 frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
                 results = selfie_segmentation.process(frame_rgb)
                 
@@ -173,12 +162,62 @@ class PreviewFrame(ttk.LabelFrame):
                     sigma
                 )
                 
-                # Ensure mask is in correct range [0,1]
-                mask = np.clip(mask, 0, 1)
-                mask = np.stack((mask,) * 3, axis=-1)
-                
-                # Combine foreground and background
-                output_frame = (frame * mask + background_image * (1 - mask)).astype(np.uint8)
+                # Scale only where mask indicates a person (foreground)
+                if current_scale != 1.0:
+                    # Create a binary mask for scaling
+                    person_mask = mask > 0.5
+                    
+                    # Scale down the person portion
+                    scaled_width = int(width * current_scale)
+                    scaled_height = int(height * current_scale)
+                    
+                    # Calculate position to center the scaled person
+                    x_offset = (width - scaled_width) // 2
+                    y_offset = (height - scaled_height) // 2
+                    
+                    # Create output frame with background
+                    output_frame = background_image.copy()
+                    
+                    # Extract person from original frame
+                    person_only = frame.copy()
+                    person_only[~person_mask] = 0
+                    
+                    if current_scale < 1.0:  # Scaling down
+                        # Scale person and mask
+                        scaled_person = cv2.resize(person_only, (scaled_width, scaled_height))
+                        scaled_mask = cv2.resize(mask, (scaled_width, scaled_height))
+                        
+                        # Create a full-size mask with the scaled person centered
+                        full_mask = np.zeros((height, width))
+                        full_mask[y_offset:y_offset+scaled_height, 
+                                 x_offset:x_offset+scaled_width] = scaled_mask
+                        
+                        # Place scaled person in output frame
+                        output_frame[y_offset:y_offset+scaled_height, 
+                                   x_offset:x_offset+scaled_width] = scaled_person
+                        
+                    else:  # Scaling up
+                        # Scale person and mask
+                        scaled_person = cv2.resize(person_only, (scaled_width, scaled_height))
+                        scaled_mask = cv2.resize(mask, (scaled_width, scaled_height))
+                        
+                        # Crop the center portion
+                        start_x = -x_offset
+                        start_y = -y_offset
+                        end_x = start_x + width
+                        end_y = start_y + height
+                        
+                        output_frame = scaled_person[start_y:end_y, start_x:end_x]
+                        full_mask = scaled_mask[start_y:end_y, start_x:end_x]
+                    
+                    # Combine with background using the mask
+                    full_mask = np.stack((full_mask,) * 3, axis=-1)
+                    output_frame = (output_frame * full_mask + 
+                                  background_image * (1 - full_mask)).astype(np.uint8)
+                else:
+                    # No scaling, just combine normally
+                    mask = np.stack((mask,) * 3, axis=-1)
+                    output_frame = (frame * mask + background_image * (1 - mask)).astype(np.uint8)
                 
                 # Write to FFmpeg
                 self.ffmpeg_process.stdin.write(output_frame.tobytes())
