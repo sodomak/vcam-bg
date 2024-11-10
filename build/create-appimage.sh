@@ -46,14 +46,27 @@ EOF
 chmod +x "$SCRIPT_DIR/AppDir/usr/bin/vcam-bg"
 
 # Create desktop entry
-cat > "$SCRIPT_DIR/AppDir/vcam-bg.desktop" << 'EOF'
+cat > "$SCRIPT_DIR/AppDir/vcam-bg.desktop" << EOF
 [Desktop Entry]
 Name=Virtual Camera Background
+GenericName=Virtual Camera Background
 Comment=Virtual background for any video conferencing app
+Version=$VERSION
 Exec=vcam-bg
 Icon=vcam-bg
+Terminal=false
 Type=Application
-Categories=Video;AudioVideo;
+Categories=Video;AudioVideo;Photography;Graphics;Settings;
+Keywords=camera;background;virtual;video;conference;meeting;blur;
+StartupNotify=true
+X-AppImage-Version=$VERSION
+X-AppImage-BuildDate=$(date -u +%Y-%m-%d)
+X-AppImage-Arch=x86_64
+X-AppImage-Name=Virtual Camera Background
+X-AppImage-Description=Virtual background for any video conferencing app
+X-AppImage-URL=https://github.com/sodomak/vcam-bg
+X-AppImage-License=MIT
+X-AppImage-Author=sodomak
 EOF
 
 # Also copy desktop file to applications directory
@@ -76,10 +89,15 @@ EOF
 
 chmod +x "$SCRIPT_DIR/AppDir/AppRun"
 
-# Generate icon from app screenshot
-convert "$PROJECT_DIR/app.png" -resize 256x256 "$SCRIPT_DIR/AppDir/usr/share/icons/hicolor/256x256/apps/vcam-bg.png"
-# Also copy icon to AppDir root as required by AppImage
-cp "$SCRIPT_DIR/AppDir/usr/share/icons/hicolor/256x256/apps/vcam-bg.png" "$SCRIPT_DIR/AppDir/"
+# Generate icons in multiple sizes
+for size in 16 32 48 64 128 256 512; do
+    mkdir -p "$SCRIPT_DIR/AppDir/usr/share/icons/hicolor/${size}x${size}/apps"
+    convert "$PROJECT_DIR/app.png" -resize ${size}x${size} \
+        "$SCRIPT_DIR/AppDir/usr/share/icons/hicolor/${size}x${size}/apps/vcam-bg.png"
+done
+
+# Copy largest icon to AppDir root as required by AppImage
+cp "$SCRIPT_DIR/AppDir/usr/share/icons/hicolor/512x512/apps/vcam-bg.png" "$SCRIPT_DIR/AppDir/"
 
 # Download AppImage builder if not present
 if [ ! -f "$SCRIPT_DIR/appimagetool-x86_64.AppImage" ]; then
