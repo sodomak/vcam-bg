@@ -45,21 +45,23 @@ EOF
 
 chmod +x "$SCRIPT_DIR/AppDir/usr/bin/vcam-bg"
 
-# Create desktop entry
+# Get version from version.py
+VERSION=$(grep -oP 'VERSION = "\K[^"]+' "${SCRIPT_DIR}/../src/version.py")
+
+# Create desktop entry with correct categories
 cat > "$SCRIPT_DIR/AppDir/vcam-bg.desktop" << EOF
 [Desktop Entry]
+Type=Application
 Name=Virtual Camera Background
 GenericName=Virtual Camera Background
 Comment=Virtual background for any video conferencing app
-Version=$VERSION
 Exec=vcam-bg
 Icon=vcam-bg
 Terminal=false
-Type=Application
-Categories=Video;AudioVideo;Photography;Graphics;Settings;
+Categories=AudioVideo;Video;
 Keywords=camera;background;virtual;video;conference;meeting;blur;
 StartupNotify=true
-X-AppImage-Version=$VERSION
+X-AppImage-Version=${VERSION}
 X-AppImage-BuildDate=$(date -u +%Y-%m-%d)
 X-AppImage-Arch=x86_64
 X-AppImage-Name=Virtual Camera Background
@@ -67,6 +69,57 @@ X-AppImage-Description=Virtual background for any video conferencing app
 X-AppImage-URL=https://github.com/sodomak/vcam-bg
 X-AppImage-License=MIT
 X-AppImage-Author=sodomak
+EOF
+
+# Remove all old metadata files
+rm -f "$SCRIPT_DIR/AppDir/usr/share/metainfo/vcam-bg.appdata.xml"
+rm -f "$SCRIPT_DIR/AppDir/usr/share/metainfo/io.github.sodomak.vcam-bg.appdata.xml"
+
+# Create AppStream metadata with fixes
+mkdir -p "$SCRIPT_DIR/AppDir/usr/share/metainfo"
+cat > "$SCRIPT_DIR/AppDir/usr/share/metainfo/io.github.sodomak.vcam-bg.metainfo.xml" << EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>io.github.sodomak.vcam-bg</id>
+  <metadata_license>MIT</metadata_license>
+  <project_license>MIT</project_license>
+  <name>Virtual Camera Background</name>
+  <summary>Virtual background for any video conferencing app</summary>
+  <description>
+    <p>
+      A simple Linux application that enables custom backgrounds in any video call, regardless of native support in the conferencing app.
+      Compatible with Signal Desktop, Zoom, Teams, Meet, and all other video chat software.
+    </p>
+    <p>Features:</p>
+    <ul>
+      <li>Real-time background replacement using MediaPipe</li>
+      <li>Multiple camera support with MJPG format</li>
+      <li>Adjustable FPS and resolution scaling</li>
+      <li>Edge smoothing with Gaussian blur</li>
+      <li>Light/Dark theme</li>
+      <li>Multi-language support (English, Čeština)</li>
+    </ul>
+  </description>
+  <launchable type="desktop-id">vcam-bg.desktop</launchable>
+  <url type="homepage">https://github.com/sodomak/vcam-bg</url>
+  <provides>
+    <binary>vcam-bg</binary>
+  </provides>
+  <developer id="io.github.sodomak">
+    <name>sodomak</name>
+    <url>https://github.com/sodomak</url>
+  </developer>
+  <releases>
+    <release version="${VERSION}" date="$(date -I)"/>
+  </releases>
+  <content_rating type="oars-1.1">
+    <content_attribute id="social-info">mild</content_attribute>
+  </content_rating>
+  <categories>
+    <category>AudioVideo</category>
+    <category>Video</category>
+  </categories>
+</component>
 EOF
 
 # Also copy desktop file to applications directory
@@ -89,14 +142,14 @@ EOF
 
 chmod +x "$SCRIPT_DIR/AppDir/AppRun"
 
-# Generate icons in multiple sizes
+# Generate icons in multiple sizes using magick instead of convert
 for size in 16 32 48 64 128 256 512; do
     mkdir -p "$SCRIPT_DIR/AppDir/usr/share/icons/hicolor/${size}x${size}/apps"
-    convert "$PROJECT_DIR/app.png" -resize ${size}x${size} \
+    magick "$PROJECT_DIR/app.png" -resize ${size}x${size} \
         "$SCRIPT_DIR/AppDir/usr/share/icons/hicolor/${size}x${size}/apps/vcam-bg.png"
 done
 
-# Copy largest icon to AppDir root as required by AppImage
+# Copy largest icon to AppDir root
 cp "$SCRIPT_DIR/AppDir/usr/share/icons/hicolor/512x512/apps/vcam-bg.png" "$SCRIPT_DIR/AppDir/"
 
 # Download AppImage builder if not present
