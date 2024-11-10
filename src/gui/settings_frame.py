@@ -202,6 +202,15 @@ class SettingsFrame(ttk.LabelFrame):
             text=self.master.tr('flip_v'),
             variable=self.flip_v
         ).pack(side=tk.LEFT, padx=5)
+        
+        # Reset button at the bottom
+        reset_frame = ttk.Frame(self.position_frame)
+        reset_frame.pack(fill=tk.X, padx=5, pady=5)
+        ttk.Button(
+            reset_frame,
+            text=self.master.tr('reset_position'),
+            command=self.reset_position
+        ).pack(side=tk.RIGHT)
 
     def select_background(self):
         """Open file dialog to select background image"""
@@ -504,3 +513,10 @@ class SettingsFrame(ttk.LabelFrame):
             print(f"Error getting input devices: {e}")
         
         return devices
+
+    def reset_position(self):
+        """Reset position controls to default values"""
+        self.x_offset.set(0.5)  # Center horizontally
+        self.y_offset.set(0.5)  # Center vertically
+        self.flip_h.set(False)  # No horizontal flip
+        self.flip_v.set(False)  # No vertical flip
