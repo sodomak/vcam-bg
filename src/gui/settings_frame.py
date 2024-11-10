@@ -10,91 +10,31 @@ class SettingsFrame(ttk.LabelFrame):
     def __init__(self, master):
         super().__init__(master, text=master.tr('settings'))
         
-        # Add position control variables
-        self.x_offset = tk.DoubleVar(value=0.5)  # Center by default
-        self.y_offset = tk.DoubleVar(value=0.5)  # Center by default
+        # Initialize variables
+        self.input_device = tk.StringVar()
+        self.output_device = tk.StringVar()
+        self.background_path = tk.StringVar()
+        self.resolution = tk.StringVar(value='1280x720')
+        self.fps = tk.DoubleVar(value=20.0)
+        self.scale = tk.DoubleVar(value=1.0)
+        self.smooth_kernel = tk.IntVar(value=21)
+        self.smooth_sigma = tk.DoubleVar(value=10.0)
+        
+        # Position control variables
+        self.x_offset = tk.DoubleVar(value=0.5)
+        self.y_offset = tk.DoubleVar(value=0.5)
         self.flip_h = tk.BooleanVar(value=False)
         self.flip_v = tk.BooleanVar(value=False)
         
-        # Create position control frame
-        position_frame = ttk.LabelFrame(self, text=master.tr('position'))
-        position_frame.pack(fill=tk.X, padx=5, pady=5)
+        # Bind variable changes to save settings
+        self.scale.trace_add('write', lambda *_: self.master.save_settings())
+        self.x_offset.trace_add('write', lambda *_: self.master.save_settings())
+        self.y_offset.trace_add('write', lambda *_: self.master.save_settings())
+        self.flip_h.trace_add('write', lambda *_: self.master.save_settings())
+        self.flip_v.trace_add('write', lambda *_: self.master.save_settings())
         
-        # Horizontal position slider
-        ttk.Label(position_frame, text=master.tr('horizontal')).pack(anchor=tk.W)
-        ttk.Scale(
-            position_frame,
-            from_=0, to=1,
-            variable=self.x_offset,
-            orient=tk.HORIZONTAL
-        ).pack(fill=tk.X, padx=5)
-        
-        # Vertical position slider
-        ttk.Label(position_frame, text=master.tr('vertical')).pack(anchor=tk.W)
-        ttk.Scale(
-            position_frame,
-            from_=0, to=1,
-            variable=self.y_offset,
-            orient=tk.HORIZONTAL
-        ).pack(fill=tk.X, padx=5)
-        
-        # Flip controls in a horizontal frame
-        flip_frame = ttk.Frame(position_frame)
-        flip_frame.pack(fill=tk.X, padx=5, pady=5)
-        
-        ttk.Checkbutton(
-            flip_frame,
-            text=master.tr('flip_h'),
-            variable=self.flip_h
-        ).pack(side=tk.LEFT, padx=5)
-        
-        ttk.Checkbutton(
-            flip_frame,
-            text=master.tr('flip_v'),
-            variable=self.flip_v
-        ).pack(side=tk.LEFT, padx=5)
-
-        # Define common resolutions
-        self.common_resolutions = [
-            '1920x1080',
-            '1280x720',
-            '800x600',
-            '640x480'
-        ]
-        
-        # Use master's variables directly
-        self.fps = master.fps
-        self.scale = master.scale
-        self.smooth_kernel = master.smooth_kernel
-        self.smooth_sigma = master.smooth_sigma
-        self.show_preview = master.show_preview
-        self.input_device = master.input_device
-        self.output_device = master.output_device
-        self.background_path = master.background_path
-        self.resolution = master.resolution
-        
-        # Get available devices
-        input_devices = self.get_input_devices()
-        output_devices = self.get_output_devices()
-        
-        # Set default devices only if no value is already set
-        if not self.input_device.get() and input_devices:
-            self.input_device.set(input_devices[0])
-        if not self.output_device.get() and output_devices:
-            default_output = next(
-                (dev for dev in output_devices if "Virtual Camera" in dev or "v4l2loopback" in dev.lower()),
-                output_devices[0] if output_devices else ""
-            )
-            self.output_device.set(default_output)
-
         # Create widgets after initializing variables
         self.create_widgets()
-        
-        # Update resolutions for initial device
-        self.update_resolutions()
-        
-        # Bind resolution updates to device changes
-        self.input_combo.bind('<<ComboboxSelected>>', self.update_resolutions)
 
     def create_widgets(self):
         """Create all widgets in the settings frame"""
@@ -122,10 +62,6 @@ class SettingsFrame(ttk.LabelFrame):
         self.bg_label = ttk.Label(bg_frame, text=self.master.tr('background'))
         self.bg_label.pack(side=tk.LEFT)
         
-        # Button on the right
-        self.bg_button = ttk.Button(bg_frame, text=self.master.tr('select_background'), command=self.select_background)
-        self.bg_button.pack(side=tk.RIGHT)
-        
         # Preview frame between label and button
         self.bg_preview_frame = ttk.Frame(bg_frame)
         self.bg_preview_frame.pack(side=tk.LEFT, padx=5, fill=tk.X, expand=True)
@@ -136,6 +72,14 @@ class SettingsFrame(ttk.LabelFrame):
         
         self.bg_path_label = ttk.Label(self.bg_preview_frame, text="", wraplength=150)
         self.bg_path_label.pack(side=tk.LEFT, padx=5)
+        
+        # Button on the right
+        self.bg_button = ttk.Button(
+            bg_frame,
+            text=self.master.tr('select_background'),
+            command=self.select_background
+        )
+        self.bg_button.pack(side=tk.RIGHT)
 
         # Resolution
         res_frame = ttk.Frame(self)
@@ -216,6 +160,48 @@ class SettingsFrame(ttk.LabelFrame):
             command=lambda v: self.sigma_label.config(text=f"{float(v):.1f}")
         )
         self.sigma_entry.pack(fill=tk.X)
+
+        # Position controls
+        self.position_frame = ttk.LabelFrame(self, text=self.master.tr('position'))
+        self.position_frame.pack(fill=tk.X, pady=(0, 10))
+        
+        # Horizontal position slider
+        self.h_pos_frame = ttk.Frame(self.position_frame)
+        self.h_pos_frame.pack(fill=tk.X, pady=(5, 5))
+        ttk.Label(self.h_pos_frame, text=self.master.tr('horizontal')).pack(side=tk.LEFT)
+        ttk.Scale(
+            self.position_frame,
+            from_=0, to=1,
+            variable=self.x_offset,
+            orient=tk.HORIZONTAL
+        ).pack(fill=tk.X, padx=5)
+        
+        # Vertical position slider
+        self.v_pos_frame = ttk.Frame(self.position_frame)
+        self.v_pos_frame.pack(fill=tk.X, pady=(5, 5))
+        ttk.Label(self.v_pos_frame, text=self.master.tr('vertical')).pack(side=tk.LEFT)
+        ttk.Scale(
+            self.position_frame,
+            from_=0, to=1,
+            variable=self.y_offset,
+            orient=tk.HORIZONTAL
+        ).pack(fill=tk.X, padx=5)
+        
+        # Flip controls
+        flip_frame = ttk.Frame(self.position_frame)
+        flip_frame.pack(fill=tk.X, padx=5, pady=5)
+        
+        ttk.Checkbutton(
+            flip_frame,
+            text=self.master.tr('flip_h'),
+            variable=self.flip_h
+        ).pack(side=tk.LEFT, padx=5)
+        
+        ttk.Checkbutton(
+            flip_frame,
+            text=self.master.tr('flip_v'),
+            variable=self.flip_v
+        ).pack(side=tk.LEFT, padx=5)
 
     def select_background(self):
         """Open file dialog to select background image"""
@@ -435,36 +421,30 @@ class SettingsFrame(ttk.LabelFrame):
         self.sigma_text_label.configure(text=self.master.tr('sigma'))
 
     def update_values(self):
-        """Update all widget values from settings"""
-        # Update input device
-        if self.input_device.get() in self.input_combo['values']:
-            self.input_combo.set(self.input_device.get())
+        """Update all widgets with current values"""
+        # Update input/output devices
+        self.input_device.set(self.master.input_device.get())
+        self.output_device.set(self.master.output_device.get())
+        self.background_path.set(self.master.background_path.get())
         
-        # Update output device
-        if self.output_device.get() in self.output_combo['values']:
-            self.output_combo.set(self.output_device.get())
+        # Update sliders
+        self.fps.set(float(self.master.fps.get()))
+        self.scale.set(float(self.master.scale.get()))
+        self.smooth_kernel.set(int(self.master.smooth_kernel.get()))
+        self.smooth_sigma.set(float(self.master.smooth_sigma.get()))
+        self.resolution.set(self.master.resolution.get())
         
-        # Update resolution
-        if self.resolution.get() in self.resolution_combo['values']:
-            self.resolution_combo.set(self.resolution.get())
+        # Update position controls
+        self.x_offset.set(float(self.master.x_offset.get()))
+        self.y_offset.set(float(self.master.y_offset.get()))
+        self.flip_h.set(self.master.flip_h.get())
+        self.flip_v.set(self.master.flip_v.get())
         
-        # Update FPS
-        self.fps_entry.set(self.fps.get())
-        self.fps_label.configure(text=f"{self.fps.get():.1f}")
-        
-        # Update scale
-        self.scale_entry.set(self.scale.get())
-        self.scale_label.configure(text=f"{self.scale.get():.2f}")
-        
-        # Update smoothing
-        self.kernel_entry.set(self.smooth_kernel.get())
-        self.kernel_label.configure(text=str(self.smooth_kernel.get()))
-        
-        self.sigma_entry.set(self.smooth_sigma.get())
-        self.sigma_label.configure(text=f"{self.smooth_sigma.get():.1f}")
-        
-        # Update background preview
-        self.update_background_preview()
+        # Update labels
+        self.fps_label.config(text=f"{self.fps.get():.1f}")
+        self.scale_label.config(text=f"{self.scale.get():.2f}")
+        self.kernel_label.config(text=str(int(self.smooth_kernel.get())))
+        self.sigma_label.config(text=f"{self.smooth_sigma.get():.1f}")
 
     def get_output_devices(self):
         """Get list of available output devices, prioritizing v4l2loopback devices"""
