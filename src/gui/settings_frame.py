@@ -420,6 +420,29 @@ class SettingsFrame(ttk.LabelFrame):
         self.smooth_frame.configure(text=self.master.tr('smoothing'))
         self.kernel_text_label.configure(text=self.master.tr('kernel'))
         self.sigma_text_label.configure(text=self.master.tr('sigma'))
+        
+        # Position controls with correct frame names from create_widgets
+        self.position_frame.configure(text=self.master.tr('position'))
+        # Find labels in position control frames
+        for child in self.h_pos_frame.winfo_children():
+            if isinstance(child, ttk.Label):
+                child.configure(text=self.master.tr('horizontal'))
+        for child in self.v_pos_frame.winfo_children():
+            if isinstance(child, ttk.Label):
+                child.configure(text=self.master.tr('vertical'))
+            
+        # Update checkbuttons in position frame
+        for child in self.position_frame.winfo_children():
+            if isinstance(child, ttk.Checkbutton):
+                if 'flip_h' in str(child):
+                    child.configure(text=self.master.tr('flip_h'))
+                elif 'flip_v' in str(child):
+                    child.configure(text=self.master.tr('flip_v'))
+        
+        # Update reset button
+        for child in self.position_frame.winfo_children():
+            if isinstance(child, ttk.Button):
+                child.configure(text=self.master.tr('reset_position'))
 
     def update_values(self):
         """Update all widgets with current values"""
