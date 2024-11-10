@@ -5,6 +5,10 @@ on:
     tags:
       - 'v*'  # Trigger on any tag starting with 'v'
 
+# Add permissions block
+permissions:
+  contents: write  # Needed for creating releases and uploading assets
+
 jobs:
   build:
     runs-on: ubuntu-latest
