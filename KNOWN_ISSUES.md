@@ -1,0 +1,3 @@
+- release.yaml failing
+- build script for AppImage - makick vs. convert
+- camera detection failing on some systems
