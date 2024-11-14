@@ -6,7 +6,7 @@ on:
       - 'v*'  # Trigger on any tag starting with 'v'
 
 permissions:
-  contents: write  # Needed for creating releases and uploading assets
+  contents: write
 
 jobs:
   build:
@@ -15,14 +15,12 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Install dependencies
+    - name: Install system dependencies
       run: |
         sudo apt-get update
         sudo apt-get install -y python3-pip python3-venv imagemagick-6.q16 appstream fuse libfuse2
-        # Fix ImageMagick policy and create magick symlink
         sudo sed -i 's/rights="none" pattern="PDF"/rights="read|write" pattern="PDF"/' /etc/ImageMagick-6/policy.xml
         sudo ln -s /usr/bin/convert /usr/local/bin/magick
-        # Configure FUSE
         sudo modprobe fuse
         sudo chmod 666 /dev/fuse
         sudo chown root:$USER /dev/fuse
@@ -30,40 +28,39 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        python-version: '3.12'  # Consider downgrading to '3.10' if issues persist
+        python-version: '3.12'
 
     - name: Set up Python virtual environment and install dependencies
       run: |
         python3 -m venv venv
         source venv/bin/activate
-        pip install numpy==1.26.4 opencv-python
-        # Install any additional dependencies your AppImage may require
+        pip install --upgrade pip
+        pip install numpy==1.26.4 opencv-python==4.8.0.74  # Use compatible versions of numpy and OpenCV
+        # Install additional dependencies here if needed
 
     - name: Get version from tag
       id: get_version
       run: |
-        # Strip 'v' prefix from tag
         VERSION=${GITHUB_REF#refs/tags/v}
         echo "version=$VERSION" >> $GITHUB_OUTPUT
-        # Verify version matches version.py
         FILE_VERSION=$(grep -oP 'VERSION = "\K[^"]+' src/version.py)
         if [ "$VERSION" != "$FILE_VERSION" ]; then
           echo "Error: Tag version ($VERSION) does not match version.py ($FILE_VERSION)"
           exit 1
         fi
 
-    - name: Create AppDir structure
+    - name: Create AppDir structure and copy virtual environment
       run: |
         mkdir -p build/AppDir/usr/share/metainfo/
         mkdir -p build/AppDir/usr/share/applications/
+        # Copy the entire virtual environment to AppDir
+        cp -r venv build/AppDir/usr/lib/python
 
-    - name: Build AppImage
+    - name: Bundle dependencies in AppImage
       run: |
-        # Ensure the virtual environment is activated for building the AppImage
         source venv/bin/activate
         chmod +x build/create-appimage.sh
         ./build/create-appimage.sh
-        # Validate AppStream metadata after build
         appstreamcli validate build/AppDir/usr/share/metainfo/io.github.sodomak.vcam-bg.metainfo.xml
 
     - name: Create Release
