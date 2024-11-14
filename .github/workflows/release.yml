@@ -5,17 +5,16 @@ on:
     tags:
       - 'v*'  # Trigger on any tag starting with 'v'
 
-# Add permissions block
 permissions:
   contents: write  # Needed for creating releases and uploading assets
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    
+
     steps:
     - uses: actions/checkout@v4
-    
+
     - name: Install dependencies
       run: |
         sudo apt-get update
@@ -27,12 +26,19 @@ jobs:
         sudo modprobe fuse
         sudo chmod 666 /dev/fuse
         sudo chown root:$USER /dev/fuse
-    
+
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        python-version: '3.12'
-    
+        python-version: '3.12'  # Consider downgrading to '3.10' if issues persist
+
+    - name: Set up Python virtual environment and install dependencies
+      run: |
+        python3 -m venv venv
+        source venv/bin/activate
+        pip install numpy==1.26.4 opencv-python
+        # Install any additional dependencies your AppImage may require
+
     - name: Get version from tag
       id: get_version
       run: |
@@ -53,11 +59,13 @@ jobs:
 
     - name: Build AppImage
       run: |
+        # Ensure the virtual environment is activated for building the AppImage
+        source venv/bin/activate
         chmod +x build/create-appimage.sh
         ./build/create-appimage.sh
         # Validate AppStream metadata after build
         appstreamcli validate build/AppDir/usr/share/metainfo/io.github.sodomak.vcam-bg.metainfo.xml
-    
+
     - name: Create Release
       id: create_release
       uses: softprops/action-gh-release@v1
