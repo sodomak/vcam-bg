@@ -51,6 +51,7 @@ jobs:
 
     - name: Create AppDir structure and copy virtual environment
       run: |
+        mkdir -p build/AppDir/usr/lib/python  # Ensure all necessary directories exist
         mkdir -p build/AppDir/usr/share/metainfo/
         mkdir -p build/AppDir/usr/share/applications/
         # Copy the entire virtual environment to AppDir
