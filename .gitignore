@@ -37,3 +37,6 @@ coverage.xml
 
 # Keep build scripts
 !build/*.sh
+
+# Large binary files
+*.so
