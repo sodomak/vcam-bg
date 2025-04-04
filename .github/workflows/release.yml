@@ -45,8 +45,13 @@ jobs:
 
     - name: Bundle dependencies in AppImage
       run: |
+        # Add debug information
+        echo "Current directory: $(pwd)"
+        echo "Contents of build directory:"
+        ls -la build/
+        echo "Running build script..."
         chmod +x build/create-appimage.sh
-        ./build/create-appimage.sh
+        bash -x build/create-appimage.sh  # Run with debug mode enabled
         appstreamcli validate build/AppDir/usr/share/metainfo/io.github.sodomak.vcam-bg.metainfo.xml
 
     - name: Create Release
