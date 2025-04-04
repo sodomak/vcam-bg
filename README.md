@@ -40,7 +40,9 @@ Download the latest AppImage from the [releases page](https://github.com/sodomak
    ```
 
 > [!NOTE]
-> The AppImage is self-contained and includes all required dependencies (Python, OpenCV, MediaPipe, etc.). The only system requirement is the v4l2loopback kernel module for virtual camera functionality.
+> The AppImage is self-contained and includes all required dependencies (Python, OpenCV, MediaPipe, etc.). The only system requirements are:
+> - libfuse2 (required by all AppImages)
+> - v4l2loopback kernel module (for virtual camera functionality)
 
 > [!TIP]
 > If the module installation commands above don't work for your distribution, check your distribution's package manager for `v4l2loopback` or `v4l2loopback-dkms` package.

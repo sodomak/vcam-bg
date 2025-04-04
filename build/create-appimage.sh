@@ -7,43 +7,24 @@ set -e
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
 
-# Detect Python version and executable
-if command -v pyenv &> /dev/null; then
-    # Force pyenv to use Python 3.11
-    if ! pyenv which python3.11 &> /dev/null; then
-        echo "Error: Python 3.11 not found in pyenv."
-        echo "Please install it using:"
-        echo "    pyenv install 3.11"
-        exit 1
-    fi
-    PYTHON_EXEC="$(pyenv which python3.11)"
-else
-    # Try system Python 3.11
-    if command -v python3.11 &> /dev/null; then
-        PYTHON_EXEC="$(command -v python3.11)"
-    else
-        echo "Error: Python 3.11 not found."
-        echo "Please install Python 3.11 using your system package manager:"
-        echo "    sudo pacman -S python311"
-        exit 1
-    fi
+# Download and compile Python 3.11
+PYTHON_VERSION="3.11.8"
+if [ ! -d "$SCRIPT_DIR/Python-$PYTHON_VERSION" ]; then
+    wget "https://www.python.org/ftp/python/$PYTHON_VERSION/Python-$PYTHON_VERSION.tgz"
+    tar xzf "Python-$PYTHON_VERSION.tgz"
+    cd "Python-$PYTHON_VERSION"
+    ./configure --prefix="$SCRIPT_DIR/AppDir/usr" --enable-shared --with-system-ffi
+    make -j$(nproc)
+    make install
+    cd ..
+    rm -f "Python-$PYTHON_VERSION.tgz"
 fi
 
-PYTHON_VERSION=$("$PYTHON_EXEC" -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}")')
-echo "Using Python version: $PYTHON_VERSION"
+# Use the compiled Python
+PYTHON_EXEC="$SCRIPT_DIR/AppDir/usr/bin/python3"
+export LD_LIBRARY_PATH="$SCRIPT_DIR/AppDir/usr/lib:$LD_LIBRARY_PATH"
 
-# Strict Python version check
-if [ "${PYTHON_VERSION%.*}" = "3" ] && [ "${PYTHON_VERSION#*.}" -gt "11" ]; then
-    echo "Error: Python ${PYTHON_VERSION} is not supported by mediapipe."
-    echo "Please install Python 3.11 or lower. Recommended versions: 3.9-3.11"
-    echo "You have pyenv installed. You can use:"
-    echo "    pyenv install 3.11"
-    echo "    pyenv local 3.11"
-    echo "Then run this script again."
-    exit 1
-fi
-
-# Create and activate virtual environment using the detected Python
+# Create and activate virtual environment using the compiled Python
 rm -rf "$SCRIPT_DIR/venv"  # Clean up any existing venv
 "$PYTHON_EXEC" -m venv --clear "$SCRIPT_DIR/venv"
 source "$SCRIPT_DIR/venv/bin/activate"
@@ -178,11 +159,12 @@ HERE=\${SELF%/*}
 
 # Set environment variables
 export PATH="\$HERE/usr/bin:\$PATH"
-export PYTHONPATH="\$HERE/usr/lib/python$PYTHON_VERSION/site-packages:\$PYTHONPATH"
+export PYTHONPATH="\$HERE/usr/lib/python3.11/site-packages:\$PYTHONPATH"
 export LD_LIBRARY_PATH="\$HERE/usr/lib:\$LD_LIBRARY_PATH"
+export PYTHONHOME="\$HERE/usr"
 
-# Execute the application directly using Python
-exec python3 "\$HERE/usr/lib/python$PYTHON_VERSION/site-packages/src/main.py" "\$@"
+# Execute the application using bundled Python
+exec "\$HERE/usr/bin/python3" "\$HERE/usr/lib/python3.11/site-packages/src/main.py" "\$@"
 EOF
 
 chmod +x "$SCRIPT_DIR/AppDir/AppRun"
