@@ -1,9 +1,39 @@
+# Python artifacts
 __pycache__/
 *.pyc
-.config/
+*.pyo
+*.pyd
+.Python
+*.so
+.env
+.venv
+env/
+venv/
+ENV/
 
-# Build artifacts
+# IDE and editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Build and distribution artifacts
 build/AppDir/
 build/venv/
 build/appimagetool-x86_64.AppImage
 *.AppImage
+squashfs-root/
+dist/
+*.egg-info/
+
+# Configuration and local files
+.config/
+.python-version
+.env*
+.coverage
+coverage.xml
+*.log
+
+# Keep build scripts
+!build/*.sh
