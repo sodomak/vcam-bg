@@ -7,20 +7,65 @@ set -e
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
 
-# Detect Python version
-PYTHON_VERSION=$(python3 -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}")')
+# Detect Python version and executable
+if command -v pyenv &> /dev/null; then
+    # Force pyenv to use Python 3.11
+    if ! pyenv which python3.11 &> /dev/null; then
+        echo "Error: Python 3.11 not found in pyenv."
+        echo "Please install it using:"
+        echo "    pyenv install 3.11"
+        exit 1
+    fi
+    PYTHON_EXEC="$(pyenv which python3.11)"
+else
+    # Try system Python 3.11
+    if command -v python3.11 &> /dev/null; then
+        PYTHON_EXEC="$(command -v python3.11)"
+    else
+        echo "Error: Python 3.11 not found."
+        echo "Please install Python 3.11 using your system package manager:"
+        echo "    sudo pacman -S python311"
+        exit 1
+    fi
+fi
+
+PYTHON_VERSION=$("$PYTHON_EXEC" -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}")')
 echo "Using Python version: $PYTHON_VERSION"
 
-# Create and activate virtual environment
-python -m venv "$SCRIPT_DIR/venv"
+# Strict Python version check
+if [ "${PYTHON_VERSION%.*}" = "3" ] && [ "${PYTHON_VERSION#*.}" -gt "11" ]; then
+    echo "Error: Python ${PYTHON_VERSION} is not supported by mediapipe."
+    echo "Please install Python 3.11 or lower. Recommended versions: 3.9-3.11"
+    echo "You have pyenv installed. You can use:"
+    echo "    pyenv install 3.11"
+    echo "    pyenv local 3.11"
+    echo "Then run this script again."
+    exit 1
+fi
+
+# Create and activate virtual environment using the detected Python
+rm -rf "$SCRIPT_DIR/venv"  # Clean up any existing venv
+"$PYTHON_EXEC" -m venv --clear "$SCRIPT_DIR/venv"
 source "$SCRIPT_DIR/venv/bin/activate"
 
-# Install dependencies in virtual environment
-pip install \
-    opencv-python-headless \
-    mediapipe \
-    numpy \
-    pillow
+# Verify we're using the correct Python version in the virtual environment
+VENV_PYTHON_VERSION=$(python -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}")')
+if [ "$VENV_PYTHON_VERSION" != "$PYTHON_VERSION" ]; then
+    echo "Error: Virtual environment Python version ($VENV_PYTHON_VERSION) doesn't match expected version ($PYTHON_VERSION)"
+    deactivate
+    rm -rf "$SCRIPT_DIR/venv"
+    exit 1
+fi
+
+# Upgrade pip first
+"$SCRIPT_DIR/venv/bin/python" -m pip install --upgrade pip
+
+# Install dependencies in virtual environment with specific versions
+"$SCRIPT_DIR/venv/bin/python" -m pip install \
+    opencv-python-headless==4.8.1.78 \
+    mediapipe==0.10.9 \
+    numpy==1.24.3 \
+    pillow==10.2.0
 
 # Create AppDir structure
 mkdir -p "$SCRIPT_DIR/AppDir/usr/bin"
