@@ -4,7 +4,7 @@ on:
   push:
     tags:
       - 'v*'  # Trigger on any tag starting with 'v'
-  workflow_dispatch:  # Add this to enable manual triggers
+  workflow_dispatch:  # Manual triggers
 
 permissions:
   contents: write
@@ -38,16 +38,22 @@ jobs:
         pip install --upgrade pip
         pip install opencv-python-headless==4.8.1.78 mediapipe==0.10.9 numpy==1.24.3 pillow==10.2.0
 
-    - name: Get version from tag
+    - name: Get version from tag or file
       id: get_version
       run: |
-        VERSION=${GITHUB_REF#refs/tags/v}
-        echo "version=$VERSION" >> $GITHUB_OUTPUT
         FILE_VERSION=$(grep -oP 'VERSION = "\K[^"]+' src/version.py)
-        if [ "$VERSION" != "$FILE_VERSION" ]; then
-          echo "Error: Tag version ($VERSION) does not match version.py ($FILE_VERSION)"
-          exit 1
+        if [[ "$GITHUB_REF" == refs/tags/* ]]; then
+          # Running from tag push
+          VERSION=${GITHUB_REF#refs/tags/v}
+          if [ "$VERSION" != "$FILE_VERSION" ]; then
+            echo "Error: Tag version ($VERSION) does not match version.py ($FILE_VERSION)"
+            exit 1
+          fi
+        else
+          # Running manually
+          VERSION=$FILE_VERSION
         fi
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
 
     - name: Create AppDir structure and copy virtual environment
       run: |
