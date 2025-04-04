@@ -73,6 +73,7 @@ jobs:
     - name: Create Release
       id: create_release
       uses: softprops/action-gh-release@v1
+      if: ${{ github.event_name == 'push' }}  # Only create release on tag push
       with:
         name: Release ${{ steps.get_version.outputs.version }}
         draft: false
@@ -81,3 +82,10 @@ jobs:
           vcam-bg-x86_64.AppImage
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Upload Artifact
+      if: ${{ github.event_name == 'workflow_dispatch' }}  # Only upload artifact on manual run
+      uses: actions/upload-artifact@v4
+      with:
+        name: vcam-bg-x86_64
+        path: vcam-bg-x86_64.AppImage
