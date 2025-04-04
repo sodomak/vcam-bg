@@ -19,7 +19,7 @@ jobs:
     - name: Install system dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y python3-pip python3-venv imagemagick-6.q16 appstream fuse libfuse2 \
+        sudo apt-get install -y imagemagick-6.q16 appstream fuse libfuse2 \
           build-essential zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev \
           libreadline-dev libffi-dev libsqlite3-dev libbz2-dev
         sudo sed -i 's/rights="none" pattern="PDF"/rights="read|write" pattern="PDF"/' /etc/ImageMagick-6/policy.xml
@@ -28,46 +28,23 @@ jobs:
         sudo chmod 666 /dev/fuse
         sudo chown root:$USER /dev/fuse
 
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.11'
-
-    - name: Set up Python virtual environment and install dependencies
-      run: |
-        python3 -m venv venv
-        source venv/bin/activate
-        pip install --upgrade pip
-        pip install opencv-python-headless==4.8.1.78 mediapipe==0.10.9 numpy==1.24.3 pillow==10.2.0
-
     - name: Get version from tag or file
       id: get_version
       run: |
         FILE_VERSION=$(grep -oP 'VERSION = "\K[^"]+' src/version.py)
         if [[ "$GITHUB_REF" == refs/tags/* ]]; then
-          # Running from tag push
           VERSION=${GITHUB_REF#refs/tags/v}
           if [ "$VERSION" != "$FILE_VERSION" ]; then
             echo "Error: Tag version ($VERSION) does not match version.py ($FILE_VERSION)"
             exit 1
           fi
         else
-          # Running manually
           VERSION=$FILE_VERSION
         fi
         echo "version=$VERSION" >> $GITHUB_OUTPUT
 
-    - name: Create AppDir structure and copy virtual environment
-      run: |
-        mkdir -p build/AppDir/usr/lib/python  # Ensure all necessary directories exist
-        mkdir -p build/AppDir/usr/share/metainfo/
-        mkdir -p build/AppDir/usr/share/applications/
-        # Copy the entire virtual environment to AppDir
-        cp -r venv build/AppDir/usr/lib/python
-
     - name: Bundle dependencies in AppImage
       run: |
-        source venv/bin/activate
         chmod +x build/create-appimage.sh
         ./build/create-appimage.sh
         appstreamcli validate build/AppDir/usr/share/metainfo/io.github.sodomak.vcam-bg.metainfo.xml
@@ -75,7 +52,7 @@ jobs:
     - name: Create Release
       id: create_release
       uses: softprops/action-gh-release@v1
-      if: ${{ github.event_name == 'push' }}  # Only create release on tag push
+      if: ${{ github.event_name == 'push' }}
       with:
         name: Release ${{ steps.get_version.outputs.version }}
         draft: false
@@ -86,7 +63,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Upload Artifact
-      if: ${{ github.event_name == 'workflow_dispatch' }}  # Only upload artifact on manual run
+      if: ${{ github.event_name == 'workflow_dispatch' }}
       uses: actions/upload-artifact@v4
       with:
         name: vcam-bg-x86_64
