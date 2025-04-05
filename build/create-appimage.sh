@@ -192,6 +192,18 @@ if [ ! -f "$SCRIPT_DIR/appimagetool-x86_64.AppImage" ]; then
     chmod +x "$SCRIPT_DIR/appimagetool-x86_64.AppImage"
 fi
 
+# Copy system Tcl/Tk libraries and v4l2-ctl
+mkdir -p "$SCRIPT_DIR/AppDir/usr/lib"
+cp -L /usr/lib/x86_64-linux-gnu/libtk* "$SCRIPT_DIR/AppDir/usr/lib/"
+cp -L /usr/lib/x86_64-linux-gnu/libtcl* "$SCRIPT_DIR/AppDir/usr/lib/"
+cp -r /usr/lib/x86_64-linux-gnu/tcl* "$SCRIPT_DIR/AppDir/usr/lib/"
+cp -r /usr/lib/x86_64-linux-gnu/tk* "$SCRIPT_DIR/AppDir/usr/lib/"
+
+# Copy v4l2-ctl and its dependencies
+cp -L $(which v4l2-ctl) "$SCRIPT_DIR/AppDir/usr/bin/"
+# Copy required shared libraries for v4l2-ctl
+ldd $(which v4l2-ctl) | grep "=> /" | awk '{print $3}' | xargs -I '{}' cp -L '{}' "$SCRIPT_DIR/AppDir/usr/lib/"
+
 # Create AppImage
 export ARCH=x86_64
 "$SCRIPT_DIR/appimagetool-x86_64.AppImage" "$SCRIPT_DIR/AppDir" "vcam-bg-x86_64.AppImage"
@@ -203,13 +215,3 @@ deactivate
 
 # Clean up
 rm -rf "$SCRIPT_DIR/venv"
-
-# Copy system Tcl/Tk libraries
-mkdir -p "$SCRIPT_DIR/AppDir/usr/lib"
-cp -L /usr/lib/x86_64-linux-gnu/libtk* "$SCRIPT_DIR/AppDir/usr/lib/"
-cp -L /usr/lib/x86_64-linux-gnu/libtcl* "$SCRIPT_DIR/AppDir/usr/lib/"
-cp -r /usr/lib/x86_64-linux-gnu/tcl* "$SCRIPT_DIR/AppDir/usr/lib/"
-cp -r /usr/lib/x86_64-linux-gnu/tk* "$SCRIPT_DIR/AppDir/usr/lib/"
-
-# Copy v4l2-ctl
-cp -L $(which v4l2-ctl) "$SCRIPT_DIR/AppDir/usr/bin/"
