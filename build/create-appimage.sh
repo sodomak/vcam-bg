@@ -31,7 +31,7 @@ source "$SCRIPT_DIR/venv/bin/activate"
 
 # Verify we're using the correct Python version in the virtual environment
 VENV_PYTHON_VERSION=$(python -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}")')
-if [ "$VENV_PYTHON_VERSION" != "$PYTHON_VERSION" ]; then
+if [ "$VENV_PYTHON_VERSION" != "${PYTHON_VERSION%.*}" ]; then
     echo "Error: Virtual environment Python version ($VENV_PYTHON_VERSION) doesn't match expected version ($PYTHON_VERSION)"
     deactivate
     rm -rf "$SCRIPT_DIR/venv"
