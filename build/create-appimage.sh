@@ -203,3 +203,13 @@ deactivate
 
 # Clean up
 rm -rf "$SCRIPT_DIR/venv"
+
+# Copy system Tcl/Tk libraries
+mkdir -p "$SCRIPT_DIR/AppDir/usr/lib"
+cp -L /usr/lib/x86_64-linux-gnu/libtk* "$SCRIPT_DIR/AppDir/usr/lib/"
+cp -L /usr/lib/x86_64-linux-gnu/libtcl* "$SCRIPT_DIR/AppDir/usr/lib/"
+cp -r /usr/lib/x86_64-linux-gnu/tcl* "$SCRIPT_DIR/AppDir/usr/lib/"
+cp -r /usr/lib/x86_64-linux-gnu/tk* "$SCRIPT_DIR/AppDir/usr/lib/"
+
+# Copy v4l2-ctl
+cp -L $(which v4l2-ctl) "$SCRIPT_DIR/AppDir/usr/bin/"
