@@ -50,15 +50,15 @@ fi
 
 # Create AppDir structure
 mkdir -p "$SCRIPT_DIR/AppDir/usr/bin"
-mkdir -p "$SCRIPT_DIR/AppDir/usr/lib/python$PYTHON_VERSION/site-packages"
+mkdir -p "$SCRIPT_DIR/AppDir/usr/lib/python${PYTHON_VERSION%.*}/site-packages"
 mkdir -p "$SCRIPT_DIR/AppDir/usr/share/applications"
 mkdir -p "$SCRIPT_DIR/AppDir/usr/share/icons/hicolor/256x256/apps"
 
 # Copy virtual environment packages to AppDir
-cp -r "$SCRIPT_DIR/venv/lib/python$PYTHON_VERSION/site-packages"/* "$SCRIPT_DIR/AppDir/usr/lib/python$PYTHON_VERSION/site-packages/"
+cp -r "$SCRIPT_DIR/venv/lib/python${PYTHON_VERSION%.*}/site-packages"/* "$SCRIPT_DIR/AppDir/usr/lib/python${PYTHON_VERSION%.*}/site-packages/"
 
 # Copy application files
-cp -r "$PROJECT_DIR/src" "$SCRIPT_DIR/AppDir/usr/lib/python$PYTHON_VERSION/site-packages/"
+cp -r "$PROJECT_DIR/src" "$SCRIPT_DIR/AppDir/usr/lib/python${PYTHON_VERSION%.*}/site-packages/"
 
 # Create launcher script
 cat > "$SCRIPT_DIR/AppDir/usr/bin/vcam-bg" << EOF
