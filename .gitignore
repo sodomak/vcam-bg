@@ -39,4 +39,4 @@ coverage.xml
 !build/*.sh
 
 # Large binary files
-*.so
+*.soPython-*/Doc/
