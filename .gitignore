@@ -17,6 +17,7 @@ ENV/
 *.swp
 *.swo
 *~
+*.code-workspace
 
 # Build and distribution artifacts
 build/AppDir/
@@ -40,3 +41,18 @@ coverage.xml
 
 # Large binary files
 *.soPython-*/Doc/
+
+# Ignore Python documentation
+Python-3.11.8/Doc/
+
+# Python build artifacts
+Python-*.tgz*
+
+# New files and directories
+build.log
+Python-*/
+squashfs-root/
+
+# Generated files
+vcam-bg
+errors.md
