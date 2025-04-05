@@ -192,30 +192,67 @@ done
 # Copy largest icon to AppDir root
 cp "$SCRIPT_DIR/AppDir/usr/share/icons/hicolor/512x512/apps/vcam-bg.png" "$SCRIPT_DIR/AppDir/"
 
-# Function to copy binary and its dependencies
+# Function to find and copy Tcl/Tk libraries based on system
+copy_tcltk_libs() {
+    local lib_paths=(
+        "/usr/lib"                     # Arch Linux
+        "/usr/lib/x86_64-linux-gnu"    # Ubuntu/Debian
+    )
+    
+    local found=0
+    for lib_path in "${lib_paths[@]}"; do
+        if [ -f "$lib_path/libtk.so" ] || [ -f "$lib_path/libtcl.so" ]; then
+            echo "Found Tcl/Tk libraries in $lib_path"
+            cp -L "$lib_path"/libtk* "$SCRIPT_DIR/AppDir/usr/lib/" 2>/dev/null || true
+            cp -L "$lib_path"/libtcl* "$SCRIPT_DIR/AppDir/usr/lib/" 2>/dev/null || true
+            
+            # Check and copy tcl directories one by one
+            for d in "$lib_path"/tcl*; do
+                if [ -d "$d" ]; then
+                    cp -r "$d" "$SCRIPT_DIR/AppDir/usr/lib/"
+                fi
+            done
+            
+            # Check and copy tk directories one by one
+            for d in "$lib_path"/tk*; do
+                if [ -d "$d" ]; then
+                    cp -r "$d" "$SCRIPT_DIR/AppDir/usr/lib/"
+                fi
+            done
+            
+            found=1
+            break
+        fi
+    done
+    
+    if [ $found -eq 0 ]; then
+        echo "Error: Could not find Tcl/Tk libraries"
+        exit 1
+    fi
+}
+
+# Copy binaries and their dependencies
 copy_binary_and_deps() {
     local binary="$1"
     local target_dir="$2"
     
+    # Find the binary using 'which'
+    local binary_path=$(which "$binary" 2>/dev/null)
+    if [ -z "$binary_path" ]; then
+        echo "Warning: $binary not found, skipping..."
+        return
+    fi
+    
     # Copy the binary itself
-    cp -L "$binary" "$target_dir/"
+    cp -L "$binary_path" "$target_dir/"
     
     # Get list of dependencies and copy them if not already present
-    ldd "$binary" | grep "=> /" | awk '{print $3}' | while read lib; do
+    ldd "$binary_path" | grep "=> /" | awk '{print $3}' | while read lib; do
         if [ ! -f "$SCRIPT_DIR/AppDir/usr/lib/$(basename "$lib")" ]; then
             cp -L "$lib" "$SCRIPT_DIR/AppDir/usr/lib/"
         fi
     done
 }
-
-# Create lib directory if it doesn't exist
-mkdir -p "$SCRIPT_DIR/AppDir/usr/lib"
-
-# Copy Tcl/Tk libraries
-cp -L /usr/lib/x86_64-linux-gnu/libtk* "$SCRIPT_DIR/AppDir/usr/lib/"
-cp -L /usr/lib/x86_64-linux-gnu/libtcl* "$SCRIPT_DIR/AppDir/usr/lib/"
-cp -r /usr/lib/x86_64-linux-gnu/tcl* "$SCRIPT_DIR/AppDir/usr/lib/"
-cp -r /usr/lib/x86_64-linux-gnu/tk* "$SCRIPT_DIR/AppDir/usr/lib/"
 
 # Copy binaries and their dependencies
 copy_binary_and_deps "$(which v4l2-ctl)" "$SCRIPT_DIR/AppDir/usr/bin"
