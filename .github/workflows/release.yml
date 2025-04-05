@@ -54,7 +54,7 @@ jobs:
           echo "::error::Build script failed"
           exit 1
         fi
-        appstreamcli validate AppDir/usr/share/metainfo/io.github.sodomak.vcam-bg.metainfo.xml
+        appstreamcli validate build/AppDir/usr/share/metainfo/io.github.sodomak.vcam-bg.metainfo.xml
 
     - name: Create Release
       id: create_release
