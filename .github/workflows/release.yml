@@ -51,17 +51,40 @@ jobs:
     - name: Bundle dependencies in AppImage
       run: |
         chmod +x build/create-appimage.sh
-        # Show critical version info in annotations
-        echo "::group::Python Versions"
+        # Show initial Python state
         echo "::notice::System Python: $(which python3) ($(python3 --version))"
-        if [ -f build/AppDir/usr/bin/python3 ]; then
-          echo "::notice::Compiled Python: $(build/AppDir/usr/bin/python3 --version)"
-        else
-          echo "::warning::Compiled Python not found yet at build/AppDir/usr/bin/python3"
+        
+        # Start Python compilation
+        echo "::notice::Starting Python 3.11.8 compilation"
+        cd build
+        if [ ! -f "Python-3.11.8.tgz" ]; then
+          wget "https://www.python.org/ftp/python/3.11.8/Python-3.11.8.tgz" || echo "::error::Failed to download Python source"
         fi
-        echo "::endgroup::"
-        ./build/create-appimage.sh
-        appstreamcli validate build/AppDir/usr/share/metainfo/io.github.sodomak.vcam-bg.metainfo.xml
+        
+        if [ ! -d "Python-3.11.8" ]; then
+          tar xzf "Python-3.11.8.tgz" || echo "::error::Failed to extract Python source"
+        fi
+        
+        cd Python-3.11.8
+        echo "::notice::Configuring Python build"
+        ./configure --prefix="$PWD/../AppDir/usr" --enable-shared || echo "::error::Python configure failed"
+        
+        echo "::notice::Building Python"
+        make -j$(nproc) || echo "::error::Python build failed"
+        
+        echo "::notice::Installing Python"
+        make install || echo "::error::Python install failed"
+        cd ..
+        
+        if [ -f "AppDir/usr/bin/python3" ]; then
+          echo "::notice::Compiled Python: $(./AppDir/usr/bin/python3 --version)"
+        else
+          echo "::error::Python compilation completed but binary not found at expected location"
+        fi
+        
+        # Continue with the rest of the build
+        ./create-appimage.sh
+        appstreamcli validate AppDir/usr/share/metainfo/io.github.sodomak.vcam-bg.metainfo.xml
 
     - name: Create Release
       id: create_release
