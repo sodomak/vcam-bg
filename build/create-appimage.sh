@@ -13,7 +13,11 @@ if [ ! -d "$SCRIPT_DIR/Python-$PYTHON_VERSION" ]; then
     wget "https://www.python.org/ftp/python/$PYTHON_VERSION/Python-$PYTHON_VERSION.tgz"
     tar xzf "Python-$PYTHON_VERSION.tgz"
     cd "Python-$PYTHON_VERSION"
-    ./configure --prefix="$SCRIPT_DIR/AppDir/usr" --enable-shared --with-system-ffi
+    ./configure --prefix="$SCRIPT_DIR/AppDir/usr" --enable-shared --with-system-ffi \
+        --enable-optimizations \
+        --with-ensurepip=install \
+        --with-system-expat \
+        --enable-loadable-sqlite-extensions
     make -j$(nproc)
     make install
     cd ..
