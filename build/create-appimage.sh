@@ -201,8 +201,15 @@ cp -r /usr/lib/x86_64-linux-gnu/tk* "$SCRIPT_DIR/AppDir/usr/lib/"
 
 # Copy v4l2-ctl and its dependencies
 cp -L $(which v4l2-ctl) "$SCRIPT_DIR/AppDir/usr/bin/"
-# Copy required shared libraries for v4l2-ctl
 ldd $(which v4l2-ctl) | grep "=> /" | awk '{print $3}' | xargs -I '{}' cp -L '{}' "$SCRIPT_DIR/AppDir/usr/lib/"
+
+# Copy ffmpeg and its dependencies
+cp -L $(which ffmpeg) "$SCRIPT_DIR/AppDir/usr/bin/"
+ldd $(which ffmpeg) | grep "=> /" | awk '{print $3}' | xargs -I '{}' cp -L '{}' "$SCRIPT_DIR/AppDir/usr/lib/"
+
+# Also copy ffprobe as it might be needed
+cp -L $(which ffprobe) "$SCRIPT_DIR/AppDir/usr/bin/"
+ldd $(which ffprobe) | grep "=> /" | awk '{print $3}' | xargs -I '{}' cp -L '{}' "$SCRIPT_DIR/AppDir/usr/lib/"
 
 # Create AppImage
 export ARCH=x86_64
