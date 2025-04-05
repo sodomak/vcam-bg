@@ -21,7 +21,8 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y imagemagick-6.q16 appstream fuse libfuse2 \
           build-essential zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev \
-          libreadline-dev libffi-dev libsqlite3-dev libbz2-dev
+          libreadline-dev libffi-dev libsqlite3-dev libbz2-dev \
+          tk-dev
         sudo sed -i 's/rights="none" pattern="PDF"/rights="read|write" pattern="PDF"/' /etc/ImageMagick-6/policy.xml
         sudo ln -s /usr/bin/convert /usr/local/bin/magick
         sudo modprobe fuse

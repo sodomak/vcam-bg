@@ -17,7 +17,9 @@ if [ ! -d "$SCRIPT_DIR/Python-$PYTHON_VERSION" ]; then
         --enable-optimizations \
         --with-ensurepip=install \
         --with-system-expat \
-        --enable-loadable-sqlite-extensions
+        --enable-loadable-sqlite-extensions \
+        --with-tcltk-includes=/usr/include/tcl \
+        --with-tcltk-libs=/usr/lib/x86_64-linux-gnu
     make -j$(nproc)
     make install
     cd ..
