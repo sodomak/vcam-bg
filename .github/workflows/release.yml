@@ -43,17 +43,23 @@ jobs:
         fi
         echo "version=$VERSION" >> $GITHUB_OUTPUT
 
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
     - name: Bundle dependencies in AppImage
       run: |
         chmod +x build/create-appimage.sh
-        # Show only the critical version info
-        echo "System Python:"
-        which python3
-        python3 --version
-        echo "Compiled Python:"
-        ls -l build/AppDir/usr/bin/python3 || echo "Compiled Python not found yet"
-        [ -f build/AppDir/usr/bin/python3 ] && build/AppDir/usr/bin/python3 --version
-        # Run the script
+        # Show critical version info in annotations
+        echo "::group::Python Versions"
+        echo "::notice::System Python: $(which python3) ($(python3 --version))"
+        if [ -f build/AppDir/usr/bin/python3 ]; then
+          echo "::notice::Compiled Python: $(build/AppDir/usr/bin/python3 --version)"
+        else
+          echo "::warning::Compiled Python not found yet at build/AppDir/usr/bin/python3"
+        fi
+        echo "::endgroup::"
         ./build/create-appimage.sh
         appstreamcli validate build/AppDir/usr/share/metainfo/io.github.sodomak.vcam-bg.metainfo.xml
 
