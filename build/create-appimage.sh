@@ -185,31 +185,35 @@ done
 # Copy largest icon to AppDir root
 cp "$SCRIPT_DIR/AppDir/usr/share/icons/hicolor/512x512/apps/vcam-bg.png" "$SCRIPT_DIR/AppDir/"
 
-# Download AppImage builder if not present
-if [ ! -f "$SCRIPT_DIR/appimagetool-x86_64.AppImage" ]; then
-    wget -O "$SCRIPT_DIR/appimagetool-x86_64.AppImage" \
-        "https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage"
-    chmod +x "$SCRIPT_DIR/appimagetool-x86_64.AppImage"
-fi
+# Function to copy binary and its dependencies
+copy_binary_and_deps() {
+    local binary="$1"
+    local target_dir="$2"
+    
+    # Copy the binary itself
+    cp -L "$binary" "$target_dir/"
+    
+    # Get list of dependencies and copy them if not already present
+    ldd "$binary" | grep "=> /" | awk '{print $3}' | while read lib; do
+        if [ ! -f "$SCRIPT_DIR/AppDir/usr/lib/$(basename "$lib")" ]; then
+            cp -L "$lib" "$SCRIPT_DIR/AppDir/usr/lib/"
+        fi
+    done
+}
 
-# Copy system Tcl/Tk libraries and v4l2-ctl
+# Create lib directory if it doesn't exist
 mkdir -p "$SCRIPT_DIR/AppDir/usr/lib"
+
+# Copy Tcl/Tk libraries
 cp -L /usr/lib/x86_64-linux-gnu/libtk* "$SCRIPT_DIR/AppDir/usr/lib/"
 cp -L /usr/lib/x86_64-linux-gnu/libtcl* "$SCRIPT_DIR/AppDir/usr/lib/"
 cp -r /usr/lib/x86_64-linux-gnu/tcl* "$SCRIPT_DIR/AppDir/usr/lib/"
 cp -r /usr/lib/x86_64-linux-gnu/tk* "$SCRIPT_DIR/AppDir/usr/lib/"
 
-# Copy v4l2-ctl and its dependencies
-cp -L $(which v4l2-ctl) "$SCRIPT_DIR/AppDir/usr/bin/"
-ldd $(which v4l2-ctl) | grep "=> /" | awk '{print $3}' | xargs -I '{}' cp -L '{}' "$SCRIPT_DIR/AppDir/usr/lib/"
-
-# Copy ffmpeg and its dependencies
-cp -L $(which ffmpeg) "$SCRIPT_DIR/AppDir/usr/bin/"
-ldd $(which ffmpeg) | grep "=> /" | awk '{print $3}' | xargs -I '{}' cp -L '{}' "$SCRIPT_DIR/AppDir/usr/lib/"
-
-# Also copy ffprobe as it might be needed
-cp -L $(which ffprobe) "$SCRIPT_DIR/AppDir/usr/bin/"
-ldd $(which ffprobe) | grep "=> /" | awk '{print $3}' | xargs -I '{}' cp -L '{}' "$SCRIPT_DIR/AppDir/usr/lib/"
+# Copy binaries and their dependencies
+copy_binary_and_deps "$(which v4l2-ctl)" "$SCRIPT_DIR/AppDir/usr/bin"
+copy_binary_and_deps "$(which ffmpeg)" "$SCRIPT_DIR/AppDir/usr/bin"
+copy_binary_and_deps "$(which ffprobe)" "$SCRIPT_DIR/AppDir/usr/bin"
 
 # Create AppImage
 export ARCH=x86_64
