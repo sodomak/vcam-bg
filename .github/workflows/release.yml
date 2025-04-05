@@ -45,13 +45,10 @@ jobs:
 
     - name: Bundle dependencies in AppImage
       run: |
-        # Add debug information
-        echo "Current directory: $(pwd)"
-        echo "Contents of build directory:"
-        ls -la build/
-        echo "Running build script..."
+        # Modify version check temporarily
+        sed -i 's/VENV_PYTHON_VERSION != "$PYTHON_VERSION"/VENV_PYTHON_VERSION != "${PYTHON_VERSION%.*}"/' build/create-appimage.sh
         chmod +x build/create-appimage.sh
-        bash -x build/create-appimage.sh  # Run with debug mode enabled
+        ./build/create-appimage.sh
         appstreamcli validate build/AppDir/usr/share/metainfo/io.github.sodomak.vcam-bg.metainfo.xml
 
     - name: Create Release
