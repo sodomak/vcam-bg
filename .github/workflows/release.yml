@@ -45,8 +45,8 @@ jobs:
 
     - name: Bundle dependencies in AppImage
       run: |
-        # Modify version check temporarily
-        sed -i 's/VENV_PYTHON_VERSION != "$PYTHON_VERSION"/VENV_PYTHON_VERSION != "${PYTHON_VERSION%.*}"/' build/create-appimage.sh
+        # Set environment variable to match version format
+        export PYTHON_VERSION="3.11"
         chmod +x build/create-appimage.sh
         ./build/create-appimage.sh
         appstreamcli validate build/AppDir/usr/share/metainfo/io.github.sodomak.vcam-bg.metainfo.xml
