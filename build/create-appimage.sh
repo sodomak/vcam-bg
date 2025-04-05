@@ -7,6 +7,13 @@ set -e
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
 
+# Download AppImage builder first (move this section up, before any AppDir operations)
+if [ ! -f "$SCRIPT_DIR/appimagetool-x86_64.AppImage" ]; then
+    wget -O "$SCRIPT_DIR/appimagetool-x86_64.AppImage" \
+        "https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage"
+    chmod +x "$SCRIPT_DIR/appimagetool-x86_64.AppImage"
+fi
+
 # Download and compile Python 3.11
 PYTHON_VERSION="3.11.8"
 if [ ! -d "$SCRIPT_DIR/Python-$PYTHON_VERSION" ]; then
