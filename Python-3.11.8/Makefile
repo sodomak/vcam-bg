@@ -86,11 +86,11 @@ CONFIGURE_CFLAGS=
 # CFLAGS_NODIST is used for building the interpreter and stdlib C extensions.
 # Use it when a compiler flag should _not_ be part of the distutils CFLAGS
 # once Python is installed (Issue #21121).
-CONFIGURE_CFLAGS_NODIST= -std=c11 -Wextra -Wno-unused-parameter -Wno-missing-field-initializers -Werror=implicit-function-declaration -fvisibility=hidden
+CONFIGURE_CFLAGS_NODIST= -fno-semantic-interposition -std=c11 -Wextra -Wno-unused-parameter -Wno-missing-field-initializers -Werror=implicit-function-declaration -fvisibility=hidden
 # LDFLAGS_NODIST is used in the same manner as CFLAGS_NODIST.
 # Use it when a linker flag should _not_ be part of the distutils LDFLAGS
 # once Python is installed (bpo-35257)
-CONFIGURE_LDFLAGS_NODIST=
+CONFIGURE_LDFLAGS_NODIST= -fno-semantic-interposition
 # LDFLAGS_NOLTO is an extra flag to disable lto. It is used to speed up building
 # of _bootstrap_python and _freeze_module tools, which don't need LTO.
 CONFIGURE_LDFLAGS_NOLTO=
@@ -204,7 +204,7 @@ OTHER_LIBTOOL_OPT=
 RUNSHARED=       LD_LIBRARY_PATH=/home/sodomak/webcam/vcam-bg/Python-3.11.8:/tmp/.mount_cursorGwb0DY/usr/lib/:/tmp/.mount_cursorGwb0DY/usr/lib32/:/tmp/.mount_cursorGwb0DY/usr/lib64/:/tmp/.mount_cursorGwb0DY/lib/:/tmp/.mount_cursorGwb0DY/lib/i386-linux-gnu/:/tmp/.mount_cursorGwb0DY/lib/x86_64-linux-gnu/:/tmp/.mount_cursorGwb0DY/lib/aarch64-linux-gnu/:/tmp/.mount_cursorGwb0DY/lib32/:/tmp/.mount_cursorGwb0DY/lib64/:/tmp/.mount_cursorhtSZmK/usr/lib/:/tmp/.mount_cursorhtSZmK/usr/lib32/:/tmp/.mount_cursorhtSZmK/usr/lib64/:/tmp/.mount_cursorhtSZmK/lib/:/tmp/.mount_cursorhtSZmK/lib/i386-linux-gnu/:/tmp/.mount_cursorhtSZmK/lib/x86_64-linux-gnu/:/tmp/.mount_cursorhtSZmK/lib/aarch64-linux-gnu/:/tmp/.mount_cursorhtSZmK/lib32/:/tmp/.mount_cursorhtSZmK/lib64/:/tmp/.mount_cursorFG201d/usr/lib/:/tmp/.mount_cursorFG201d/usr/lib32/:/tmp/.mount_cursorFG201d/usr/lib64/:/tmp/.mount_cursorFG201d/lib/:/tmp/.mount_cursorFG201d/lib/i386-linux-gnu/:/tmp/.mount_cursorFG201d/lib/x86_64-linux-gnu/:/tmp/.mount_cursorFG201d/lib/aarch64-linux-gnu/:/tmp/.mount_cursorFG201d/lib32/:/tmp/.mount_cursorFG201d/lib64/:
 
 # ensurepip options
-ENSUREPIP=      upgrade
+ENSUREPIP=      install
 
 # Internal static libraries
 LIBMPDEC_A= Modules/_decimal/libmpdec/libmpdec.a
@@ -277,10 +277,10 @@ MODULE_SPWD_STATE=yes
 MODULE_SYSLOG_STATE=yes
 MODULE_TERMIOS_STATE=yes
 MODULE_PYEXPAT_STATE=yes
-MODULE_PYEXPAT_CFLAGS=-I$(srcdir)/Modules/expat
-MODULE_PYEXPAT_LDFLAGS=-lm $(LIBEXPAT_A)
+MODULE_PYEXPAT_CFLAGS=
+MODULE_PYEXPAT_LDFLAGS=-lexpat
 MODULE__ELEMENTTREE_STATE=yes
-MODULE__ELEMENTTREE_CFLAGS=-I$(srcdir)/Modules/expat
+MODULE__ELEMENTTREE_CFLAGS=
 MODULE__CODECS_CN_STATE=yes
 MODULE__CODECS_HK_STATE=yes
 MODULE__CODECS_ISO2022_STATE=yes
@@ -359,7 +359,7 @@ EXEMODE=	755
 FILEMODE=	644
 
 # configure script arguments
-CONFIG_ARGS=	 '--prefix=/home/sodomak/webcam/vcam-bg/build/AppDir/usr' '--enable-shared' '--with-system-ffi'
+CONFIG_ARGS=	 '--prefix=/home/sodomak/webcam/vcam-bg/build/AppDir/usr' '--enable-shared' '--with-system-ffi' '--enable-optimizations' '--with-ensurepip=install' '--with-system-expat' '--enable-loadable-sqlite-extensions' '--with-tcltk-includes=/usr/include/tcl' '--with-tcltk-libs=/usr/lib/x86_64-linux-gnu'
 
 
 # Subdirectories with code
@@ -409,7 +409,7 @@ BUILDPYTHON=	python$(BUILDEXE)
 
 HOSTRUNNER= 
 
-PYTHON_FOR_REGEN?=python3.11
+PYTHON_FOR_REGEN?=python3
 UPDATE_FILE=$(PYTHON_FOR_REGEN) $(srcdir)/Tools/scripts/update_file.py
 PYTHON_FOR_BUILD=./$(BUILDPYTHON) -E
 # Single-platform builds depend on $(BUILDPYTHON). Cross builds use an
@@ -718,7 +718,7 @@ LIBEXPAT_HEADERS= \
 # Rules
 
 # Default target
-all:		build_all
+all:		profile-opt
 build_all:	check-clean-src $(BUILDPYTHON) platform oldsharedmods sharedmods \
 		gdbhooks Programs/_testembed python-config
 build_wasm: check-clean-src $(BUILDPYTHON) platform oldsharedmods python-config
@@ -771,7 +771,7 @@ profile-run-stamp:
 	touch $@
 
 build_all_generate_profile:
-	$(MAKE) all CFLAGS_NODIST="$(CFLAGS_NODIST) $(PGO_PROF_GEN_FLAG)" LDFLAGS_NODIST="$(LDFLAGS_NODIST) $(PGO_PROF_GEN_FLAG)" LIBS="$(LIBS)"
+	$(MAKE) build_all CFLAGS_NODIST="$(CFLAGS_NODIST) $(PGO_PROF_GEN_FLAG)" LDFLAGS_NODIST="$(LDFLAGS_NODIST) $(PGO_PROF_GEN_FLAG)" LIBS="$(LIBS)"
 
 run_profile_task:
 	@ # FIXME: can't run for a cross build
@@ -785,14 +785,14 @@ build_all_merge_profile:
 profile-opt: profile-run-stamp
 	@echo "Rebuilding with profile guided optimizations:"
 	-rm -f profile-clean-stamp
-	$(MAKE) all CFLAGS_NODIST="$(CFLAGS_NODIST) $(PGO_PROF_USE_FLAG)" LDFLAGS_NODIST="$(LDFLAGS_NODIST)"
+	$(MAKE) build_all CFLAGS_NODIST="$(CFLAGS_NODIST) $(PGO_PROF_USE_FLAG)" LDFLAGS_NODIST="$(LDFLAGS_NODIST)"
 
 # Compile and run with gcov
 .PHONY=coverage coverage-lcov coverage-report
 coverage:
 	@echo "Building with support for coverage checking:"
 	$(MAKE) clean
-	$(MAKE) all CFLAGS="$(CFLAGS) -O0 -pg --coverage" LDFLAGS="$(LDFLAGS) --coverage"
+	$(MAKE) build_all CFLAGS="$(CFLAGS) -O0 -pg --coverage" LDFLAGS="$(LDFLAGS) --coverage"
 
 coverage-lcov:
 	@echo "Creating Coverage HTML report with LCOV:"
@@ -871,7 +871,7 @@ $(srcdir)/Modules/_blake2/blake2s_impl.c: $(srcdir)/Modules/_blake2/blake2b_impl
 # -s, --silent or --quiet is always the first char.
 # Under BSD make, MAKEFLAGS might be " -s -v x=y".
 # Ignore macros passed by GNU make, passed after --
-sharedmods: $(PYTHON_FOR_BUILD_DEPS) pybuilddir.txt $(LIBMPDEC_HEADERS) $(LIBMPDEC_A) $(LIBEXPAT_HEADERS) $(LIBEXPAT_A)
+sharedmods: $(PYTHON_FOR_BUILD_DEPS) pybuilddir.txt $(LIBMPDEC_HEADERS) $(LIBMPDEC_A) 
 	@case "`echo X $$MAKEFLAGS | sed 's/^X //;s/ -- .*//'`" in \
 	    *\ -s*|s*) quiet="-q";; \
 	    *) quiet="";; \
@@ -1029,11 +1029,11 @@ $(LIBMPDEC_A): $(LIBMPDEC_OBJS)
 
 ##########################################################################
 # Build static libexpat.a
-LIBEXPAT_CFLAGS=-I$(srcdir)/Modules/expat $(PY_STDMODULE_CFLAGS) $(CCSHARED)
+LIBEXPAT_CFLAGS= $(PY_STDMODULE_CFLAGS) $(CCSHARED)
 
 # for setup.py
-EXPAT_CFLAGS=-I$(srcdir)/Modules/expat
-EXPAT_LDFLAGS=-lm $(LIBEXPAT_A)
+EXPAT_CFLAGS=
+EXPAT_LDFLAGS=-lexpat
 
 Modules/expat/xmlparse.o: $(srcdir)/Modules/expat/xmlparse.c $(LIBEXPAT_HEADERS) $(PYTHON_HEADERS)
 	$(CC) -c $(LIBEXPAT_CFLAGS) -o $@ $(srcdir)/Modules/expat/xmlparse.c
@@ -2616,7 +2616,7 @@ profile-removal:
 	rm -f profile-run-stamp
 
 clean: clean-retain-profile
-	@if test build_all = profile-opt; then \
+	@if test profile-opt = profile-opt; then \
 		rm -f profile-gen-stamp profile-clean-stamp; \
 		$(MAKE) profile-removal; \
 	fi
@@ -2720,12 +2720,12 @@ Python/thread.o:  $(srcdir)/Python/thread_nt.h $(srcdir)/Python/thread_pthread.h
 
 MODULE_CMATH_DEPS=$(srcdir)/Modules/_math.h
 MODULE_MATH_DEPS=$(srcdir)/Modules/_math.h
-MODULE_PYEXPAT_DEPS=$(LIBEXPAT_HEADERS) $(LIBEXPAT_A)
+MODULE_PYEXPAT_DEPS=
 MODULE_UNICODEDATA_DEPS=$(srcdir)/Modules/unicodedata_db.h $(srcdir)/Modules/unicodename_db.h
 MODULE__BLAKE2_DEPS=$(srcdir)/Modules/_blake2/impl/blake2-config.h $(srcdir)/Modules/_blake2/impl/blake2-impl.h $(srcdir)/Modules/_blake2/impl/blake2.h $(srcdir)/Modules/_blake2/impl/blake2b-load-sse2.h $(srcdir)/Modules/_blake2/impl/blake2b-load-sse41.h $(srcdir)/Modules/_blake2/impl/blake2b-ref.c $(srcdir)/Modules/_blake2/impl/blake2b-round.h $(srcdir)/Modules/_blake2/impl/blake2b.c $(srcdir)/Modules/_blake2/impl/blake2s-load-sse2.h $(srcdir)/Modules/_blake2/impl/blake2s-load-sse41.h $(srcdir)/Modules/_blake2/impl/blake2s-load-xop.h $(srcdir)/Modules/_blake2/impl/blake2s-ref.c $(srcdir)/Modules/_blake2/impl/blake2s-round.h $(srcdir)/Modules/_blake2/impl/blake2s.c $(srcdir)/Modules/_blake2/blake2module.h $(srcdir)/Modules/hashlib.h
 MODULE__CTYPES_DEPS=$(srcdir)/Modules/_ctypes/ctypes.h
 MODULE__DECIMAL_DEPS=$(srcdir)/Modules/_decimal/docstrings.h $(LIBMPDEC_HEADERS) $(LIBMPDEC_A)
-MODULE__ELEMENTTREE_DEPS=$(srcdir)/Modules/pyexpat.c $(LIBEXPAT_HEADERS) $(LIBEXPAT_A)
+MODULE__ELEMENTTREE_DEPS=$(srcdir)/Modules/pyexpat.c 
 MODULE__HASHLIB_DEPS=$(srcdir)/Modules/hashlib.h
 MODULE__IO_DEPS=$(srcdir)/Modules/_io/_iomodule.h
 MODULE__MD5_DEPS=$(srcdir)/Modules/hashlib.h

@@ -3,6 +3,10 @@ import subprocess
 import re
 import cv2
 import numpy as np
+import os
+import logging
+
+logger = logging.getLogger(__name__)
 
 class Camera:
     def __init__(self):
@@ -53,14 +57,27 @@ class Camera:
 
     def set_input_device(self, device: str) -> bool:
         """Set input camera device"""
+        if not isinstance(device, str):
+            raise ValueError("Device must be a string")
+        
         if device == "GSTREAMER":
             self.input_device = 0
         else:
             match = re.search(r"\((/dev/video\d+)\)", device)
             if match:
-                self.input_device = match.group(1)
+                device_path = match.group(1)
+                # Validate device path exists
+                if not os.path.exists(device_path):
+                    raise ValueError(f"Camera device not found: {device_path}")
+                self.input_device = device_path
             else:
-                self.input_device = device
+                try:
+                    device_num = int(device)
+                    if device_num < 0:
+                        raise ValueError("Camera device number must be non-negative")
+                    self.input_device = device_num
+                except ValueError:
+                    raise ValueError(f"Invalid camera device format: {device}")
         return True
 
     def set_output_device(self, device: str) -> bool:
@@ -70,15 +87,30 @@ class Camera:
 
     def set_resolution(self, resolution: str):
         """Set camera resolution"""
+        if not isinstance(resolution, str):
+            raise ValueError("Resolution must be a string")
+        
         try:
             width, height = map(int, resolution.split('x'))
+            if width <= 0 or height <= 0:
+                raise ValueError("Width and height must be positive")
+            if width > 7680 or height > 4320:  # 8K resolution limit
+                raise ValueError("Resolution too high")
             self.resolution = (width, height)
-        except ValueError:
-            print(f"Invalid resolution format: {resolution}")
+        except ValueError as e:
+            raise ValueError(f"Invalid resolution format: {resolution}. Expected format: WIDTHxHEIGHT") from e
 
     def set_fps(self, fps: float):
         """Set camera FPS"""
-        self.fps = fps
+        try:
+            fps = float(fps)
+            if fps <= 0:
+                raise ValueError("FPS must be positive")
+            if fps > 240:  # Reasonable upper limit
+                raise ValueError("FPS too high")
+            self.fps = fps
+        except ValueError as e:
+            raise ValueError(f"Invalid FPS value: {fps}") from e
 
     def start(self):
         """Start camera capture"""
@@ -87,15 +119,19 @@ class Camera:
                 # Try to open the camera with different methods
                 if isinstance(self.input_device, str):
                     if "video" in self.input_device:
+                        logger.info(f"Opening camera device: {self.input_device}")
                         self.cap = cv2.VideoCapture(self.input_device)
                     else:
                         # Try v4l2 first
+                        logger.info(f"Opening camera device with V4L2: {self.input_device}")
                         self.cap = cv2.VideoCapture(self.input_device, cv2.CAP_V4L2)
                 else:
                     # Try default camera with v4l2
+                    logger.info("Opening default camera with V4L2")
                     self.cap = cv2.VideoCapture(0, cv2.CAP_V4L2)
 
                 if not self.cap.isOpened():
+                    logger.error(f"Failed to open camera: {self.input_device}")
                     raise RuntimeError(f"Failed to open camera: {self.input_device}")
 
                 # Set camera properties
@@ -109,12 +145,12 @@ class Camera:
                 actual_height = self.cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
                 actual_fps = self.cap.get(cv2.CAP_PROP_FPS)
 
-                print(f"Camera initialized with resolution: {actual_width}x{actual_height} @ {actual_fps}fps")
+                logger.info(f"Camera initialized with resolution: {actual_width}x{actual_height} @ {actual_fps}fps")
                 
                 self.running = True
                 
             except Exception as e:
-                print(f"Camera error: {str(e)}")
+                logger.error(f"Camera error: {str(e)}")
                 if self.cap is not None:
                     self.cap.release()
                     self.cap = None

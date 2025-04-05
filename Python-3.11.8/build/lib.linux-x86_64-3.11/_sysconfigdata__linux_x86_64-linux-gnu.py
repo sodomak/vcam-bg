@@ -26,20 +26,24 @@ build_time_vars = {'ABIFLAGS': '',
  'CFLAGS': '-Wsign-compare -DNDEBUG -g -fwrapv -O3 -Wall',
  'CFLAGSFORSHARED': '-fPIC',
  'CFLAGS_ALIASING': '',
- 'CFLAGS_NODIST': '',
  'CONFIGFILES': 'configure configure.ac acconfig.h pyconfig.h.in '
                 'Makefile.pre.in',
  'CONFIGURE_CFLAGS': '',
- 'CONFIGURE_CFLAGS_NODIST': '-std=c11 -Wextra -Wno-unused-parameter '
+ 'CONFIGURE_CFLAGS_NODIST': '-fno-semantic-interposition -std=c11 -Wextra '
+                            '-Wno-unused-parameter '
                             '-Wno-missing-field-initializers '
                             '-Werror=implicit-function-declaration '
                             '-fvisibility=hidden',
  'CONFIGURE_CPPFLAGS': '',
  'CONFIGURE_LDFLAGS': '',
- 'CONFIGURE_LDFLAGS_NODIST': '',
+ 'CONFIGURE_LDFLAGS_NODIST': '-fno-semantic-interposition',
  'CONFIGURE_LDFLAGS_NOLTO': '',
  'CONFIG_ARGS': "'--prefix=/home/sodomak/webcam/vcam-bg/build/AppDir/usr' "
-                "'--enable-shared' '--with-system-ffi'",
+                "'--enable-shared' '--with-system-ffi' "
+                "'--enable-optimizations' '--with-ensurepip=install' "
+                "'--with-system-expat' '--enable-loadable-sqlite-extensions' "
+                "'--with-tcltk-includes=/usr/include/tcl' "
+                "'--with-tcltk-libs=/usr/lib/x86_64-linux-gnu'",
  'CONFINCLUDEDIR': '/home/sodomak/webcam/vcam-bg/build/AppDir/usr/include',
  'CONFINCLUDEPY': '/home/sodomak/webcam/vcam-bg/build/AppDir/usr/include/python3.11',
  'COREPYTHONPATH': '',
@@ -83,11 +87,11 @@ build_time_vars = {'ABIFLAGS': '',
  'DTRACE_OBJS': '',
  'DYNLOADFILE': 'dynload_shlib.o',
  'ENABLE_IPV6': 1,
- 'ENSUREPIP': 'upgrade',
+ 'ENSUREPIP': 'install',
  'EXE': '',
  'EXEMODE': 755,
- 'EXPAT_CFLAGS': '-I./Modules/expat',
- 'EXPAT_LDFLAGS': '-lm Modules/expat/libexpat.a',
+ 'EXPAT_CFLAGS': '',
+ 'EXPAT_LDFLAGS': '-lexpat',
  'EXPORTSFROM': '',
  'EXPORTSYMS': '',
  'EXTRATESTOPTS': '',
@@ -604,7 +608,6 @@ build_time_vars = {'ABIFLAGS': '',
  'IO_OBJS': '\\',
  'LDCXXSHARED': 'g++ -shared',
  'LDFLAGS': '',
- 'LDFLAGS_NODIST': '',
  'LDLIBRARY': 'libpython3.11.so',
  'LDLIBRARYDIR': '',
  'LDSHARED': 'gcc -shared',
@@ -613,12 +616,12 @@ build_time_vars = {'ABIFLAGS': '',
  'LIBDEST': '/home/sodomak/webcam/vcam-bg/build/AppDir/usr/lib/python3.11',
  'LIBDIR': '/home/sodomak/webcam/vcam-bg/build/AppDir/usr/lib',
  'LIBEXPAT_A': 'Modules/expat/libexpat.a',
- 'LIBEXPAT_CFLAGS': '-I./Modules/expat -Wsign-compare -DNDEBUG -g -fwrapv -O3 '
-                    '-Wall -std=c11 -Wextra -Wno-unused-parameter '
-                    '-Wno-missing-field-initializers '
-                    '-Werror=implicit-function-declaration '
-                    '-fvisibility=hidden  -I./Include/internal -I. -I./Include '
-                    '-fPIC -fPIC',
+ 'LIBEXPAT_CFLAGS': '-Wsign-compare -DNDEBUG -g -fwrapv -O3 -Wall '
+                    '-fno-semantic-interposition -std=c11 -Wextra '
+                    '-Wno-unused-parameter -Wno-missing-field-initializers '
+                    '-Werror=implicit-function-declaration -fvisibility=hidden '
+                    '-fprofile-use -fprofile-correction -I./Include/internal '
+                    '-I. -I./Include -fPIC -fPIC',
  'LIBEXPAT_HEADERS': '\\',
  'LIBEXPAT_OBJS': '\\',
  'LIBFFI_INCLUDEDIR': '',
@@ -626,11 +629,11 @@ build_time_vars = {'ABIFLAGS': '',
  'LIBMPDEC_A': 'Modules/_decimal/libmpdec/libmpdec.a',
  'LIBMPDEC_CFLAGS': '-I./Modules/_decimal/libmpdec -DCONFIG_64=1 -DANSI=1 '
                     '-DHAVE_UINT128_T=1 -Wsign-compare -DNDEBUG -g -fwrapv -O3 '
-                    '-Wall -std=c11 -Wextra -Wno-unused-parameter '
-                    '-Wno-missing-field-initializers '
-                    '-Werror=implicit-function-declaration '
-                    '-fvisibility=hidden  -I./Include/internal -I. -I./Include '
-                    '-fPIC -fPIC',
+                    '-Wall -fno-semantic-interposition -std=c11 -Wextra '
+                    '-Wno-unused-parameter -Wno-missing-field-initializers '
+                    '-Werror=implicit-function-declaration -fvisibility=hidden '
+                    '-fprofile-use -fprofile-correction -I./Include/internal '
+                    '-I. -I./Include -fPIC -fPIC',
  'LIBMPDEC_HEADERS': '\\',
  'LIBMPDEC_OBJS': '\\',
  'LIBOBJDIR': 'Python/',
@@ -714,9 +717,9 @@ build_time_vars = {'ABIFLAGS': '',
  'MODULE_POSIX_LDFLAGS': '',
  'MODULE_PWD_LDFLAGS': '',
  'MODULE_PWD_STATE': 'yes',
- 'MODULE_PYEXPAT_CFLAGS': '-I./Modules/expat',
- 'MODULE_PYEXPAT_DEPS': '\\ Modules/expat/libexpat.a',
- 'MODULE_PYEXPAT_LDFLAGS': '-lm Modules/expat/libexpat.a',
+ 'MODULE_PYEXPAT_CFLAGS': '',
+ 'MODULE_PYEXPAT_DEPS': '',
+ 'MODULE_PYEXPAT_LDFLAGS': '-lexpat',
  'MODULE_PYEXPAT_STATE': 'yes',
  'MODULE_RESOURCE_STATE': 'yes',
  'MODULE_SELECT_STATE': 'yes',
@@ -782,8 +785,8 @@ build_time_vars = {'ABIFLAGS': '',
                          'Modules/_decimal/libmpdec/libmpdec.a',
  'MODULE__DECIMAL_LDFLAGS': '-lm Modules/_decimal/libmpdec/libmpdec.a',
  'MODULE__DECIMAL_STATE': 'yes',
- 'MODULE__ELEMENTTREE_CFLAGS': '-I./Modules/expat',
- 'MODULE__ELEMENTTREE_DEPS': './Modules/pyexpat.c \\ Modules/expat/libexpat.a',
+ 'MODULE__ELEMENTTREE_CFLAGS': '',
+ 'MODULE__ELEMENTTREE_DEPS': './Modules/pyexpat.c',
  'MODULE__ELEMENTTREE_STATE': 'yes',
  'MODULE__FUNCTOOLS_LDFLAGS': '',
  'MODULE__GDBM_CFLAGS': '',
@@ -920,38 +923,43 @@ build_time_vars = {'ABIFLAGS': '',
  'PYTHON_OBJS': '\\',
  'PY_BUILTIN_HASHLIB_HASHES': '"md5,sha1,sha256,sha512,sha3,blake2"',
  'PY_BUILTIN_MODULE_CFLAGS': '-Wsign-compare -DNDEBUG -g -fwrapv -O3 -Wall '
-                             '-std=c11 -Wextra -Wno-unused-parameter '
+                             '-fno-semantic-interposition -std=c11 -Wextra '
+                             '-Wno-unused-parameter '
                              '-Wno-missing-field-initializers '
                              '-Werror=implicit-function-declaration '
-                             '-fvisibility=hidden  -I./Include/internal -I. '
+                             '-fvisibility=hidden -fprofile-use '
+                             '-fprofile-correction -I./Include/internal -I. '
                              '-I./Include -fPIC -DPy_BUILD_CORE_BUILTIN',
  'PY_CFLAGS': '-Wsign-compare -DNDEBUG -g -fwrapv -O3 -Wall',
- 'PY_CFLAGS_NODIST': '-std=c11 -Wextra -Wno-unused-parameter '
-                     '-Wno-missing-field-initializers '
+ 'PY_CFLAGS_NODIST': '-fno-semantic-interposition -std=c11 -Wextra '
+                     '-Wno-unused-parameter -Wno-missing-field-initializers '
                      '-Werror=implicit-function-declaration '
-                     '-fvisibility=hidden  -I./Include/internal',
+                     '-fvisibility=hidden -fprofile-use -fprofile-correction '
+                     '-I./Include/internal',
  'PY_COERCE_C_LOCALE': 1,
- 'PY_CORE_CFLAGS': '-Wsign-compare -DNDEBUG -g -fwrapv -O3 -Wall -std=c11 '
-                   '-Wextra -Wno-unused-parameter '
-                   '-Wno-missing-field-initializers '
-                   '-Werror=implicit-function-declaration -fvisibility=hidden  '
-                   '-I./Include/internal -I. -I./Include -fPIC -DPy_BUILD_CORE',
- 'PY_CORE_LDFLAGS': '',
+ 'PY_CORE_CFLAGS': '-Wsign-compare -DNDEBUG -g -fwrapv -O3 -Wall '
+                   '-fno-semantic-interposition -std=c11 -Wextra '
+                   '-Wno-unused-parameter -Wno-missing-field-initializers '
+                   '-Werror=implicit-function-declaration -fvisibility=hidden '
+                   '-fprofile-use -fprofile-correction -I./Include/internal '
+                   '-I. -I./Include -fPIC -DPy_BUILD_CORE',
+ 'PY_CORE_LDFLAGS': '-fno-semantic-interposition',
  'PY_CPPFLAGS': '-I. -I./Include',
  'PY_ENABLE_SHARED': 1,
  'PY_FORMAT_SIZE_T': '"z"',
  'PY_LDFLAGS': '',
- 'PY_LDFLAGS_NODIST': '',
+ 'PY_LDFLAGS_NODIST': '-fno-semantic-interposition',
  'PY_LDFLAGS_NOLTO': '',
- 'PY_SQLITE_ENABLE_LOAD_EXTENSION': 0,
+ 'PY_SQLITE_ENABLE_LOAD_EXTENSION': 1,
  'PY_SQLITE_HAVE_SERIALIZE': 1,
  'PY_SSL_DEFAULT_CIPHERS': 1,
  'PY_SSL_DEFAULT_CIPHER_STRING': 0,
- 'PY_STDMODULE_CFLAGS': '-Wsign-compare -DNDEBUG -g -fwrapv -O3 -Wall -std=c11 '
-                        '-Wextra -Wno-unused-parameter '
-                        '-Wno-missing-field-initializers '
+ 'PY_STDMODULE_CFLAGS': '-Wsign-compare -DNDEBUG -g -fwrapv -O3 -Wall '
+                        '-fno-semantic-interposition -std=c11 -Wextra '
+                        '-Wno-unused-parameter -Wno-missing-field-initializers '
                         '-Werror=implicit-function-declaration '
-                        '-fvisibility=hidden  -I./Include/internal -I. '
+                        '-fvisibility=hidden -fprofile-use '
+                        '-fprofile-correction -I./Include/internal -I. '
                         '-I./Include -fPIC',
  'PY_SUPPORT_TIER': 1,
  'Py_DEBUG': 0,
