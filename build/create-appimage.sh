@@ -292,6 +292,12 @@ copy_binary_and_deps "$(which v4l2-ctl)" "$SCRIPT_DIR/AppDir/usr/bin"
 copy_binary_and_deps "$(which ffmpeg)" "$SCRIPT_DIR/AppDir/usr/bin"
 copy_binary_and_deps "$(which ffprobe)" "$SCRIPT_DIR/AppDir/usr/bin"
 
+# Copy additional required libraries
+mkdir -p "$SCRIPT_DIR/AppDir/usr/lib/tcl8.6"
+mkdir -p "$SCRIPT_DIR/AppDir/usr/lib/tk8.6"
+cp -r /usr/lib/tcl8.6/* "$SCRIPT_DIR/AppDir/usr/lib/tcl8.6/"
+cp -r /usr/lib/tk8.6/* "$SCRIPT_DIR/AppDir/usr/lib/tk8.6/"
+
 # Create AppImage
 export ARCH=x86_64
 "$SCRIPT_DIR/appimagetool-x86_64.AppImage" "$SCRIPT_DIR/AppDir" "vidmask-x86_64.AppImage"
@@ -303,9 +309,3 @@ deactivate
 
 # Clean up
 rm -rf "$SCRIPT_DIR/venv"
-
-# Copy additional required libraries
-mkdir -p "$SCRIPT_DIR/AppDir/usr/lib/tcl8.6"
-mkdir -p "$SCRIPT_DIR/AppDir/usr/lib/tk8.6"
-cp -r /usr/lib/tcl8.6/* "$SCRIPT_DIR/AppDir/usr/lib/tcl8.6/"
-cp -r /usr/lib/tk8.6/* "$SCRIPT_DIR/AppDir/usr/lib/tk8.6/"
