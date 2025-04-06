@@ -100,6 +100,7 @@ Terminal=false
 Categories=AudioVideo;Video;
 Keywords=camera;background;virtual;video;conference;meeting;blur;privacy;
 StartupNotify=true
+StartupWMClass=VidMask
 X-AppImage-Version=${VERSION}
 X-AppImage-BuildDate=$(date -u +%Y-%m-%d)
 X-AppImage-Arch=x86_64

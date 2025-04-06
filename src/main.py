@@ -12,21 +12,17 @@ print("Starting application...")
 
 def main():
     root = tk.Tk()
+    
+    # Set window title and class to match desktop entry
     root.title("VidMask")
+    root.wm_class("VidMask", "VidMask")  # This should now match StartupWMClass
     
-    # Set window class name for X11
-    try:
-        root.tk.call('wm', 'withdraw', '.')
-        root.tk.call('wm', 'client', '.', 'io.github.sodomak.vidmask')
-        root.tk.call('wm', 'deiconify', '.')
-    except tk.TclError:
-        print("Could not set X11 window class name")
-    
-    # Set window class name for Wayland
+    # Try to set window properties for Wayland
     try:
         root.tk.call('tk', 'windowingsystem')
         root.tk.call('wm', 'attributes', '.', '-type', 'normal')
-        root.tk.call('wm', 'attributes', '.', '-name', 'io.github.sodomak.vidmask')
+        # Only set the class name, not affecting the title
+        root.tk.call('wm', 'attributes', '.', '-class', 'io.github.sodomak.vidmask')
     except tk.TclError:
         print("Could not set Wayland window properties")
     
