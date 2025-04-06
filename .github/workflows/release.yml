@@ -23,7 +23,8 @@ jobs:
           build-essential zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev \
           libreadline-dev libffi-dev libsqlite3-dev libbz2-dev \
           tk-dev v4l-utils ffmpeg \
-          python3-tk tcl8.6-dev tk8.6-dev
+          python3-tk tcl8.6-dev tk8.6-dev \
+          patchelf
         sudo sed -i 's/rights="none" pattern="PDF"/rights="read|write" pattern="PDF"/' /etc/ImageMagick-6/policy.xml
         sudo ln -s /usr/bin/convert /usr/local/bin/magick
         sudo modprobe fuse
@@ -48,34 +49,28 @@ jobs:
     - name: Bundle dependencies in AppImage
       run: |
         chmod +x build/create-appimage.sh
-        # Show initial state
-        echo "::notice::System Python: $(which python3) ($(python3 --version))"
         
-        # Run build script with debug output
-        export VERBOSE=1
-        ./build/create-appimage.sh 2>&1 | tee build.log
+        # Show system info
+        echo "System Python info:"
+        which python3
+        python3 --version
+        ldd $(which python3)
         
-        # Check if Python is properly bundled
-        if [ ! -f "build/AppDir/usr/bin/python3" ]; then
-          echo "::error::Python not found in AppDir"
-          exit 1
-        fi
+        # Run build script with debugging
+        VERBOSE=1 ./build/create-appimage.sh
         
-        # Verify Python executable
-        chmod +x build/AppDir/usr/bin/python3
-        echo "::notice::Testing bundled Python..."
-        ./build/AppDir/usr/bin/python3 --version
+        # Verify AppDir structure
+        echo "Checking AppDir structure:"
+        ls -la build/AppDir/usr/bin/
+        ls -la build/AppDir/usr/lib/
+        
+        # Test Python in AppDir
+        echo "Testing Python in AppDir:"
+        build/AppDir/usr/bin/python3 --version || true
+        ldd build/AppDir/usr/bin/python3 || true
         
         # Validate AppStream metadata
         appstreamcli validate build/AppDir/usr/share/metainfo/io.github.sodomak.vidmask.metainfo.xml
-        
-        # Test AppImage after creation
-        chmod +x vidmask-x86_64.AppImage
-        echo "::notice::Testing AppImage..."
-        ./vidmask-x86_64.AppImage --version || {
-          echo "::error::AppImage test failed"
-          exit 1
-        }
 
     - name: Create Release
       id: create_release

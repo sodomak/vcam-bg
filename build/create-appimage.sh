@@ -67,6 +67,47 @@ mkdir -p "$SCRIPT_DIR/AppDir/usr/lib/python${PYTHON_VERSION%.*}/site-packages"
 mkdir -p "$SCRIPT_DIR/AppDir/usr/share/applications"
 mkdir -p "$SCRIPT_DIR/AppDir/usr/share/icons/hicolor/256x256/apps"
 
+# Create AppRun script first
+cat > "$SCRIPT_DIR/AppDir/AppRun" << 'EOF'
+#!/bin/bash
+set -e
+
+SELF=$(readlink -f "$0")
+HERE=${SELF%/*}
+
+# Set environment variables
+export PATH="$HERE/usr/bin:$PATH"
+export LD_LIBRARY_PATH="$HERE/usr/lib:$LD_LIBRARY_PATH"
+export PYTHONHOME="$HERE/usr"
+export PYTHONPATH="$HERE/usr/lib/python3.11/site-packages:$PYTHONPATH"
+export TCL_LIBRARY="$HERE/usr/lib/tcl8.6"
+export TK_LIBRARY="$HERE/usr/lib/tk8.6"
+
+# Debug output
+echo "AppRun starting..."
+echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH"
+echo "PYTHONHOME=$PYTHONHOME"
+echo "PYTHONPATH=$PYTHONPATH"
+
+# Execute the application
+exec "$HERE/usr/bin/python3" "$HERE/usr/lib/python3.11/site-packages/src/main.py" "$@"
+EOF
+
+chmod +x "$SCRIPT_DIR/AppDir/AppRun"
+
+# Copy Python shared libraries explicitly
+cp -L "$SCRIPT_DIR/AppDir/usr/lib/libpython${PYTHON_VERSION%.*}.so"* "$SCRIPT_DIR/AppDir/usr/lib/" || {
+    echo "Error: Failed to copy Python shared libraries"
+    exit 1
+}
+
+# Ensure Python binary is copied and executable
+cp -L "$SCRIPT_DIR/AppDir/usr/bin/python${PYTHON_VERSION%.*}" "$SCRIPT_DIR/AppDir/usr/bin/python3"
+chmod +x "$SCRIPT_DIR/AppDir/usr/bin/python3"
+
+# Copy Python standard library
+cp -r "$SCRIPT_DIR/AppDir/usr/lib/python${PYTHON_VERSION%.*}" "$SCRIPT_DIR/AppDir/usr/lib/"
+
 # Generate icons in multiple sizes using magick instead of convert
 for size in 16 32 48 64 128 256 512; do
     mkdir -p "$SCRIPT_DIR/AppDir/usr/share/icons/hicolor/${size}x${size}/apps"
@@ -271,42 +312,6 @@ deactivate
 
 # Clean up
 rm -rf "$SCRIPT_DIR/venv"
-
-# Create AppRun script with debug output and error checking
-cat > "$SCRIPT_DIR/AppDir/AppRun" << 'EOF'
-#!/bin/bash
-
-# Exit on error
-set -e
-
-# Get the directory containing this script
-SELF=$(readlink -f "$0")
-HERE=${SELF%/*}
-
-# Set environment variables
-export PATH="$HERE/usr/bin:$PATH"
-export PYTHONPATH="$HERE/usr/lib/python3.11/site-packages:$PYTHONPATH"
-export LD_LIBRARY_PATH="$HERE/usr/lib:$LD_LIBRARY_PATH"
-export PYTHONHOME="$HERE/usr"
-export TCL_LIBRARY="$HERE/usr/lib/tcl8.6"
-export TK_LIBRARY="$HERE/usr/lib/tk8.6"
-
-# Debug output if VERBOSE is set
-if [ "${VERBOSE:-0}" = "1" ]; then
-    echo "AppRun location: $SELF"
-    echo "App directory: $HERE"
-    echo "Environment:"
-    env | grep -E '^(PYTHON|LD_LIBRARY|PATH|TCL|TK)'
-    echo "Directory contents:"
-    ls -la "$HERE/usr/bin"
-    ls -la "$HERE/usr/lib/python3.11"
-fi
-
-# Execute the application
-exec "$HERE/usr/bin/python3" "$HERE/usr/lib/python3.11/site-packages/src/main.py" "$@"
-EOF
-
-chmod +x "$SCRIPT_DIR/AppDir/AppRun"
 
 # Copy additional required libraries
 mkdir -p "$SCRIPT_DIR/AppDir/usr/lib/tcl8.6"
