@@ -33,8 +33,10 @@ if [ ! -d "$SCRIPT_DIR/Python-$PYTHON_VERSION" ]; then
     rm -f "Python-$PYTHON_VERSION.tgz"
 fi
 
-# Use the compiled Python
-PYTHON_EXEC="$SCRIPT_DIR/AppDir/usr/bin/python3"
+# After Python compilation and before virtual environment creation
+
+# Use the compiled Python - no need to copy or create symlinks since they're already set up
+PYTHON_EXEC="$SCRIPT_DIR/AppDir/usr/bin/python${PYTHON_VERSION%.*}"
 export LD_LIBRARY_PATH="$SCRIPT_DIR/AppDir/usr/lib:$LD_LIBRARY_PATH"
 
 # Create and activate virtual environment using the compiled Python
@@ -67,46 +69,35 @@ mkdir -p "$SCRIPT_DIR/AppDir/usr/lib/python${PYTHON_VERSION%.*}/site-packages"
 mkdir -p "$SCRIPT_DIR/AppDir/usr/share/applications"
 mkdir -p "$SCRIPT_DIR/AppDir/usr/share/icons/hicolor/256x256/apps"
 
-# Create AppRun script first
-cat > "$SCRIPT_DIR/AppDir/AppRun" << 'EOF'
+# Create AppRun script
+cat > "$SCRIPT_DIR/AppDir/AppRun" << EOF
 #!/bin/bash
 set -e
 
-SELF=$(readlink -f "$0")
-HERE=${SELF%/*}
+SELF=\$(readlink -f "\$0")
+HERE=\${SELF%/*}
 
 # Set environment variables
-export PATH="$HERE/usr/bin:$PATH"
-export LD_LIBRARY_PATH="$HERE/usr/lib:$LD_LIBRARY_PATH"
-export PYTHONHOME="$HERE/usr"
-export PYTHONPATH="$HERE/usr/lib/python3.11/site-packages:$PYTHONPATH"
-export TCL_LIBRARY="$HERE/usr/lib/tcl8.6"
-export TK_LIBRARY="$HERE/usr/lib/tk8.6"
+export PATH="\$HERE/usr/bin:\$PATH"
+export LD_LIBRARY_PATH="\$HERE/usr/lib:\$LD_LIBRARY_PATH"
+export PYTHONHOME="\$HERE/usr"
+export PYTHONPATH="\$HERE/usr/lib/python${PYTHON_VERSION%.*}/site-packages:\$PYTHONPATH"
 
-# Debug output
-echo "AppRun starting..."
-echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH"
-echo "PYTHONHOME=$PYTHONHOME"
-echo "PYTHONPATH=$PYTHONPATH"
+# Find the Python binary - try both python3 and specific version
+if [ -x "\$HERE/usr/bin/python3" ]; then
+    PYTHON_BIN="\$HERE/usr/bin/python3"
+elif [ -x "\$HERE/usr/bin/python${PYTHON_VERSION%.*}" ]; then
+    PYTHON_BIN="\$HERE/usr/bin/python${PYTHON_VERSION%.*}"
+else
+    echo "Error: Python binary not found"
+    exit 1
+fi
 
 # Execute the application
-exec "$HERE/usr/bin/python3" "$HERE/usr/lib/python3.11/site-packages/src/main.py" "$@"
+exec "\$PYTHON_BIN" "\$HERE/usr/lib/python${PYTHON_VERSION%.*}/site-packages/src/main.py" "\$@"
 EOF
 
 chmod +x "$SCRIPT_DIR/AppDir/AppRun"
-
-# Copy Python shared libraries explicitly
-cp -L "$SCRIPT_DIR/AppDir/usr/lib/libpython${PYTHON_VERSION%.*}.so"* "$SCRIPT_DIR/AppDir/usr/lib/" || {
-    echo "Error: Failed to copy Python shared libraries"
-    exit 1
-}
-
-# Ensure Python binary is copied and executable
-cp -L "$SCRIPT_DIR/AppDir/usr/bin/python${PYTHON_VERSION%.*}" "$SCRIPT_DIR/AppDir/usr/bin/python3"
-chmod +x "$SCRIPT_DIR/AppDir/usr/bin/python3"
-
-# Copy Python standard library
-cp -r "$SCRIPT_DIR/AppDir/usr/lib/python${PYTHON_VERSION%.*}" "$SCRIPT_DIR/AppDir/usr/lib/"
 
 # Generate icons in multiple sizes using magick instead of convert
 for size in 16 32 48 64 128 256 512; do
