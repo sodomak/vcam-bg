@@ -67,6 +67,16 @@ mkdir -p "$SCRIPT_DIR/AppDir/usr/lib/python${PYTHON_VERSION%.*}/site-packages"
 mkdir -p "$SCRIPT_DIR/AppDir/usr/share/applications"
 mkdir -p "$SCRIPT_DIR/AppDir/usr/share/icons/hicolor/256x256/apps"
 
+# Generate icons in multiple sizes using magick instead of convert
+for size in 16 32 48 64 128 256 512; do
+    mkdir -p "$SCRIPT_DIR/AppDir/usr/share/icons/hicolor/${size}x${size}/apps"
+    magick "$PROJECT_DIR/app.png" -resize ${size}x${size} \
+        "$SCRIPT_DIR/AppDir/usr/share/icons/hicolor/${size}x${size}/apps/vidmask.png"
+done
+
+# Copy largest icon to AppDir root for AppImage builder
+cp "$SCRIPT_DIR/AppDir/usr/share/icons/hicolor/512x512/apps/vidmask.png" "$SCRIPT_DIR/AppDir/vidmask.png"
+
 # Copy virtual environment packages to AppDir
 cp -r "$SCRIPT_DIR/venv/lib/python${PYTHON_VERSION%.*}/site-packages"/* "$SCRIPT_DIR/AppDir/usr/lib/python${PYTHON_VERSION%.*}/site-packages/"
 
@@ -87,7 +97,7 @@ chmod +x "$SCRIPT_DIR/AppDir/usr/bin/vidmask"
 # Get version from version.py
 VERSION=$(grep -oP 'VERSION = "\K[^"]+' "${SCRIPT_DIR}/../src/version.py")
 
-# Create desktop entry with correct categories
+# Create desktop entry with correct categories and icon path
 cat > "$SCRIPT_DIR/AppDir/vidmask.desktop" << EOF
 [Desktop Entry]
 Type=Application
@@ -110,6 +120,9 @@ X-AppImage-URL=https://github.com/sodomak/vidmask
 X-AppImage-License=MIT
 X-AppImage-Author=sodomak
 EOF
+
+# Copy desktop file to applications directory
+cp "$SCRIPT_DIR/AppDir/vidmask.desktop" "$SCRIPT_DIR/AppDir/usr/share/applications/"
 
 # Remove all old metadata files
 rm -f "$SCRIPT_DIR/AppDir/usr/share/metainfo/vcam-bg.appdata.xml"
@@ -161,9 +174,6 @@ cat > "$SCRIPT_DIR/AppDir/usr/share/metainfo/io.github.sodomak.vidmask.metainfo.
   </categories>
 </component>
 EOF
-
-# Also copy desktop file to applications dir
-cp "$SCRIPT_DIR/AppDir/vidmask.desktop" "$SCRIPT_DIR/AppDir/usr/share/applications/"
 
 # Function to find and copy Tcl/Tk libraries based on system
 copy_tcltk_libs() {
