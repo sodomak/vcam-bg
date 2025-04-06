@@ -11,6 +11,9 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 print("Starting application...")
 
 def main():
+    # Set the class name before creating the window
+    tk.Tk.wm_class("VidMask", "VidMask")
+    
     root = tk.Tk()
     
     # Set both the window title and class name
