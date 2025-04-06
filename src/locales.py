@@ -11,7 +11,7 @@ LANGUAGE_NAMES = {
 
 TRANSLATIONS = {
     'en': {
-        'title': 'Virtual Camera Background',
+        'title': 'VidMask',
         'settings': 'Settings',
         'camera_preview': 'Camera Preview',
         'input_device': 'Input Device:',
@@ -59,8 +59,8 @@ TRANSLATIONS = {
         'flip_h': 'Flip Horizontal',
         'flip_v': 'Flip Vertical',
         'reset_position': 'Reset to Center',
-        'about_title': 'About Virtual Camera Background',
-        'about_text': '''Virtual Camera Background v{version}
+        'about_title': 'About VidMask',
+        'about_text': '''VidMask v{version}
 
 A Linux application for real-time background replacement in video calls.
 
@@ -73,11 +73,11 @@ Features:
 • Light/Dark theme
 • Multi-language support (English, Čeština)
 
-Source code: https://github.com/sodomak/vcam-bg
+Source code: https://github.com/sodomak/vidmask
 License: MIT''',
     },
     'cs': {
-        'title': 'Virtuální pozadí kamery',
+        'title': 'VidMask',
         'settings': 'Nastavení',
         'camera_preview': 'Náhled kamery',
         'input_device': 'Vstupní zařízení:',
@@ -125,8 +125,8 @@ License: MIT''',
         'flip_h': 'Překlopit vodorovně',
         'flip_v': 'Překlopit svisle',
         'reset_position': 'Vycentrovat',
-        'about_title': 'O aplikaci Virtual Camera Background',
-        'about_text': '''Virtual Camera Background v{version}
+        'about_title': 'O aplikaci VidMask',
+        'about_text': '''VidMask v{version}
 
 Linuxová aplikace pro nahrazení pozadí ve video hovorech v reálném čase.
 
@@ -139,11 +139,11 @@ Funkce:
 • Světlý/Tmavý motiv
 • Vícejazyčná podpora (Angličtina, Čeština)
 
-Zdrojový kód: https://github.com/sodomak/vcam-bg
+Zdrojový kód: https://github.com/sodomak/vidmask
 Licence: MIT''',
     },
     'de': {
-        'title': 'Virtuelle Kamerahintergrund',
+        'title': 'VidMask',
         'settings': 'Einstellungen',
         'camera_preview': 'Kameravorschau',
         'input_device': 'Eingabegerät:',
@@ -191,25 +191,25 @@ Licence: MIT''',
         'flip_h': 'Horizontal spiegeln',
         'flip_v': 'Vertikal spiegeln',
         'reset_position': 'Zurücksetzen auf den Mittelpunkt',
-        'about_title': 'Über Virtual Camera Background',
-        'about_text': '''Virtual Camera Background v{version}
+        'about_title': 'Über VidMask',
+        'about_text': '''VidMask v{version}
 
 Eine Linux-Anwendung für die reale Hintergrundersetzung in Video-Anrufen.
 
 Funktionen:
 • Reale Hintergrundersetzung mithilfe von MediaPipe
-• Unterstützung mehrerer Kameras mit dem MJPG-Format
+• Mehrere Kamera-Unterstützung mit MJPG-Format
 • Einstellbare FPS und Auflösungsskalierung
-• Kantenglättung mit Gaußscher Unschaerfe
-• Erweiterte Positionsteuerung mit Bildspiegelung
-• Hell/Dunkles Thema
-• Mehrsprachige Unterstützung (Englisch, Čeština)
+• Kantenglättung mit Gaußschem Weichzeichner
+• Erweiterte Positionssteuerung mit Bildspiegelung
+• Hell/Dunkel-Thema
+• Mehrsprachige Unterstützung (Englisch, Tschechisch)
 
-Quellcode: https://github.com/sodomak/vcam-bg
+Quellcode: https://github.com/sodomak/vidmask
 Lizenz: MIT''',
     },
     'uk': {
-        'title': 'Віртуальний фон кмери',
+        'title': 'VidMask',
         'settings': 'Налаштування',
         'camera_preview': 'Попередній перегляд',
         'input_device': 'Вхідний пристрій:',
@@ -257,8 +257,8 @@ Lizenz: MIT''',
         'flip_h': 'Відзеркалити горизонтально',
         'flip_v': 'Відзеркалити вертикально',
         'reset_position': 'Центрувати',
-        'about_title': 'Про Virtual Camera Background',
-        'about_text': '''Virtual Camera Background v{version}
+        'about_title': 'Про VidMask',
+        'about_text': '''VidMask v{version}
 
 Програма для заміни фону в реальному часі під час відеодзвінків.
 
@@ -271,11 +271,11 @@ Lizenz: MIT''',
 • Світла/темна тема
 • Підтримка декількох мов (English, Čeština, Українська)
 
-Вихідний код: https://github.com/sodomak/vcam-bg
+Вихідний код: https://github.com/sodomak/vidmask
 Ліцензія: MIT'''
     },
     'es': {
-        'title': 'Fondo de Cámara Virtual',
+        'title': 'VidMask',
         'settings': 'Configuración',
         'camera_preview': 'Vista previa de la cámara',
         'input_device': 'Dispositivo de entrada:',
@@ -323,8 +323,8 @@ Lizenz: MIT''',
         'flip_h': 'Voltear horizontal',
         'flip_v': 'Voltear vertical',
         'reset_position': 'Centrar',
-        'about_title': 'Acerca de Virtual Camera Background',
-        'about_text': '''Virtual Camera Background v{version}
+        'about_title': 'Acerca de VidMask',
+        'about_text': '''VidMask v{version}
 
 Una aplicación Linux para el reemplazo de fondo en tiempo real en videollamadas.
 
@@ -337,11 +337,11 @@ Características:
 • Tema claro/oscuro
 • Soporte multiidioma
 
-Código fuente: https://github.com/sodomak/vcam-bg
+Código fuente: https://github.com/sodomak/vidmask
 Licencia: MIT''',
     },
     'pl': {
-        'title': 'Wirtualne Tło Kamery',
+        'title': 'VidMask',
         'settings': 'Ustawienia',
         'camera_preview': 'Podgląd kamery',
         'input_device': 'Urządzenie wejściowe:',
@@ -389,8 +389,8 @@ Licencia: MIT''',
         'flip_h': 'Odbij poziomo',
         'flip_v': 'Odbij pionowo',
         'reset_position': 'Wycentruj',
-        'about_title': 'O Virtual Camera Background',
-        'about_text': '''Virtual Camera Background v{version}
+        'about_title': 'O VidMask',
+        'about_text': '''VidMask v{version}
 
 Aplikacja Linux do podmiany tła w czasie rzeczywistym podczas rozmów wideo.
 
@@ -403,11 +403,11 @@ Funkcje:
 • Jasny/ciemny motyw
 • Wsparcie dla wielu języków
 
-Kod źródłowy: https://github.com/sodomak/vcam-bg
+Kod źródłowy: https://github.com/sodomak/vidmask
 Licencja: MIT''',
     },
     'ro': {
-        'title': 'Fundal Virtual pentru Cameră',
+        'title': 'VidMask',
         'settings': 'Setări',
         'camera_preview': 'Previzualizare cameră',
         'input_device': 'Dispozitiv intrare:',
@@ -455,8 +455,8 @@ Licencja: MIT''',
         'flip_h': 'Inversare orizontală',
         'flip_v': 'Inversare verticală',
         'reset_position': 'Centrare',
-        'about_title': 'Despre Virtual Camera Background',
-        'about_text': '''Virtual Camera Background v{version}
+        'about_title': 'Despre VidMask',
+        'about_text': '''VidMask v{version}
 
 O aplicație Linux pentru înlocuirea fundalului în timp real în apeluri video.
 
@@ -469,7 +469,7 @@ Caracteristici:
 • Temă luminoasă/întunecată
 • Suport pentru multiple limbi
 
-Cod sursă: https://github.com/sodomak/vcam-bg
+Cod sursă: https://github.com/sodomak/vidmask
 Licență: MIT''',
     }
 } 

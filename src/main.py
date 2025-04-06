@@ -12,7 +12,7 @@ print("Starting application...")
 
 def main():
     root = tk.Tk()
-    root.title("Virtual Camera Background")
+    root.title("VidMask")
     
     # Create main window
     from src.gui.main_window import MainWindow
