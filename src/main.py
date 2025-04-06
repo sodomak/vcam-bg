@@ -12,18 +12,18 @@ print("Starting application...")
 
 def main():
     root = tk.Tk()
+    
+    # Set both the window title and class name
     root.title("VidMask")
-    root.wm_classname("VidMask")
+    
+    # Remove any previous wm_class calls as they're not needed
+    # The title() method handles both the window title and taskbar name
+    
+    root.minsize(800, 600)
     
     # Create main window
     from src.gui.main_window import MainWindow
     app = MainWindow(root)
-    app.pack(fill=tk.BOTH, expand=True)
-    
-    # Set minimum window size
-    root.minsize(800, 600)
-    
-    # Start the main loop
     root.mainloop()
 
 if __name__ == "__main__":
