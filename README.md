@@ -1,6 +1,6 @@
-# Virtual Camera Background
+# VidMask
 
-A simple Linux application that enables custom backgrounds in any video call, regardless of native support in the conferencing app. Compatible with Signal Desktop, Zoom, Teams, Meet, and all other video chat software. The app captures your camera feed, applies a background image, and streams the processed video to a virtual camera, which can then be selected as your video source in any conferencing app.
+A privacy-focused Linux application that enables custom backgrounds in any video call, regardless of native support in the conferencing app. Compatible with Signal Desktop, Zoom, Teams, Meet, and all other video chat software. The app captures your camera feed, applies a background image, and streams the processed video to a virtual camera, which can then be selected as your video source in any conferencing app.
 
 *Note: This application was developed with the assistance of AI LLMs.*
 
@@ -9,12 +9,12 @@ A simple Linux application that enables custom backgrounds in any video call, re
 ## Installation
 
 ### AppImage (Recommended)
-Download the latest AppImage from the [releases page](https://github.com/sodomak/vcam-bg/releases):
+Download the latest AppImage from the [releases page](https://github.com/sodomak/vidmask/releases):
 
-1. Download `vcam-bg-x86_64.AppImage`
+1. Download `vidmask-x86_64.AppImage`
 2. Make it executable:
    ```bash
-   chmod +x vcam-bg-x86_64.AppImage
+   chmod +x vidmask-x86_64.AppImage
    ```
 3. Install and load the virtual camera module (required):
    ```bash
@@ -36,7 +36,7 @@ Download the latest AppImage from the [releases page](https://github.com/sodomak
    ```
 4. Run it:
    ```bash
-   ./vcam-bg-x86_64.AppImage
+   ./vidmask-x86_64.AppImage
    ```
 
 > [!NOTE]

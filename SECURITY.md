@@ -9,7 +9,7 @@
 
 ## Reporting a Vulnerability
 
-If you discover a security vulnerability in Virtual Camera Background, please follow these steps:
+If you discover a security vulnerability in VidMask, please follow these steps:
 
 1. **Do not** disclose the vulnerability publicly
 2. Send a detailed report to [security@cancel.cz]

@@ -1,6 +1,6 @@
-# Contributing to Virtual Camera Background
+# Contributing to VidMask
 
-We love your input! We want to make contributing to Virtual Camera Background as easy and transparent as possible, whether it's:
+We love your input! We want to make contributing to VidMask as easy and transparent as possible, whether it's:
 
 - Reporting a bug
 - Discussing the current state of the code
@@ -25,7 +25,7 @@ We use GitHub to host code, to track issues and feature requests, as well as acc
 
 In short, when you submit code changes, your submissions are understood to be under the same [MIT License](http://choosealicense.com/licenses/mit/) that covers the project. Feel free to contact the maintainers if that's a concern.
 
-## Report bugs using Github's [issue tracker](https://github.com/yourusername/vcam-bg/issues)
+## Report bugs using Github's [issue tracker](https://github.com/sodomak/vidmask/issues)
 
 We use GitHub issues to track public bugs.
 
