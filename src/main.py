@@ -11,16 +11,24 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 print("Starting application...")
 
 def main():
-    # Set the class name before creating the window
-    tk.Tk.wm_class("VidMask", "VidMask")
-    
     root = tk.Tk()
-    
-    # Set both the window title and class name
     root.title("VidMask")
     
-    # Remove any previous wm_class calls as they're not needed
-    # The title() method handles both the window title and taskbar name
+    # Set window class name for X11
+    try:
+        root.tk.call('wm', 'withdraw', '.')
+        root.tk.call('wm', 'client', '.', 'io.github.sodomak.vidmask')
+        root.tk.call('wm', 'deiconify', '.')
+    except tk.TclError:
+        print("Could not set X11 window class name")
+    
+    # Set window class name for Wayland
+    try:
+        root.tk.call('tk', 'windowingsystem')
+        root.tk.call('wm', 'attributes', '.', '-type', 'normal')
+        root.tk.call('wm', 'attributes', '.', '-name', 'io.github.sodomak.vidmask')
+    except tk.TclError:
+        print("Could not set Wayland window properties")
     
     root.minsize(800, 600)
     
