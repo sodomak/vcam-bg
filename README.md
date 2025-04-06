@@ -82,7 +82,7 @@ Download the latest AppImage from the [releases page](https://github.com/sodomak
 - Esc: Stop camera
 
 ### Configuration
-Settings are automatically saved to `~/.config/vcam-bg/config.json`
+Settings are automatically saved to `~/.config/vidmask/config.json`
 
 You can export/import settings through the File menu.
 
@@ -144,7 +144,7 @@ You can export/import settings through the File menu.
 
 ## Building from Source
 
-> For single file version (no translations, slightly different GUI) switch to [single-file](https://github.com/sodomak/vcam-bg/tree/single-file/src) branch or download [release](https://github.com/sodomak/vcam-bg/releases/tag/single)
+> For single file version (no translations, slightly different GUI) switch to [single-file](https://github.com/sodomak/vidmask/tree/single-file/src) branch or download [release](https://github.com/sodomak/vidmask/releases/tag/single)
 
 ### Dependencies Installation
 
@@ -179,14 +179,14 @@ To build your own AppImage:
 
 ```bash
 # Clone the repository
-git clone https://github.com/sodomak/vcam-bg.git
-cd vcam-bg
+git clone https://github.com/sodomak/vidmask.git
+cd vidmask
 
 # Run the AppImage build script
 ./build/create-appimage.sh
 ```
 
-The AppImage will be created as `vcam-bg-x86_64.AppImage`.
+The AppImage will be created as `vidmask-x86_64.AppImage`.
 
 ## Troubleshooting
 
@@ -220,7 +220,7 @@ The AppImage will be created as `vcam-bg-x86_64.AppImage`.
 Run with debug output:
 
 ```bash
-PYTHONPATH=src DEBUG=1 ./vcam-bg
+PYTHONPATH=src DEBUG=1 ./vidmask
 ```
 
 ## Contributing
@@ -266,7 +266,7 @@ PYTHONPATH=src DEBUG=1 ./vcam-bg
 3. Test your translation:
    ```bash
    # Run the application
-   ./vcam-bg
+   ./vidmask
    # Select your language from View > Language menu
    # Verify all UI elements are correctly translated
    ```

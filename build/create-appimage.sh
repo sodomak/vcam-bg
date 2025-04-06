@@ -74,7 +74,7 @@ cp -r "$SCRIPT_DIR/venv/lib/python${PYTHON_VERSION%.*}/site-packages"/* "$SCRIPT
 cp -r "$PROJECT_DIR/src" "$SCRIPT_DIR/AppDir/usr/lib/python${PYTHON_VERSION%.*}/site-packages/"
 
 # Create launcher script
-cat > "$SCRIPT_DIR/AppDir/usr/bin/vcam-bg" << EOF
+cat > "$SCRIPT_DIR/AppDir/usr/bin/vidmask" << EOF
 #!/bin/bash
 SELF=$(readlink -f "$0")
 HERE=${SELF%/*}
@@ -82,7 +82,7 @@ export PYTHONPATH="$HERE/../lib/python$PYTHON_VERSION/site-packages:$PYTHONPATH"
 exec python3 "$HERE/../lib/python$PYTHON_VERSION/site-packages/src/main.py" "$@"
 EOF
 
-chmod +x "$SCRIPT_DIR/AppDir/usr/bin/vcam-bg"
+chmod +x "$SCRIPT_DIR/AppDir/usr/bin/vidmask"
 
 # Get version from version.py
 VERSION=$(grep -oP 'VERSION = "\K[^"]+' "${SCRIPT_DIR}/../src/version.py")
@@ -141,7 +141,7 @@ cat > "$SCRIPT_DIR/AppDir/usr/share/metainfo/io.github.sodomak.vidmask.metainfo.
     </ul>
   </description>
   <launchable type="desktop-id">vidmask.desktop</launchable>
-  <url type="homepage">https://github.com/sodomak/vcam-bg</url>
+  <url type="homepage">https://github.com/sodomak/vidmask</url>
   <provides>
     <binary>vidmask</binary>
   </provides>
