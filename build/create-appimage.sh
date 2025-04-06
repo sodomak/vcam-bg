@@ -209,12 +209,29 @@ EOF
 
 # Function to find and copy Tcl/Tk libraries based on system
 copy_tcltk_libs() {
+    # First copy the libraries as before
     local lib_paths=(
         "/usr/lib"                     # Arch Linux
         "/usr/lib/x86_64-linux-gnu"    # Ubuntu/Debian
         "/usr/lib64"                   # Fedora/CentOS
     )
     
+    # Add Tcl initialization paths
+    local tcl_paths=(
+        "/usr/share/tcltk/tcl8.6"     # Common location
+        "/usr/lib/tcl8.6"             # Alternative location
+        "/usr/share/tcl8.6"           # Another possible location
+    )
+    
+    # Copy Tcl initialization files
+    for tcl_path in "${tcl_paths[@]}"; do
+        if [ -d "$tcl_path" ]; then
+            echo "Copying Tcl files from: $tcl_path"
+            mkdir -p "$SCRIPT_DIR/AppDir/usr/share/tcltk/tcl8.6"
+            cp -r "$tcl_path"/* "$SCRIPT_DIR/AppDir/usr/share/tcltk/tcl8.6/"
+        fi
+    done
+
     local found=0
     for lib_path in "${lib_paths[@]}"; do
         echo "Checking for Tcl/Tk libraries in $lib_path"
