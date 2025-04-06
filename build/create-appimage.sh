@@ -292,11 +292,8 @@ copy_binary_and_deps "$(which v4l2-ctl)" "$SCRIPT_DIR/AppDir/usr/bin"
 copy_binary_and_deps "$(which ffmpeg)" "$SCRIPT_DIR/AppDir/usr/bin"
 copy_binary_and_deps "$(which ffprobe)" "$SCRIPT_DIR/AppDir/usr/bin"
 
-# Copy additional required libraries
-mkdir -p "$SCRIPT_DIR/AppDir/usr/lib/tcl8.6"
-mkdir -p "$SCRIPT_DIR/AppDir/usr/lib/tk8.6"
-cp -r /usr/lib/tcl8.6/* "$SCRIPT_DIR/AppDir/usr/lib/tcl8.6/"
-cp -r /usr/lib/tk8.6/* "$SCRIPT_DIR/AppDir/usr/lib/tk8.6/"
+# Copy Tcl/Tk libraries
+copy_tcltk_libs
 
 # Create AppImage
 export ARCH=x86_64
