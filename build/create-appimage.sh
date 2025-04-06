@@ -165,51 +165,27 @@ EOF
 # Also copy desktop file to applications directory
 cp "$SCRIPT_DIR/AppDir/vidmask.desktop" "$SCRIPT_DIR/AppDir/usr/share/applications/"
 
-# Create AppRun script
-cat > "$SCRIPT_DIR/AppDir/AppRun" << EOF
-#!/bin/bash
-SELF=\$(readlink -f "\$0")
-HERE=\${SELF%/*}
-
-# Set environment variables
-export PATH="\$HERE/usr/bin:\$PATH"
-export PYTHONPATH="\$HERE/usr/lib/python3.11/site-packages:\$PYTHONPATH"
-export LD_LIBRARY_PATH="\$HERE/usr/lib:\$LD_LIBRARY_PATH"
-export PYTHONHOME="\$HERE/usr"
-
-# Execute the application using bundled Python
-exec "\$HERE/usr/bin/python3" "\$HERE/usr/lib/python3.11/site-packages/src/main.py" "\$@"
-EOF
-
-chmod +x "$SCRIPT_DIR/AppDir/AppRun"
-
-# Generate icons in multiple sizes using magick instead of convert
-for size in 16 32 48 64 128 256 512; do
-    mkdir -p "$SCRIPT_DIR/AppDir/usr/share/icons/hicolor/${size}x${size}/apps"
-    magick "$PROJECT_DIR/app.png" -resize ${size}x${size} \
-        "$SCRIPT_DIR/AppDir/usr/share/icons/hicolor/${size}x${size}/apps/vidmask.png"
-done
-
-# Copy largest icon to AppDir root
-cp "$SCRIPT_DIR/AppDir/usr/share/icons/hicolor/512x512/apps/vidmask.png" "$SCRIPT_DIR/AppDir/"
-
 # Function to find and copy Tcl/Tk libraries based on system
 copy_tcltk_libs() {
     local lib_paths=(
         "/usr/lib"                     # Arch Linux
         "/usr/lib/x86_64-linux-gnu"    # Ubuntu/Debian
+        "/usr/lib64"                   # Fedora/CentOS
     )
     
     local found=0
     for lib_path in "${lib_paths[@]}"; do
+        echo "Checking for Tcl/Tk libraries in $lib_path"
         if [ -f "$lib_path/libtk.so" ] || [ -f "$lib_path/libtcl.so" ]; then
             echo "Found Tcl/Tk libraries in $lib_path"
+            # Copy all Tcl/Tk related libraries
             cp -L "$lib_path"/libtk* "$SCRIPT_DIR/AppDir/usr/lib/" 2>/dev/null || true
             cp -L "$lib_path"/libtcl* "$SCRIPT_DIR/AppDir/usr/lib/" 2>/dev/null || true
             
             # Check and copy tcl directories one by one
             for d in "$lib_path"/tcl*; do
                 if [ -d "$d" ]; then
+                    echo "Copying Tcl directory: $d"
                     cp -r "$d" "$SCRIPT_DIR/AppDir/usr/lib/"
                 fi
             done
@@ -217,17 +193,28 @@ copy_tcltk_libs() {
             # Check and copy tk directories one by one
             for d in "$lib_path"/tk*; do
                 if [ -d "$d" ]; then
+                    echo "Copying Tk directory: $d"
                     cp -r "$d" "$SCRIPT_DIR/AppDir/usr/lib/"
                 fi
             done
             
-            found=1
-            break
+            # Verify the libraries were copied
+            if [ -f "$SCRIPT_DIR/AppDir/usr/lib/libtk.so" ] && [ -f "$SCRIPT_DIR/AppDir/usr/lib/libtcl.so" ]; then
+                echo "Successfully copied Tcl/Tk libraries"
+                found=1
+                break
+            else
+                echo "Warning: Tcl/Tk libraries were not properly copied"
+            fi
         fi
     done
     
     if [ $found -eq 0 ]; then
         echo "Error: Could not find Tcl/Tk libraries"
+        echo "Available libraries in /usr/lib:"
+        ls -la /usr/lib/libtk* /usr/lib/libtcl* 2>/dev/null || true
+        echo "Available libraries in /usr/lib/x86_64-linux-gnu:"
+        ls -la /usr/lib/x86_64-linux-gnu/libtk* /usr/lib/x86_64-linux-gnu/libtcl* 2>/dev/null || true
         exit 1
     fi
 }
@@ -244,12 +231,15 @@ copy_binary_and_deps() {
         return
     fi
     
+    echo "Copying binary: $binary_path"
     # Copy the binary itself
     cp -L "$binary_path" "$target_dir/"
     
     # Get list of dependencies and copy them if not already present
+    echo "Copying dependencies for $binary_path"
     ldd "$binary_path" | grep "=> /" | awk '{print $3}' | while read lib; do
         if [ ! -f "$SCRIPT_DIR/AppDir/usr/lib/$(basename "$lib")" ]; then
+            echo "Copying dependency: $lib"
             cp -L "$lib" "$SCRIPT_DIR/AppDir/usr/lib/"
         fi
     done
@@ -271,3 +261,27 @@ deactivate
 
 # Clean up
 rm -rf "$SCRIPT_DIR/venv"
+
+# Create AppRun script with debug output
+cat > "$SCRIPT_DIR/AppDir/AppRun" << EOF
+#!/bin/bash
+SELF=\$(readlink -f "\$0")
+HERE=\${SELF%/*}
+
+# Set environment variables
+export PATH="\$HERE/usr/bin:\$PATH"
+export PYTHONPATH="\$HERE/usr/lib/python3.11/site-packages:\$PYTHONPATH"
+export LD_LIBRARY_PATH="\$HERE/usr/lib:\$LD_LIBRARY_PATH"
+export PYTHONHOME="\$HERE/usr"
+
+# Debug output
+echo "Starting application with:"
+echo "PYTHONPATH=\$PYTHONPATH"
+echo "LD_LIBRARY_PATH=\$LD_LIBRARY_PATH"
+echo "PYTHONHOME=\$PYTHONHOME"
+echo "Available Tcl/Tk libraries:"
+ls -la \$HERE/usr/lib/libtk* \$HERE/usr/lib/libtcl* 2>/dev/null || true
+
+# Execute the application using bundled Python
+exec "\$HERE/usr/bin/python3" "\$HERE/usr/lib/python3.11/site-packages/src/main.py" "\$@"
+EOF
