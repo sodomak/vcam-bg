@@ -13,8 +13,7 @@ print("Starting application...")
 def main():
     root = tk.Tk()
     root.title("VidMask")
-    # Set window class name for proper taskbar identification
-    root.wm_class("VidMask")
+    root.wm_classname("VidMask")
     
     # Create main window
     from src.gui.main_window import MainWindow
