@@ -62,10 +62,12 @@ TRANSLATIONS = {
         'about_title': 'About VidMask',
         'about_text': '''VidMask v{version}
 
-A Linux application for real-time background replacement in video calls.
+A privacy-focused Linux application for secure background replacement in video calls.
+Formerly known as vcam-bg, now renamed to better reflect our commitment to privacy.
 
 Features:
-• Real-time background replacement using MediaPipe
+• Privacy-first background replacement using MediaPipe
+• Secure local processing - no cloud services needed
 • Multiple camera support with MJPG format
 • Adjustable FPS and resolution scaling
 • Edge smoothing with Gaussian blur
