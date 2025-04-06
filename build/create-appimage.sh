@@ -187,11 +187,11 @@ chmod +x "$SCRIPT_DIR/AppDir/AppRun"
 for size in 16 32 48 64 128 256 512; do
     mkdir -p "$SCRIPT_DIR/AppDir/usr/share/icons/hicolor/${size}x${size}/apps"
     magick "$PROJECT_DIR/app.png" -resize ${size}x${size} \
-        "$SCRIPT_DIR/AppDir/usr/share/icons/hicolor/${size}x${size}/apps/vcam-bg.png"
+        "$SCRIPT_DIR/AppDir/usr/share/icons/hicolor/${size}x${size}/apps/vidmask.png"
 done
 
 # Copy largest icon to AppDir root
-cp "$SCRIPT_DIR/AppDir/usr/share/icons/hicolor/512x512/apps/vcam-bg.png" "$SCRIPT_DIR/AppDir/"
+cp "$SCRIPT_DIR/AppDir/usr/share/icons/hicolor/512x512/apps/vidmask.png" "$SCRIPT_DIR/AppDir/"
 
 # Function to find and copy Tcl/Tk libraries based on system
 copy_tcltk_libs() {
