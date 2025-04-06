@@ -54,7 +54,7 @@ Python-*/
 squashfs-root/
 
 # Generated files
-vcam-bg
+vidmask
 errors.md
 
 # Cursor rules

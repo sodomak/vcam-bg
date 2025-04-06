@@ -3,7 +3,7 @@ import json
 
 class Config:
     def __init__(self):
-        self.config_file = os.path.expanduser('~/.config/vcam-bg/config.json')
+        self.config_file = os.path.expanduser('~/.config/vidmask/config.json')
         self.config = self.load()
 
     def load(self):
