@@ -13,18 +13,14 @@ print("Starting application...")
 def main():
     root = tk.Tk()
     
-    # Set window title and class to match desktop entry
+    # Set simple window title
     root.title("VidMask")
-    root.wm_class("VidMask", "VidMask")  # This should now match StartupWMClass
     
-    # Try to set window properties for Wayland
+    # Set window class using tk command
     try:
-        root.tk.call('tk', 'windowingsystem')
-        root.tk.call('wm', 'attributes', '.', '-type', 'normal')
-        # Only set the class name, not affecting the title
-        root.tk.call('wm', 'attributes', '.', '-class', 'io.github.sodomak.vidmask')
+        root.tk.call('wm', 'class', '.', "VidMask")
     except tk.TclError:
-        print("Could not set Wayland window properties")
+        print("Could not set window class name")
     
     root.minsize(800, 600)
     
