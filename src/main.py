@@ -12,17 +12,21 @@ print("Starting application...")
 
 def main():
     root = tk.Tk()
-    root.title("Virtual Camera Background")
+    
+    # Set simple window title
+    root.title("VidMask")
+    
+    # Set window class using tk command
+    try:
+        root.tk.call('wm', 'class', '.', "VidMask")
+    except tk.TclError:
+        print("Could not set window class name")
+    
+    root.minsize(800, 600)
     
     # Create main window
     from src.gui.main_window import MainWindow
     app = MainWindow(root)
-    app.pack(fill=tk.BOTH, expand=True)
-    
-    # Set minimum window size
-    root.minsize(800, 600)
-    
-    # Start the main loop
     root.mainloop()
 
 if __name__ == "__main__":

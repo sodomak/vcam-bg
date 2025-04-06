@@ -22,8 +22,14 @@ class MainWindow(ttk.Frame):
         # Initialize theme manager first
         self.theme_manager = ThemeManager(root)
         
-        # Set config file path
-        self.config_file = os.path.expanduser('~/.config/vcam-bg/config.json')
+        # Set config paths
+        self.old_config_dir = os.path.expanduser('~/.config/vcam-bg')
+        self.old_config_file = os.path.join(self.old_config_dir, 'config.json')
+        self.config_dir = os.path.expanduser('~/.config/vidmask')
+        self.config_file = os.path.join(self.config_dir, 'config.json')
+        
+        # Migrate old config if exists
+        self.migrate_config()
         
         # Initialize variables
         self.create_variables()
@@ -144,10 +150,25 @@ class MainWindow(ttk.Frame):
         text = self.tr('about_text').format(version=VERSION)
         messagebox.showinfo(self.tr('about_title'), text)
 
+    def migrate_config(self):
+        """Migrate config from old path to new path if needed"""
+        try:
+            if os.path.exists(self.old_config_file) and not os.path.exists(self.config_file):
+                print(f"Migrating config from {self.old_config_file} to {self.config_file}")
+                # Create new config directory
+                os.makedirs(self.config_dir, exist_ok=True)
+                # Copy config file
+                import shutil
+                shutil.copy2(self.old_config_file, self.config_file)
+                # Don't delete old config yet - keep as backup
+                print("Config migration successful")
+        except Exception as e:
+            print(f"Error migrating config: {e}")
+
     def load_settings(self):
         """Load settings from config file"""
         try:
-            os.makedirs(os.path.dirname(self.config_file), exist_ok=True)
+            os.makedirs(self.config_dir, exist_ok=True)
             if os.path.exists(self.config_file):
                 with open(self.config_file, 'r') as f:
                     settings = json.load(f)
@@ -191,12 +212,11 @@ class MainWindow(ttk.Frame):
                 'y_offset': self.settings_frame.y_offset.get(),
                 'flip_h': self.settings_frame.flip_h.get(),
                 'flip_v': self.settings_frame.flip_v.get(),
-                # Actually add the settings, not just comment about them
                 'language': self.language.get(),
                 'theme': self.theme.get()
             }
             
-            os.makedirs(os.path.dirname(self.config_file), exist_ok=True)
+            os.makedirs(self.config_dir, exist_ok=True)
             with open(self.config_file, 'w') as f:
                 json.dump(settings, f, indent=4)
                 

@@ -88,24 +88,25 @@ chmod +x "$SCRIPT_DIR/AppDir/usr/bin/vcam-bg"
 VERSION=$(grep -oP 'VERSION = "\K[^"]+' "${SCRIPT_DIR}/../src/version.py")
 
 # Create desktop entry with correct categories
-cat > "$SCRIPT_DIR/AppDir/vcam-bg.desktop" << EOF
+cat > "$SCRIPT_DIR/AppDir/vidmask.desktop" << EOF
 [Desktop Entry]
 Type=Application
-Name=Virtual Camera Background
-GenericName=Virtual Camera Background
-Comment=Virtual background for any video conferencing app
-Exec=vcam-bg
-Icon=vcam-bg
+Name=VidMask
+GenericName=VidMask
+Comment=Privacy-focused virtual camera with background replacement
+Exec=vidmask
+Icon=vidmask
 Terminal=false
 Categories=AudioVideo;Video;
-Keywords=camera;background;virtual;video;conference;meeting;blur;
+Keywords=camera;background;virtual;video;conference;meeting;blur;privacy;
 StartupNotify=true
+StartupWMClass=VidMask
 X-AppImage-Version=${VERSION}
 X-AppImage-BuildDate=$(date -u +%Y-%m-%d)
 X-AppImage-Arch=x86_64
-X-AppImage-Name=Virtual Camera Background
-X-AppImage-Description=Virtual background for any video conferencing app
-X-AppImage-URL=https://github.com/sodomak/vcam-bg
+X-AppImage-Name=VidMask
+X-AppImage-Description=Privacy-focused virtual camera with background replacement
+X-AppImage-URL=https://github.com/sodomak/vidmask
 X-AppImage-License=MIT
 X-AppImage-Author=sodomak
 EOF
@@ -116,17 +117,17 @@ rm -f "$SCRIPT_DIR/AppDir/usr/share/metainfo/io.github.sodomak.vcam-bg.appdata.x
 
 # Create AppStream metadata with fixes
 mkdir -p "$SCRIPT_DIR/AppDir/usr/share/metainfo"
-cat > "$SCRIPT_DIR/AppDir/usr/share/metainfo/io.github.sodomak.vcam-bg.metainfo.xml" << EOF
+cat > "$SCRIPT_DIR/AppDir/usr/share/metainfo/io.github.sodomak.vidmask.metainfo.xml" << EOF
 <?xml version="1.0" encoding="UTF-8"?>
 <component type="desktop-application">
-  <id>io.github.sodomak.vcam-bg</id>
+  <id>io.github.sodomak.vidmask</id>
   <metadata_license>MIT</metadata_license>
   <project_license>MIT</project_license>
-  <name>Virtual Camera Background</name>
-  <summary>Virtual background for any video conferencing app</summary>
+  <name>VidMask</name>
+  <summary>Privacy-focused virtual camera with background replacement</summary>
   <description>
     <p>
-      A simple Linux application that enables custom backgrounds in any video call, regardless of native support in the conferencing app.
+      A privacy-focused Linux application that enables custom backgrounds in any video call.
       Compatible with Signal Desktop, Zoom, Teams, Meet, and all other video chat software.
     </p>
     <p>Features:</p>
@@ -139,10 +140,10 @@ cat > "$SCRIPT_DIR/AppDir/usr/share/metainfo/io.github.sodomak.vcam-bg.metainfo.
       <li>Multi-language support (English, Čeština)</li>
     </ul>
   </description>
-  <launchable type="desktop-id">vcam-bg.desktop</launchable>
+  <launchable type="desktop-id">vidmask.desktop</launchable>
   <url type="homepage">https://github.com/sodomak/vcam-bg</url>
   <provides>
-    <binary>vcam-bg</binary>
+    <binary>vidmask</binary>
   </provides>
   <developer id="io.github.sodomak">
     <name>sodomak</name>
@@ -162,7 +163,7 @@ cat > "$SCRIPT_DIR/AppDir/usr/share/metainfo/io.github.sodomak.vcam-bg.metainfo.
 EOF
 
 # Also copy desktop file to applications directory
-cp "$SCRIPT_DIR/AppDir/vcam-bg.desktop" "$SCRIPT_DIR/AppDir/usr/share/applications/"
+cp "$SCRIPT_DIR/AppDir/vidmask.desktop" "$SCRIPT_DIR/AppDir/usr/share/applications/"
 
 # Create AppRun script
 cat > "$SCRIPT_DIR/AppDir/AppRun" << EOF
@@ -186,11 +187,11 @@ chmod +x "$SCRIPT_DIR/AppDir/AppRun"
 for size in 16 32 48 64 128 256 512; do
     mkdir -p "$SCRIPT_DIR/AppDir/usr/share/icons/hicolor/${size}x${size}/apps"
     magick "$PROJECT_DIR/app.png" -resize ${size}x${size} \
-        "$SCRIPT_DIR/AppDir/usr/share/icons/hicolor/${size}x${size}/apps/vcam-bg.png"
+        "$SCRIPT_DIR/AppDir/usr/share/icons/hicolor/${size}x${size}/apps/vidmask.png"
 done
 
 # Copy largest icon to AppDir root
-cp "$SCRIPT_DIR/AppDir/usr/share/icons/hicolor/512x512/apps/vcam-bg.png" "$SCRIPT_DIR/AppDir/"
+cp "$SCRIPT_DIR/AppDir/usr/share/icons/hicolor/512x512/apps/vidmask.png" "$SCRIPT_DIR/AppDir/"
 
 # Function to find and copy Tcl/Tk libraries based on system
 copy_tcltk_libs() {
@@ -261,9 +262,9 @@ copy_binary_and_deps "$(which ffprobe)" "$SCRIPT_DIR/AppDir/usr/bin"
 
 # Create AppImage
 export ARCH=x86_64
-"$SCRIPT_DIR/appimagetool-x86_64.AppImage" "$SCRIPT_DIR/AppDir" "vcam-bg-x86_64.AppImage"
+"$SCRIPT_DIR/appimagetool-x86_64.AppImage" "$SCRIPT_DIR/AppDir" "vidmask-x86_64.AppImage"
 
-echo "AppImage created: vcam-bg-x86_64.AppImage"
+echo "AppImage created: vidmask-x86_64.AppImage"
 
 # Deactivate virtual environment
 deactivate
