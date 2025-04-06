@@ -56,3 +56,7 @@ squashfs-root/
 # Generated files
 vcam-bg
 errors.md
+
+# Cursor rules
+.cursorrules
+!.cursorrules.example
