@@ -162,7 +162,7 @@ cat > "$SCRIPT_DIR/AppDir/usr/share/metainfo/io.github.sodomak.vidmask.metainfo.
 </component>
 EOF
 
-# Also copy desktop file to applications directory
+# Also copy desktop file to applications dir
 cp "$SCRIPT_DIR/AppDir/vidmask.desktop" "$SCRIPT_DIR/AppDir/usr/share/applications/"
 
 # Function to find and copy Tcl/Tk libraries based on system
