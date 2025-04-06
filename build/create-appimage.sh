@@ -280,6 +280,12 @@ copy_binary_and_deps() {
     # Get list of dependencies and copy them if not already present
     echo "Copying dependencies for $binary_path"
     ldd "$binary_path" | grep "=> /" | awk '{print $3}' | while read lib; do
+        # Skip system libraries
+        if echo "$lib" | grep -q "^/lib\|^/usr/lib/\(lib\(c\|gcc\|dl\|rt\|pthread\|stdc++\|m\|util\|selinux\|krb5\|gssapi\)\.so\)"; then
+            echo "Skipping system library: $lib"
+            continue
+        fi
+        
         if [ ! -f "$SCRIPT_DIR/AppDir/usr/lib/$(basename "$lib")" ]; then
             echo "Copying dependency: $lib"
             cp -L "$lib" "$SCRIPT_DIR/AppDir/usr/lib/"
