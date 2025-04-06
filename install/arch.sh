@@ -34,15 +34,15 @@ fi
 
 # Download latest release
 echo "Downloading latest release..."
-LATEST_URL=$(curl -s https://api.github.com/repos/sodomak/vcam-bg/releases/latest | grep "browser_download_url.*AppImage" | cut -d '"' -f 4)
+LATEST_URL=$(curl -s https://api.github.com/repos/sodomak/vidmask/releases/latest | grep "browser_download_url.*AppImage" | cut -d '"' -f 4)
 if [ -z "$LATEST_URL" ]; then
     echo "Error: Could not find latest release URL"
     exit 1
 fi
 
-wget -O vcam-bg-x86_64.AppImage "$LATEST_URL"
-chmod +x vcam-bg-x86_64.AppImage
+wget -O vidmask-x86_64.AppImage "$LATEST_URL"
+chmod +x vidmask-x86_64.AppImage
 
 echo "Installation complete!"
 echo "To run the application:"
-echo "  ./vcam-bg-x86_64.AppImage"
+echo "  ./vidmask-x86_64.AppImage"
