@@ -141,7 +141,7 @@ cat > "$SCRIPT_DIR/AppDir/usr/share/metainfo/io.github.sodomak.vidmask.metainfo.
     </ul>
   </description>
   <launchable type="desktop-id">vidmask.desktop</launchable>
-  <url type="homepage">https://github.com/sodomak/vidmask</url>
+  <url type="homepage">https://github.com/sodomak/vcam-bg</url>
   <provides>
     <binary>vidmask</binary>
   </provides>
