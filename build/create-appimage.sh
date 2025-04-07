@@ -318,6 +318,12 @@ copy_binary_and_deps "$(which ffprobe)" "$SCRIPT_DIR/AppDir/usr/bin"
 # Copy Tcl/Tk libraries
 copy_tcltk_libs
 
+# Copy Tcl/Tk files to both possible locations
+mkdir -p "$SCRIPT_DIR/AppDir/usr/lib/tcl8.6"
+mkdir -p "$SCRIPT_DIR/AppDir/usr/share/tcltk/tcl8.6"
+cp -r /usr/lib/tcl8.6/* "$SCRIPT_DIR/AppDir/usr/lib/tcl8.6/"
+cp -r /usr/lib/tcl8.6/* "$SCRIPT_DIR/AppDir/usr/share/tcltk/tcl8.6/"
+
 # Create AppImage
 export ARCH=x86_64
 "$SCRIPT_DIR/appimagetool-x86_64.AppImage" "$SCRIPT_DIR/AppDir" "vidmask-x86_64.AppImage"
