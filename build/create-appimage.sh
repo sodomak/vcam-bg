@@ -287,7 +287,7 @@ copy_tcltk_libs() {
     echo "Successfully copied all Tcl/Tk files"
 }
 
-# Copy binaries and their dependencies
+# Function to find and copy library with its dependencies
 copy_binary_and_deps() {
     local binary="$1"
     local target_dir="$2"
@@ -303,13 +303,36 @@ copy_binary_and_deps() {
     # Copy the binary itself
     cp -L "$binary_path" "$target_dir/"
     
+    # Additional critical libraries to copy
+    local critical_libs=(
+        "libffi.so.7"
+        "libffi.so.8"  # Some systems might use version 8
+    )
+
+    # Copy critical libraries if they exist
+    for lib in "${critical_libs[@]}"; do
+        for lib_path in /usr/lib /usr/lib64 /usr/lib/x86_64-linux-gnu; do
+            if [ -f "$lib_path/$lib" ]; then
+                echo "Copying critical library: $lib_path/$lib"
+                cp -L "$lib_path/$lib" "$SCRIPT_DIR/AppDir/usr/lib/"
+                break
+            fi
+        done
+    done
+    
     # Get list of dependencies and copy them if not already present
     echo "Copying dependencies for $binary_path"
     ldd "$binary_path" | grep "=> /" | awk '{print $3}' | while read lib; do
-        # Skip system libraries
+        # Skip system libraries except for critical ones
         if echo "$lib" | grep -q "^/lib\|^/usr/lib/\(lib\(c\|gcc\|dl\|rt\|pthread\|stdc++\|m\|util\|selinux\|krb5\|gssapi\)\.so\)"; then
-            echo "Skipping system library: $lib"
-            continue
+            # Check if it's a critical library before skipping
+            local base_lib=$(basename "$lib")
+            if echo "${critical_libs[@]}" | grep -q "$base_lib"; then
+                echo "Including critical library: $lib"
+            else
+                echo "Skipping system library: $lib"
+                continue
+            fi
         fi
         
         if [ ! -f "$SCRIPT_DIR/AppDir/usr/lib/$(basename "$lib")" ]; then
@@ -319,6 +342,37 @@ copy_binary_and_deps() {
     done
 }
 
+# Function to verify critical dependencies
+verify_dependencies() {
+    echo "Verifying critical dependencies..."
+    local missing_deps=0
+
+    # Check for libffi
+    if [ ! -f "$SCRIPT_DIR/AppDir/usr/lib/libffi.so.7" ] && [ ! -f "$SCRIPT_DIR/AppDir/usr/lib/libffi.so.8" ]; then
+        echo "Error: libffi.so.7 or libffi.so.8 not found"
+        missing_deps=1
+    fi
+
+    # Check for Tcl/Tk libraries
+    if [ ! -f "$SCRIPT_DIR/AppDir/usr/lib/libtcl.so" ] || [ ! -f "$SCRIPT_DIR/AppDir/usr/lib/libtk.so" ]; then
+        echo "Error: Tcl/Tk libraries not found"
+        missing_deps=1
+    fi
+
+    # Check for init.tcl
+    if [ ! -f "$SCRIPT_DIR/AppDir/usr/share/tcltk/tcl8.6/init.tcl" ]; then
+        echo "Error: init.tcl not found"
+        missing_deps=1
+    fi
+
+    if [ $missing_deps -eq 1 ]; then
+        echo "Critical dependencies are missing. Aborting."
+        exit 1
+    fi
+
+    echo "All critical dependencies verified."
+}
+
 # Copy binaries and their dependencies
 copy_binary_and_deps "$(which v4l2-ctl)" "$SCRIPT_DIR/AppDir/usr/bin"
 copy_binary_and_deps "$(which ffmpeg)" "$SCRIPT_DIR/AppDir/usr/bin"
@@ -326,6 +380,9 @@ copy_binary_and_deps "$(which ffprobe)" "$SCRIPT_DIR/AppDir/usr/bin"
 
 # Copy Tcl/Tk libraries
 copy_tcltk_libs
+
+# Verify all dependencies are present
+verify_dependencies
 
 # Create AppImage
 export ARCH=x86_64
