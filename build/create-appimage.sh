@@ -209,6 +209,12 @@ EOF
 
 # Function to find and copy Tcl/Tk libraries based on system
 copy_tcltk_libs() {
+    # Create all necessary target directories
+    mkdir -p "$SCRIPT_DIR/AppDir/usr/lib/tcl8.6"
+    mkdir -p "$SCRIPT_DIR/AppDir/usr/share/tcltk/tcl8.6"
+    mkdir -p "$SCRIPT_DIR/AppDir/usr/lib/tk8.6"
+    mkdir -p "$SCRIPT_DIR/AppDir/usr/share/tcltk/tk8.6"
+    
     # First copy the libraries as before
     local lib_paths=(
         "/usr/lib"                     # Arch Linux
@@ -223,12 +229,29 @@ copy_tcltk_libs() {
         "/usr/share/tcl8.6"           # Another possible location
     )
     
-    # Copy Tcl initialization files
+    # Copy Tcl initialization files to both locations
+    local tcl_files_copied=0
     for tcl_path in "${tcl_paths[@]}"; do
         if [ -d "$tcl_path" ]; then
             echo "Copying Tcl files from: $tcl_path"
-            mkdir -p "$SCRIPT_DIR/AppDir/usr/share/tcltk/tcl8.6"
-            cp -r "$tcl_path"/* "$SCRIPT_DIR/AppDir/usr/share/tcltk/tcl8.6/"
+            cp -r "$tcl_path"/* "$SCRIPT_DIR/AppDir/usr/share/tcltk/tcl8.6/" || true
+            cp -r "$tcl_path"/* "$SCRIPT_DIR/AppDir/usr/lib/tcl8.6/" || true
+            tcl_files_copied=1
+        fi
+    done
+
+    # Copy Tk files if they exist
+    local tk_paths=(
+        "/usr/share/tcltk/tk8.6"
+        "/usr/lib/tk8.6"
+        "/usr/share/tk8.6"
+    )
+    
+    for tk_path in "${tk_paths[@]}"; do
+        if [ -d "$tk_path" ]; then
+            echo "Copying Tk files from: $tk_path"
+            cp -r "$tk_path"/* "$SCRIPT_DIR/AppDir/usr/share/tcltk/tk8.6/" || true
+            cp -r "$tk_path"/* "$SCRIPT_DIR/AppDir/usr/lib/tk8.6/" || true
         fi
     done
 
@@ -240,42 +263,28 @@ copy_tcltk_libs() {
             # Copy all Tcl/Tk related libraries
             cp -L "$lib_path"/libtk* "$SCRIPT_DIR/AppDir/usr/lib/" 2>/dev/null || true
             cp -L "$lib_path"/libtcl* "$SCRIPT_DIR/AppDir/usr/lib/" 2>/dev/null || true
-            
-            # Check and copy tcl directories one by one
-            for d in "$lib_path"/tcl*; do
-                if [ -d "$d" ]; then
-                    echo "Copying Tcl directory: $d"
-                    cp -r "$d" "$SCRIPT_DIR/AppDir/usr/lib/"
-                fi
-            done
-            
-            # Check and copy tk directories one by one
-            for d in "$lib_path"/tk*; do
-                if [ -d "$d" ]; then
-                    echo "Copying Tk directory: $d"
-                    cp -r "$d" "$SCRIPT_DIR/AppDir/usr/lib/"
-                fi
-            done
-            
-            # Verify the libraries were copied
-            if [ -f "$SCRIPT_DIR/AppDir/usr/lib/libtk.so" ] && [ -f "$SCRIPT_DIR/AppDir/usr/lib/libtcl.so" ]; then
-                echo "Successfully copied Tcl/Tk libraries"
-                found=1
-                break
-            else
-                echo "Warning: Tcl/Tk libraries were not properly copied"
-            fi
+            found=1
         fi
     done
     
-    if [ $found -eq 0 ]; then
-        echo "Error: Could not find Tcl/Tk libraries"
-        echo "Available libraries in /usr/lib:"
-        ls -la /usr/lib/libtk* /usr/lib/libtcl* 2>/dev/null || true
-        echo "Available libraries in /usr/lib/x86_64-linux-gnu:"
-        ls -la /usr/lib/x86_64-linux-gnu/libtk* /usr/lib/x86_64-linux-gnu/libtcl* 2>/dev/null || true
+    # Verify all required files are present
+    if [ $found -eq 0 ] || [ $tcl_files_copied -eq 0 ]; then
+        echo "Error: Could not find all required Tcl/Tk files"
+        echo "Checking for Tcl/Tk files in AppDir:"
+        ls -la "$SCRIPT_DIR/AppDir/usr/lib/tcl8.6/"
+        ls -la "$SCRIPT_DIR/AppDir/usr/share/tcltk/tcl8.6/"
+        ls -la "$SCRIPT_DIR/AppDir/usr/lib/libtcl"* "$SCRIPT_DIR/AppDir/usr/lib/libtk"*
         exit 1
     fi
+
+    # Verify init.tcl exists in both locations
+    if [ ! -f "$SCRIPT_DIR/AppDir/usr/share/tcltk/tcl8.6/init.tcl" ] || \
+       [ ! -f "$SCRIPT_DIR/AppDir/usr/lib/tcl8.6/init.tcl" ]; then
+        echo "Error: init.tcl not found in required locations"
+        exit 1
+    fi
+
+    echo "Successfully copied all Tcl/Tk files"
 }
 
 # Copy binaries and their dependencies
